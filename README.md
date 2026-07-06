@@ -30,9 +30,10 @@ U-22/
 | Web | Next.js / React / TypeScript | これから基礎構築 |
 | Mobile | Flutter / Dart | 既存プロトタイプを配置済み |
 | 共通ロジック | TypeScriptまたは仕様ドキュメントで管理 | これから整理 |
-| 認証 | Firebase Auth | 予定 |
-| データベース | Firestore | 予定 |
-| 画像保存 | Firebase Storage | 予定 |
+| 認証 | Clerk Pro | 採用候補 |
+| データベース | Appwrite Databases | 採用候補 |
+| 画像保存 | Appwrite Storage | 採用候補 |
+| 通知 | Appwrite Messaging | 将来候補 |
 | 業務管理 | kintone | 提供済みのため無料 |
 | API連携 | kintone API | 予定 |
 
@@ -64,29 +65,31 @@ Windows版は今回は含めません。必要になった場合に別プロジ�
 
 | 項目 | 費用 |
 | --- | ---: |
-| Firebase 無料枠 | 0円 |
+| Clerk Pro | 提供済みのため0円 |
+| Appwrite Education plan | GitHub Student Developer Packで0円想定 |
 | kintone | 提供済みのため0円 |
 | GitHub | 0円 |
-| Figma / Canva | 0円 |
+| Sentry Education | GitHub Student Developer Packで0円想定 |
 | Google Maps API / Mapbox 無料枠 | 0円 |
 
-Google Cloudは、学校クレジットが使える可能性があるため、後から拡張候補として検討します。
+Google CloudやAzureは、学校クレジットやVisual Studio Dev Essentialsの特典が使える可能性があるため、後から拡張候補として検討します。
 
 ## 関連ドキュメント
 
 - [引き継ぎメモ](docs/HANDOFF.md)
 - [アーキテクチャ方針](docs/architecture.md)
+- [サービス候補メモ](docs/service-options.md)
 
 ## GitHubへの接続
 
 ローカルリポジトリは作成済みです。
 
-GitHubで `U-22` という空リポジトリを作成したあと、次のコマンドで接続できます。
+GitHubリポジトリは `Luke-hoyo/u-22` です。
 
 ```bash
 cd "/Users/luke/Desktop/高２個人探求/プログラミング/U-22"
-git remote add origin https://github.com/Luke-hoyo/U-22.git
-git push -u origin main
+git remote -v
+git push
 ```
 
 リポジトリは、コンテスト提出前まではprivateにしておくのがおすすめです。

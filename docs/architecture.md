@@ -2,14 +2,14 @@
 
 ## 全体像
 
-U-22版の「はたるくん」は、Webアプリ、Mobileアプリ、Firebase、kintoneを組み合わせて構成します。
+U-22版の「はたるくん」は、Webアプリ、Mobileアプリ、Clerk、Appwrite、kintoneを組み合わせて構成します。
 
 ```text
 若者
   ↓
 Webアプリ / Mobileアプリ
   ↓
-Firebase Auth / Firestore / Storage
+Clerk / Appwrite Databases / Appwrite Storage
   ↓
 kintone API
   ↓
@@ -41,14 +41,23 @@ Mobile版は、Flutter / Dartで作ります。
 - 奨学金免除見込み
 - 地域イベントポイント確認
 
-## Firebase
+## Clerk
 
-Firebaseは、ユーザー向けアプリの認証とデータ管理に使います。
+Clerkは、ユーザー向けアプリの認証とユーザー管理に使います。
 
-- Firebase Auth: ログイン
-- Firestore: ユーザー、求人、応募、ポイント残高、ポイント履歴
-- Firebase Storage: 本人確認画像の保存
-- Firebase Cloud Messaging: 通知
+- ログイン
+- ユーザー管理
+- セッション管理
+- 多要素認証
+
+## Appwrite
+
+Appwriteは、Firebaseの代替としてデータベース、画像保存、通知に使います。
+
+- Appwrite Databases: ユーザー、求人、応募、ポイント残高、ポイント履歴
+- Appwrite Storage: 本人確認画像などの保存
+- Appwrite Messaging: 将来的な通知
+- Appwrite Functions: 必要に応じた軽いバックエンド処理
 
 ## kintone
 
@@ -62,17 +71,16 @@ kintoneは、農家・自治体・運営者向けの業務管理に使います�
 
 kintoneは提供済みのため、コンテスト予算では0円として扱います。
 
-## Google Cloud
+## Google Cloud / Azure
 
-Google Cloudは、Firebaseと相性がよいため後から拡張候補として検討します。
+Google CloudやAzureは、学校クレジットやVisual Studio Dev Essentialsの特典が使える場合に、後から拡張候補として検討します。
 
 将来的な候補:
 
-- Cloud Run
-- Cloud Functions
-- Secret Manager
-- BigQuery
-- Looker Studio
+- API中継
+- kintone APIキーの秘匿
+- 監視
+- 分析
 
 ## ポイント機能
 
@@ -85,10 +93,9 @@ kintone
   ↓ APIでイベント情報を取得
 Webアプリ / Mobileアプリ
   ↓ ユーザーが参加
-Firestore
+Appwrite Databases
   ↓
 ポイント残高・ポイント履歴を更新
 ```
 
 コンテスト段階では、商品券交換はデモ画面に留めます。本格運用では、QRコードチェックインや地域通貨・商品券API連携を追加します。
-

@@ -14,7 +14,8 @@
 - JASSO連携、税制免除、eKYCはデモ用ステータスで再現する
 - ポイント付与・商品券交換はデモ用データで再現する
 - kintoneは提供されているため、費用は0円として扱う
-- Google Cloudは後から拡張候補として検討する
+- Firebaseは有料プラン化を避けるため、現時点では使わない
+- Google CloudやAzureは後から拡張候補として検討する
 - Windows版は今回は含めない
 
 ## 現在のリポジトリ構成
@@ -35,20 +36,21 @@ U-22/
 | --- | --- |
 | Web | Next.js / React / TypeScript |
 | Mobile | Flutter / Dart |
-| 認証 | Firebase Auth |
-| データベース | Firestore |
-| 画像保存 | Firebase Storage |
-| 通知 | Firebase Cloud Messaging |
+| 認証 | Clerk Pro |
+| データベース | Appwrite Databases |
+| 画像保存 | Appwrite Storage |
+| 通知 | Appwrite Messaging |
 | 業務管理 | kintone |
 | 求人連携 | kintone API |
 | 地図 | Google Maps API または Mapbox |
+| 監視 | Sentry Education |
 
 ## 優先タスク
 
 1. Web版の基礎構築
 2. Mobile版の画面整理
 3. kintoneの求人・応募データ設計
-4. Firebaseのデータ設計
+4. Appwriteのデータ設計
 5. ポイント機能のモック実装
 6. 発表用デモ導線の整理
 
@@ -131,4 +133,3 @@ U-22/
 - QRコードチェックイン
 - 商品券交換API
 - 行政システム連携
-

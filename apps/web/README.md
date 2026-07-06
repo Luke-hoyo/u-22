@@ -19,9 +19,9 @@ Next.js / React / TypeScriptで構築予定です。
 
 ## 連携予定
 
-- Firebase Auth
-- Firestore
-- Firebase Storage
-- Firebase Cloud Messaging
+- Clerk
+- Appwrite Databases
+- Appwrite Storage
+- Appwrite Messaging
 - kintone API
-
+- Sentry
