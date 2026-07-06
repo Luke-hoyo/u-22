@@ -1,0 +1,47 @@
+.DS_Store
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Node / Web
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/ephemeral/
+**/build/
+
+# IDE
+.idea/
+*.iml
+.vscode/settings.json
+
+# Android / iOS local files
+**/android/.gradle/
+**/android/local.properties
+**/android/key.properties
+**/*.keystore
+**/*.jks
+**/ios/Pods/
+**/ios/Runner.xcworkspace/xcuserdata/
+**/ios/Runner.xcodeproj/xcuserdata/
+
