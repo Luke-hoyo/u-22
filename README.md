@@ -77,3 +77,16 @@ Google Cloudは、学校クレジットが使える可能性があるため、�
 - [引き継ぎメモ](docs/HANDOFF.md)
 - [アーキテクチャ方針](docs/architecture.md)
 
+## GitHubへの接続
+
+ローカルリポジトリは作成済みです。
+
+GitHubで `U-22` という空リポジトリを作成したあと、次のコマンドで接続できます。
+
+```bash
+cd "/Users/luke/Desktop/高２個人探求/プログラミング/U-22"
+git remote add origin https://github.com/Luke-hoyo/U-22.git
+git push -u origin main
+```
+
+リポジトリは、コンテスト提出前まではprivateにしておくのがおすすめです。
