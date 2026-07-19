@@ -82,6 +82,21 @@ Google CloudやAzureは、学校クレジットやVisual Studio Dev Essentials�
 - 監視
 - 分析
 
+## セキュリティ
+
+本プロジェクトでは、奨学金情報、本人確認ステータス、応募情報、ポイント履歴など、個人に関わる情報を扱います。
+
+コンテスト段階では、実データを使わずモックデータで再現します。本格運用を想定する場合は、次の方針を取ります。
+
+- APIキーやトークンをフロントエンドに直接置かない
+- kintone APIはNext.js API Route、Appwrite Functions、Azure Functionsなどの中継API経由にする
+- GitHub Secret scanningでAPIキーの漏えいを検知する
+- Dependabotで依存パッケージの脆弱性を検知する
+- CodeQLでコード上のセキュリティ問題を検査する
+- 1PasswordでClerk、Appwrite、kintone、Sentryなどのキーを管理する
+- 本人確認画像は最小限の保存にし、不要になったら削除する
+- Appwriteの権限設定で、本人以外が個人情報を読めないようにする
+
 ## ポイント機能
 
 ポイント機能は、地域イベント参加を促し、若者と地域の接点を増やすために使います。

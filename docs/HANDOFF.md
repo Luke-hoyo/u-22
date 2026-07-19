@@ -1,6 +1,6 @@
 # U-22 はたるくん 引き継ぎメモ
 
-最終更新日: 2026-07-06
+最終更新日: 2026-07-19
 
 ## プロジェクト概要
 
@@ -44,6 +44,7 @@ U-22/
 | 求人連携 | kintone API |
 | 地図 | Google Maps API または Mapbox |
 | 監視 | Sentry Education |
+| セキュリティ | GitHub Secret scanning / Dependabot / CodeQL / 1Password |
 
 ## 優先タスク
 
@@ -53,6 +54,7 @@ U-22/
 4. Appwriteのデータ設計
 5. ポイント機能のモック実装
 6. 発表用デモ導線の整理
+7. APIキー・個人情報・本人確認画像の保護方針を整理する
 
 ## 主要データ案
 

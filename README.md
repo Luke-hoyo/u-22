@@ -36,6 +36,7 @@ U-22/
 | 通知 | Appwrite Messaging | 将来候補 |
 | 業務管理 | kintone | 提供済みのため無料 |
 | API連携 | kintone API | 予定 |
+| セキュリティ | GitHub Secret scanning / Dependabot / CodeQL / 1Password | 採用候補 |
 
 Windows版は今回は含めません。必要になった場合に別プロジェクトとして追加します。
 
@@ -70,6 +71,7 @@ Windows版は今回は含めません。必要になった場合に別プロジ�
 | kintone | 提供済みのため0円 |
 | GitHub | 0円 |
 | Sentry Education | GitHub Student Developer Packで0円想定 |
+| 1Password | GitHub Student Developer Packで1年無料想定 |
 | Google Maps API / Mapbox 無料枠 | 0円 |
 
 Google CloudやAzureは、学校クレジットやVisual Studio Dev Essentialsの特典が使える可能性があるため、後から拡張候補として検討します。
