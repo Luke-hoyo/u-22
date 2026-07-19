@@ -17,6 +17,7 @@
 - Firebaseは有料プラン化を避けるため、現時点では使わない
 - Google CloudやAzureは後から拡張候補として検討する
 - Windows版は今回は含めない
+- UIはStitchで作成したKinetic Clarityを基準にする
 
 ## 現在のリポジトリ構成
 
@@ -45,6 +46,17 @@ U-22/
 | 地図 | Google Maps API または Mapbox |
 | 監視 | Sentry Education |
 | セキュリティ | GitHub Secret scanning / Dependabot / CodeQL / 1Password |
+| UIデザイン | Kinetic Clarity / Hanken Grotesk / `#004D40` |
+
+## UIデザイン方針
+
+Stitch出力のKinetic Clarityを、Web版、Mobile版、Figma、Codex作業の共通UI基準にします。
+
+- 主要色は `#004D40`
+- フォントは Hanken Grotesk
+- カード中心で、行政サービスの信頼感と若者向けの親しみやすさを両立する
+- MobileのBottom Navigationは「ホーム、求人検索、シミュレーション、ポイント、マイページ」
+- 詳細は `docs/design-system.md` を参照する
 
 ## 優先タスク
 

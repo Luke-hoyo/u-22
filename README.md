@@ -13,9 +13,12 @@
 ```text
 U-22/
   README.md
+  design.md
   docs/
     HANDOFF.md
     architecture.md
+    design-system.md
+    service-options.md
   apps/
     web/
     mobile/
@@ -37,6 +40,7 @@ U-22/
 | 業務管理 | kintone | 提供済みのため無料 |
 | API連携 | kintone API | 予定 |
 | セキュリティ | GitHub Secret scanning / Dependabot / CodeQL / 1Password | 採用候補 |
+| UIデザイン | Kinetic Clarity | Stitchで作成した基準を採用 |
 
 Windows版は今回は含めません。必要になった場合に別プロジェクトとして追加します。
 
@@ -80,6 +84,7 @@ Google CloudやAzureは、学校クレジットやVisual Studio Dev Essentials�
 
 - [引き継ぎメモ](docs/HANDOFF.md)
 - [アーキテクチャ方針](docs/architecture.md)
+- [UIデザインシステム](docs/design-system.md)
 - [サービス候補メモ](docs/service-options.md)
 
 ## GitHubへの接続

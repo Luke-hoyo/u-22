@@ -16,6 +16,14 @@ kintone API
 農家・自治体向け求人管理
 ```
 
+## UIデザイン
+
+UIはStitchで作成したKinetic Clarityを基準にします。
+
+Web版とMobile版で見た目の印象が分断されないように、Primary色 `#004D40`、Hanken Grotesk、カード中心の情報設計、ポイント機能のAccent色 `#FFAB40` を共通化します。
+
+詳細なトークンとコンポーネント方針は `docs/design-system.md` にまとめます。
+
 ## Web
 
 Web版は、Next.js / React / TypeScriptで作ります。
