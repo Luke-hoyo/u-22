@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import '../data/mock_data.dart';
 import '../models/demo_account.dart';
 import 'access_guide_screen.dart';
+import 'clerk_auth_screen.dart';
 import 'home_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({super.key, this.clerkEnabled = false});
+
+  final bool clerkEnabled;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -135,6 +138,8 @@ class _LoginScreenState extends State<LoginScreen> {
               label: const Text('アクセスガイドを見る'),
             ),
             const SizedBox(height: 28),
+            _ClerkAuthEntry(enabled: widget.clerkEnabled),
+            const SizedBox(height: 18),
             const Text(
               'デモアカウント',
               style: TextStyle(
@@ -258,6 +263,81 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 20),
             const _StatusStrip(),
             const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ClerkAuthEntry extends StatelessWidget {
+  const _ClerkAuthEntry({required this.enabled});
+
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: const Color(0xFFBFC9C4)),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.verified_user_outlined,
+                  color: Color(0xFF004D40),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Clerk認証',
+                        style: TextStyle(
+                          color: Color(0xFF00342B),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        enabled
+                            ? 'Web版と同じ認証基盤でログインを確認できます。'
+                            : '有効化するにはCLERK_PUBLISHABLE_KEYを指定して起動します。',
+                        style: const TextStyle(
+                          color: Color(0xFF3F4945),
+                          fontSize: 13,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            FilledButton.icon(
+              onPressed: enabled
+                  ? () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const ClerkAuthScreen(),
+                        ),
+                      );
+                    }
+                  : null,
+              icon: const Icon(Icons.login),
+              label: Text(enabled ? 'Clerkでログインする' : 'Clerkキー未設定'),
+            ),
           ],
         ),
       ),

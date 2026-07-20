@@ -49,6 +49,10 @@ Mobile版は、Flutter / Dartで作ります。
 - 奨学金免除見込み
 - 地域イベントポイント確認
 
+Clerk連携は `clerk_flutter` Betaで入口を用意します。モバイルアプリには公開用の `CLERK_PUBLISHABLE_KEY` だけを `--dart-define` で渡し、`CLERK_SECRET_KEY` は置きません。
+
+コンテスト段階では、キー未指定でも従来のデモログインで動くようにして、Clerk認証は実機確認用の追加入口として扱います。
+
 ## Clerk
 
 Clerkは、ユーザー向けアプリの認証とユーザー管理に使います。
@@ -57,6 +61,8 @@ Clerkは、ユーザー向けアプリの認証とユーザー管理に使いま
 - ユーザー管理
 - セッション管理
 - 多要素認証
+
+Web版では `@clerk/nextjs`、Mobile版では `clerk_flutter` を使います。Clerk Flutter SDKはBetaのため、破壊的変更の可能性を考慮してデモログインの逃げ道を残します。
 
 ## Appwrite
 

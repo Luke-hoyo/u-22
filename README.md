@@ -30,10 +30,10 @@ U-22/
 
 | 領域 | 方針 | 状態 |
 | --- | --- | --- |
-| Web | Next.js / React / TypeScript | これから基礎構築 |
-| Mobile | Flutter / Dart | 既存プロトタイプを配置済み |
+| Web | Next.js / React / TypeScript / Clerk | Clerk初期設定済み |
+| Mobile | Flutter / Dart / clerk_flutter | Clerk入口と既存デモログインを併用 |
 | 共通ロジック | TypeScriptまたは仕様ドキュメントで管理 | これから整理 |
-| 認証 | Clerk Pro | 採用候補 |
+| 認証 | Clerk Pro | Web/Mobileに反映中 |
 | データベース | Appwrite Databases | 採用候補 |
 | 画像保存 | Appwrite Storage | 採用候補 |
 | 通知 | Appwrite Messaging | 将来候補 |

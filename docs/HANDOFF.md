@@ -1,6 +1,6 @@
 # U-22 はたるくん 引き継ぎメモ
 
-最終更新日: 2026-07-19
+最終更新日: 2026-07-20
 
 ## プロジェクト概要
 
@@ -36,7 +36,7 @@ U-22/
 | 領域 | 方針 |
 | --- | --- |
 | Web | Next.js / React / TypeScript |
-| Mobile | Flutter / Dart |
+| Mobile | Flutter / Dart / clerk_flutter Beta |
 | 認証 | Clerk Pro |
 | データベース | Appwrite Databases |
 | 画像保存 | Appwrite Storage |
@@ -67,6 +67,21 @@ Stitch出力のKinetic Clarityを、Web版、Mobile版、Figma、Codex作業の�
 5. ポイント機能のモック実装
 6. 発表用デモ導線の整理
 7. APIキー・個人情報・本人確認画像の保護方針を整理する
+
+## Clerk連携メモ
+
+Web版はNext.js App RouterでClerk初期設定済みです。
+
+- `apps/web/.env.local` に `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` と `CLERK_SECRET_KEY` を入れて起動する
+- `/sign-in`、`/sign-up`、`/dashboard` を用意済み
+- `CLERK_SECRET_KEY` はGitHubに上げない
+
+Mobile版は `clerk_flutter` BetaでClerk認証の入口を追加済みです。
+
+- モバイルには `CLERK_SECRET_KEY` を入れない
+- `CLERK_PUBLISHABLE_KEY` を `--dart-define` で渡す
+- キー未指定なら従来のコンテスト用デモログインだけで動く
+- Clerk Flutter SDKはBetaなので、本格認証の完全実装ではなく入口確認として扱う
 
 ## 主要データ案
 
