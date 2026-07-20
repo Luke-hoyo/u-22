@@ -25,3 +25,18 @@ Next.js / React / TypeScriptで構築予定です。
 - Appwrite Messaging
 - kintone API
 - Sentry
+
+## Clerk初期設定
+
+1. Clerk Dashboardでアプリを作成する
+2. `apps/web/.env.example` を参考に `apps/web/.env.local` を作成する
+3. ClerkのAPI keysから次の値を貼る
+
+```env
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+```
+
+ログイン画面は `/sign-in`、新規登録画面は `/sign-up`、ログイン後の確認画面は `/dashboard` です。
+
+キーが未設定のまま `npm run dev` を実行すると、起動前に不足しているキーを表示して停止します。
