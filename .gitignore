@@ -37,6 +37,7 @@ pnpm-debug.log*
 .idea/
 *.iml
 .vscode/settings.json
+.agents/skills/
 
 # Android / iOS local files
 **/android/.gradle/

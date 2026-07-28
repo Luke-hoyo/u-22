@@ -37,8 +37,9 @@ U-22/
 | データベース | Appwrite Databases | 採用候補 |
 | 画像保存 | Appwrite Storage | 採用候補 |
 | 通知 | Appwrite Messaging | 将来候補 |
-| 業務管理 | kintone | 提供済みのため無料 |
-| API連携 | kintone API | 予定 |
+| 業務管理 | Next.js農家向けダッシュボード | 農家・自治体向け画面を実装中 |
+| API連携 | kintone API | 将来の既存業務システム連携候補 |
+| デプロイ | Windows Server 2025 / Node.js / IIS | 開発者限定公開の準備中 |
 | セキュリティ | GitHub Secret scanning / Dependabot / CodeQL / 1Password | 採用候補 |
 | UIデザイン | Kinetic Clarity | Stitchで作成した基準を採用 |
 
@@ -56,7 +57,7 @@ Windows版は今回は含めません。必要になった場合に別プロジ�
 - 奨学金免除見込み
 - 地域イベントポイント
 - 商品券交換デモ
-- kintoneによる求人・応募管理
+- Next.js農家向けダッシュボードによる募集・応募管理
 
 ## ポイント機能
 
@@ -86,6 +87,7 @@ Google CloudやAzureは、学校クレジットやVisual Studio Dev Essentials�
 - [アーキテクチャ方針](docs/architecture.md)
 - [UIデザインシステム](docs/design-system.md)
 - [サービス候補メモ](docs/service-options.md)
+- [Windows Server 2025 デプロイ手順](docs/deploy/windows-server-2025.md)
 
 ## GitHubへの接続
 

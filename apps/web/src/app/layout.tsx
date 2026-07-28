@@ -1,14 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import {
-  ClerkProvider,
-  Show,
-  SignInButton,
-  SignUpButton,
-  UserButton
-} from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
 import { jaJP } from "@clerk/localizations";
 import { Hanken_Grotesk } from "next/font/google";
+import { AppwritePing } from "@/components/appwrite/AppwritePing";
+import { SiteFrame } from "@/components/site/SiteFrame";
+import { isDemoAuthEnabled } from "@/lib/demo-auth";
 import "./globals.css";
 
 const hankenGrotesk = Hanken_Grotesk({
@@ -16,9 +12,39 @@ const hankenGrotesk = Hanken_Grotesk({
   variable: "--font-hanken"
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
-  title: "はたるくん",
-  description: "奨学金返済免除と第一次産業再生をつなぐU-22向けプロトタイプ"
+  metadataBase: new URL(siteUrl),
+  title: "はたるくん | 奨学金を、地域で働く力に。",
+  description:
+    "奨学金返済に悩む若者と、担い手を求める農林水産業の地域をつなぐプラットフォーム。",
+  openGraph: {
+    title: "はたるくん | 奨学金を、地域で働く力に。",
+    description:
+      "奨学金返済に悩む若者と、担い手を求める農林水産業の地域をつなぐプラットフォーム。",
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "はたるくん - 奨学金を、地域で働く力に。"
+      }
+    ],
+    locale: "ja_JP",
+    type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "はたるくん | 奨学金を、地域で働く力に。",
+    description:
+      "奨学金返済に悩む若者と、担い手を求める農林水産業の地域をつなぐプラットフォーム。",
+    images: ["/og.png"]
+  },
+  icons: {
+    icon: "/hatarukun-mark.png",
+    apple: "/hatarukun-mark.png"
+  }
 };
 
 export default function RootLayout({
@@ -26,49 +52,32 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const content = (
+    <>
+      <AppwritePing />
+      <SiteFrame>{children}</SiteFrame>
+    </>
+  );
+
   return (
     <html lang="ja" className={hankenGrotesk.variable}>
       <body>
-        <ClerkProvider
-          localization={jaJP}
-          appearance={{
-            variables: {
-              colorPrimary: "#004D40",
-              colorBackground: "#FFFFFF",
-              borderRadius: "0.75rem"
-            }
-          }}
-        >
-          <div className="app-shell">
-            <header className="site-header">
-              <Link className="brand-link" href="/">
-                <span className="brand-mark">畑</span>
-                <span>はたるくん</span>
-              </Link>
-              <nav className="header-actions" aria-label="アカウント">
-                <Show when="signed-out">
-                  <SignInButton>
-                    <button className="button button-secondary" type="button">
-                      ログイン
-                    </button>
-                  </SignInButton>
-                  <SignUpButton>
-                    <button className="button button-primary" type="button">
-                      新規登録
-                    </button>
-                  </SignUpButton>
-                </Show>
-                <Show when="signed-in">
-                  <Link className="button button-secondary" href="/dashboard">
-                    ダッシュボード
-                  </Link>
-                  <UserButton />
-                </Show>
-              </nav>
-            </header>
-            <main className="page-main">{children}</main>
-          </div>
-        </ClerkProvider>
+        {isDemoAuthEnabled() ? (
+          content
+        ) : (
+          <ClerkProvider
+            localization={jaJP}
+            appearance={{
+              variables: {
+                colorPrimary: "#004D40",
+                colorBackground: "#FFFFFF",
+                borderRadius: "0.75rem"
+              }
+            }}
+          >
+            {content}
+          </ClerkProvider>
+        )}
       </body>
     </html>
   );

@@ -1,0 +1,203 @@
+# Windows Server 2025 デプロイ手順
+
+「はたるくん」Web版を、Windows Server 2025に置くためのメモです。
+
+## 結論
+
+このWeb版はNext.js、Clerk、Next.js API、Appwrite連携を使うため、静的ファイルだけを置くサーバーではなく、Node.jsでアプリを起動できるサーバーが必要です。
+
+Windows Server 2025では次の構成にします。
+
+```text
+ユーザー
+  ↓ HTTPS
+IIS
+  ↓ リバースプロキシ
+Next.js / Node.js
+  ↓
+Clerk / Appwrite
+```
+
+IISは外からのアクセス、ドメイン、HTTPSを担当します。Next.jsはサーバー内の `localhost:3000` だけで動かします。
+
+## サーバーに入れるもの
+
+- Node.js LTS
+- Git for Windows
+- IIS
+- IIS URL Rewrite
+- IIS Application Request Routing
+
+公式情報:
+
+- [Next.js Self-Hosting](https://nextjs.org/docs/app/guides/self-hosting)
+- [Node.js Download](https://nodejs.org/en/download)
+- [IIS Reverse Proxy with URL Rewrite and ARR](https://learn.microsoft.com/en-us/iis/extensions/url-rewrite-module/reverse-proxy-with-url-rewrite-v2-and-application-request-routing)
+
+## 初回セットアップ
+
+PowerShellを開いて、次の流れで配置します。
+
+```powershell
+mkdir C:\hatarukun
+cd C:\hatarukun
+git clone https://github.com/Luke-hoyo/u-22.git
+cd C:\hatarukun\u-22\apps\web
+copy .env.example .env.production
+notepad .env.production
+npm.cmd ci
+npm.cmd run build
+npm.cmd run start -- --hostname localhost --port 3000
+```
+
+`http://localhost:3000` で開ければ、Next.js側は動いています。
+
+## 本番用の環境変数
+
+`apps/web/.env.production` に入れます。このファイルはGitに入れません。
+
+```env
+NEXT_PUBLIC_SITE_URL=https://example.com
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/role-router
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/role-router
+
+NEXT_PUBLIC_APPWRITE_ENDPOINT=
+NEXT_PUBLIC_APPWRITE_PROJECT_ID=
+APPWRITE_API_KEY=
+APPWRITE_DATABASE_ID=
+APPWRITE_TABLE_ID_JOBS=
+
+HATARAKUN_DEVELOPER_LOCK=true
+HATARAKUN_DEVELOPER_USER_IDS=user_xxxxxxxxx
+HATARAKUN_DEVELOPER_EMAILS=
+```
+
+`HATARAKUN_DEVELOPER_LOCK=true` にすると、許可した開発者だけが開けます。
+
+`HATARAKUN_DEVELOPER_USER_IDS` はClerkのUser IDを入れます。アプリにログインして `/profile` を開くと「開発者ID」として確認できます。複数人に許可する場合はカンマ区切りです。
+
+```env
+HATARAKUN_DEVELOPER_USER_IDS=user_aaa,user_bbb
+```
+
+## Clerkで詰まる場合のデモ公開モード
+
+Clerkの開発キー、ドメイン、HTTPSの設定が原因で一時的に `auth()` / `clerkMiddleware()` のエラーが出る場合は、コンテスト確認用としてデモ公開モードに切り替えます。
+
+`apps/web/.env.production` に次を入れます。
+
+```env
+HATARAKUN_DEMO_AUTH=true
+NEXT_PUBLIC_HATARAKUN_DEMO_AUTH=true
+HATARAKUN_DEMO_ROLE=operator
+NEXT_PUBLIC_HATARAKUN_DEMO_ROLE=operator
+HATARAKUN_DEMO_DISPLAY_NAME=デモ運営
+```
+
+保存後、ビルドし直して起動します。
+
+```powershell
+Stop-Process -Name node -Force -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+npm.cmd run build
+npm.cmd run start -- --hostname localhost --port 3000
+```
+
+このモードではClerkのログイン処理を通さず、運営デモユーザーとして画面を確認できます。Clerkの本番キーとドメイン/HTTPSが整ったら `false` に戻してください。
+
+## 起動を自動化する
+
+毎回PowerShellを開かなくていいように、タスクスケジューラで起動します。
+
+タスク名:
+
+```text
+HatarukunWeb
+```
+
+トリガー:
+
+```text
+スタートアップ時
+```
+
+操作:
+
+```text
+powershell.exe
+```
+
+引数:
+
+```text
+-ExecutionPolicy Bypass -File C:\hatarukun\u-22\apps\web\scripts\start-windows-server.ps1
+```
+
+開始場所:
+
+```text
+C:\hatarukun\u-22\apps\web
+```
+
+起動ログは次に出ます。
+
+```text
+C:\hatarukun\u-22\apps\web\logs\next-start.log
+```
+
+## IISでドメインにつなぐ
+
+IIS側は、外から来たアクセスをNext.jsへ流します。
+
+1. IISを有効化する
+2. IIS URL Rewriteを入れる
+3. IIS Application Request Routingを入れる
+4. IIS Managerのサーバー設定でApplication Request Routing Cacheを開く
+5. Server Proxy Settingsで `Enable proxy` を有効にする
+6. 可能なら `Preserve host header` も有効にする
+7. 新しいサイトを作る
+8. 物理パスに空のフォルダを指定する
+9. そのフォルダに `docs/deploy/windows-server-2025-web.config` の内容を `web.config` として置く
+10. サイトのバインドにドメインを設定する
+11. DNSのAレコードをサーバーのIPアドレスに向ける
+12. 443の証明書を設定する
+
+Next.jsは `localhost:3000` に閉じ込めます。外部に公開するのはIISの80/443だけにします。
+
+## 更新するとき
+
+新しいコードをGitHubへ反映した後、サーバーで次を実行します。
+
+```powershell
+cd C:\hatarukun\u-22\apps\web
+powershell.exe -ExecutionPolicy Bypass -File .\scripts\deploy-windows-server.ps1
+```
+
+このスクリプトは次を行います。
+
+- GitHubから最新版を取得
+- 依存関係を入れ直す
+- Next.jsをビルドする
+- `HatarukunWeb` タスクを再起動する
+
+初回でまだタスクを作っていない場合は、ビルドまで終わったあとに手動で起動してください。
+
+```powershell
+powershell.exe -ExecutionPolicy Bypass -File .\scripts\start-windows-server.ps1
+```
+
+## Clerkで必要な確認
+
+本番ドメインを使う場合は、Clerk側にもドメインを登録します。
+
+- Application URL
+- Allowed redirect URLs
+- Googleログインを使う場合のOAuth redirect URI
+
+ここがずれると `redirect_uri_mismatch` が出ます。
+
+Clerkの開発環境のまま公開URLで使うと、Googleログイン時に `accounts.dev` 系の表示が出ることがあります。コンテスト提出の最終確認だけなら動作確認はできますが、見た目をきれいにするならClerkの本番環境と独自OAuth設定に切り替えます。
