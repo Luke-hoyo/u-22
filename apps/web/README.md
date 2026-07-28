@@ -99,10 +99,13 @@ http://localhost:3000/join?code=招待コード
 本番公開前にサーバーへ置く場合は、開発者だけが見られるロックを有効にできます。
 
 ```env
+HATARAKUN_REQUIRE_AUTH=true
 HATARAKUN_DEVELOPER_LOCK=true
 HATARAKUN_DEVELOPER_USER_IDS=user_xxxxxxxxx
 HATARAKUN_DEVELOPER_EMAILS=developer@example.com
 ```
+
+`HATARAKUN_REQUIRE_AUTH=true` にすると、PRサイトを含む全ページがログイン必須になります。URLを直接開いても、未ログインなら `/sign-in` に移動します。
 
 おすすめは `HATARAKUN_DEVELOPER_USER_IDS` です。Clerk DashboardのUsersから自分のUser IDを確認して、サーバーの `.env.production` などに入れます。複数人に許可する場合はカンマ区切りにします。
 
@@ -121,6 +124,8 @@ HATARAKUN_DEMO_DISPLAY_NAME=デモ運営
 ```
 
 このモードではClerkのサーバー認証を通さず、運営デモユーザーとして `/dashboard` や `/farmer/dashboard` を開けます。コンテストの画面確認用の逃げ道なので、Clerkの本番キーとドメイン設定が整ったら `false` に戻します。
+
+ログイン必須で公開する場合は、デモ公開モードを `false` にします。
 
 Windows Server 2025に置く場合:
 

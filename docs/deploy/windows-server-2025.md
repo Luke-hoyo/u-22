@@ -78,6 +78,14 @@ HATARAKUN_DEVELOPER_EMAILS=
 
 `HATARAKUN_DEVELOPER_LOCK=true` にすると、許可した開発者だけが開けます。
 
+サイト全体をログイン必須にする場合は、次も入れます。
+
+```env
+HATARAKUN_REQUIRE_AUTH=true
+```
+
+この設定を入れると、PRサイトや共有リンクを直接開いた場合でも、未ログインなら `/sign-in` に移動します。
+
 `HATARAKUN_DEVELOPER_USER_IDS` はClerkのUser IDを入れます。アプリにログインして `/profile` を開くと「開発者ID」として確認できます。複数人に許可する場合はカンマ区切りです。
 
 ```env
@@ -108,6 +116,14 @@ npm.cmd run start -- --hostname localhost --port 3000
 ```
 
 このモードではClerkのログイン処理を通さず、運営デモユーザーとして画面を確認できます。Clerkの本番キーとドメイン/HTTPSが整ったら `false` に戻してください。
+
+ログイン必須で公開する場合は、デモ公開モードを切ります。
+
+```env
+HATARAKUN_DEMO_AUTH=false
+NEXT_PUBLIC_HATARAKUN_DEMO_AUTH=false
+HATARAKUN_REQUIRE_AUTH=true
+```
 
 ## 起動を自動化する
 

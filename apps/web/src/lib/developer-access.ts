@@ -24,6 +24,10 @@ export function isDeveloperLockEnabled() {
   return process.env.HATARAKUN_DEVELOPER_LOCK === "true";
 }
 
+export function isLoginRequired() {
+  return process.env.HATARAKUN_REQUIRE_AUTH === "true";
+}
+
 export function getAllowedDeveloperUserIds() {
   return splitEnvList(process.env.HATARAKUN_DEVELOPER_USER_IDS);
 }

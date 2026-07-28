@@ -1,9 +1,13 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { hasDeveloperAccess, isDeveloperLockEnabled } from "@/lib/developer-access";
+import {
+  hasDeveloperAccess,
+  isDeveloperLockEnabled,
+  isLoginRequired
+} from "@/lib/developer-access";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
 
-const isDeveloperLockBypassRoute = createRouteMatcher([
+const isAuthBypassRoute = createRouteMatcher([
   "/sign-in(.*)",
   "/sign-up(.*)",
   "/dev-access-denied(.*)",
@@ -13,7 +17,16 @@ const isDeveloperLockBypassRoute = createRouteMatcher([
 const proxy = isDemoAuthEnabled()
   ? () => NextResponse.next()
   : clerkMiddleware(async (auth, request) => {
-      if (!isDeveloperLockEnabled() || isDeveloperLockBypassRoute(request)) {
+      if (isAuthBypassRoute(request)) {
+        return NextResponse.next();
+      }
+
+      if (isLoginRequired()) {
+        await auth.protect();
+        return NextResponse.next();
+      }
+
+      if (!isDeveloperLockEnabled()) {
         return NextResponse.next();
       }
 
