@@ -107,6 +107,8 @@ HATARAKUN_DEVELOPER_EMAILS=developer@example.com
 
 `HATARAKUN_REQUIRE_AUTH=true` にすると、PRサイトを含む全ページがログイン必須になります。URLを直接開いても、未ログインなら `/sign-in` に移動します。
 
+`HATARAKUN_DEVELOPER_LOCK=true` も一緒に入れると、ログイン後も許可リストに入っているユーザーだけが入れます。許可されていないユーザーは `/dev-access-denied` に移動します。
+
 おすすめは `HATARAKUN_DEVELOPER_USER_IDS` です。Clerk DashboardのUsersから自分のUser IDを確認して、サーバーの `.env.production` などに入れます。複数人に許可する場合はカンマ区切りにします。
 
 ロックが有効なときは、未ログインのユーザーはログイン画面へ、許可リスト外のユーザーは `/dev-access-denied` へ移動します。ローカル開発では `HATARAKUN_DEVELOPER_LOCK=false` のままで大丈夫です。

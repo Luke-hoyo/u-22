@@ -21,16 +21,15 @@ const proxy = isDemoAuthEnabled()
         return NextResponse.next();
       }
 
-      if (isLoginRequired()) {
-        await auth.protect();
-        return NextResponse.next();
-      }
-
-      if (!isDeveloperLockEnabled()) {
+      if (!isLoginRequired() && !isDeveloperLockEnabled()) {
         return NextResponse.next();
       }
 
       const authObject = await auth.protect();
+
+      if (!isDeveloperLockEnabled()) {
+        return NextResponse.next();
+      }
 
       if (
         hasDeveloperAccess({

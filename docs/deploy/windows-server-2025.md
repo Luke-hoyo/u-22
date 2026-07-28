@@ -86,6 +86,8 @@ HATARAKUN_REQUIRE_AUTH=true
 
 この設定を入れると、PRサイトや共有リンクを直接開いた場合でも、未ログインなら `/sign-in` に移動します。
 
+`HATARAKUN_REQUIRE_AUTH=true` と `HATARAKUN_DEVELOPER_LOCK=true` を両方入れると、ログイン後も許可リストに入っているユーザーだけが入れます。
+
 `HATARAKUN_DEVELOPER_USER_IDS` はClerkのUser IDを入れます。アプリにログインして `/profile` を開くと「開発者ID」として確認できます。複数人に許可する場合はカンマ区切りです。
 
 ```env
