@@ -11,7 +11,12 @@ export default function SignUpPage() {
     <section className="auth-layout">
       <div className="auth-card">
         <h1>新規登録</h1>
-        <SignUp />
+        <SignUp
+          forceRedirectUrl="/role-router"
+          fallbackRedirectUrl="/role-router"
+          signInForceRedirectUrl="/role-router"
+          signInFallbackRedirectUrl="/role-router"
+        />
       </div>
     </section>
   );
