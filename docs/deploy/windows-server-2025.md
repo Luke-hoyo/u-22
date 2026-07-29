@@ -188,11 +188,10 @@ Next.jsは `localhost:3000` に閉じ込めます。外部に公開するのはI
 
 ## 更新するとき
 
-新しいコードをGitHubへ反映した後、サーバーで次を実行します。
+新しいコードをGitHubへ反映した後、サーバーの `apps/web` で次の1コマンドを実行します。
 
 ```powershell
-cd C:\hatarukun\u-22\apps\web
-powershell.exe -ExecutionPolicy Bypass -File .\scripts\deploy-windows-server.ps1
+npm run deploy:server
 ```
 
 このスクリプトは次を行います。

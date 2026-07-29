@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
+    "deploy:server": "powershell.exe -ExecutionPolicy Bypass -File ./scripts/deploy-windows-server.ps1",
     "appwrite:seed:jobs": "node scripts/seed-appwrite-jobs.mjs"
   },
   "dependencies": {
