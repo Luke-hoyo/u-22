@@ -13,7 +13,7 @@ $webDir = Resolve-Path (Join-Path $scriptDir "..")
 Set-Location $webDir
 
 if (-not (Test-Path ".env.production")) {
-  Write-Host "apps/web/.env.production がありません。先に .env.example をコピーして本番用の値を入れてください。"
+  Write-Host "apps/web/.env.production is missing. Create it before deploying."
   exit 1
 }
 
@@ -33,8 +33,8 @@ if (-not $SkipRestart) {
   if ($task) {
     Stop-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
     Start-ScheduledTask -TaskName $TaskName
-    Write-Host "Scheduled Task '$TaskName' を再起動しました。"
+    Write-Host "Scheduled Task '$TaskName' restarted."
   } else {
-    Write-Host "Scheduled Task '$TaskName' が見つかりません。初回は手順書に沿ってタスクを作成してください。"
+    Write-Host "Scheduled Task '$TaskName' was not found. Create it before deploying."
   }
 }
