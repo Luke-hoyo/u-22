@@ -113,6 +113,16 @@ HATARAKUN_DEVELOPER_EMAILS=developer@example.com
 
 ロックが有効なときは、未ログインのユーザーはログイン画面へ、許可リスト外のユーザーは `/dev-access-denied` へ移動します。ローカル開発では `HATARAKUN_DEVELOPER_LOCK=false` のままで大丈夫です。
 
+### メンテナンス表示
+
+サーバーの `.env.production` で次を有効にすると、通常ページを `/maintenance` へ移動し、APIは `503` を返します。
+
+```env
+HATARAKUN_MAINTENANCE_MODE=true
+```
+
+作業後は `false` に戻して再デプロイします。
+
 ### コンテスト用デモ公開モード
 
 Windows Server上でClerkの開発キーやドメイン設定が原因で一時的に表示できない場合だけ、デモ公開モードを使えます。

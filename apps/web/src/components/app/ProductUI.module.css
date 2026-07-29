@@ -722,6 +722,71 @@
   line-height: 1.5;
 }
 
+.feedbackLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.4rem;
+  color: var(--color-primary);
+  font-weight: 800;
+}
+
+.iconTextButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-secondary);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.preferencesForm {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.preferencesForm .checkboxRow,
+.preferencesForm > button {
+  grid-column: 1 / -1;
+}
+
+.preferencesForm > button {
+  justify-self: end;
+}
+
+.jobEditorPanel {
+  border-color: #a9cfc4;
+  background: #f7fcfa;
+}
+
+.jobEditorForm {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.jobEditorForm > button {
+  grid-column: 1 / -1;
+  justify-self: end;
+}
+
+@media (max-width: 760px) {
+  .preferencesForm,
+  .jobEditorForm {
+    grid-template-columns: 1fr;
+  }
+
+  .preferencesForm > button,
+  .jobEditorForm > button {
+    width: 100%;
+    grid-column: auto;
+  }
+}
+
 .applicationCard {
   display: grid;
   grid-template-columns: 1fr auto;

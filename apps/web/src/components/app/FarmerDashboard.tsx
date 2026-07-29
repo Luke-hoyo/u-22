@@ -30,7 +30,10 @@ import {
   writeDemoFarmerApplications
 } from "@/lib/farmer-application-demo";
 import type { UserRole } from "@/lib/access-control";
+import { ManagedJobEditor } from "./ManagedJobEditor";
 import styles from "./ProductUI.module.css";
+
+const managedJobsStorageKey = "hatarukun:managed-jobs";
 
 const jobStatusLabels: Record<AdminJobStatus, string> = {
   draft: "下書き",
@@ -63,6 +66,9 @@ export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
   const [applicants, setApplicants] = useState(adminApplicants);
   const [pointRequests, setPointRequests] = useState(adminPointRequests);
   const [farmerApplicationList, setFarmerApplicationList] = useState(farmerApplications);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editingJob, setEditingJob] = useState<(typeof adminManagedJobs)[number] | undefined>();
+  const [jobMessage, setJobMessage] = useState("");
   const canReviewFarmerApplications = userRole === "municipality" || userRole === "operator";
 
   const publishedJobs = managedJobs.filter((job) => job.status === "published").length;
@@ -79,16 +85,57 @@ export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
 
   useEffect(() => {
     setFarmerApplicationList(readDemoFarmerApplications());
+    try {
+      const storedJobs = window.localStorage.getItem(managedJobsStorageKey);
+
+      if (storedJobs) {
+        setManagedJobs(JSON.parse(storedJobs) as typeof adminManagedJobs);
+      }
+    } catch {
+      setManagedJobs(adminManagedJobs);
+    }
   }, []);
 
+  function persistManagedJobs(nextJobs: typeof adminManagedJobs) {
+    setManagedJobs(nextJobs);
+    window.localStorage.setItem(managedJobsStorageKey, JSON.stringify(nextJobs));
+  }
+
   function toggleJobStatus(jobId: string) {
-    setManagedJobs((currentJobs) =>
-      currentJobs.map((job) =>
-        job.id === jobId
-          ? { ...job, status: job.status === "published" ? "paused" : "published" }
-          : job
-      )
-    );
+    const nextJobs = managedJobs.map((job) => {
+      if (job.id !== jobId) {
+        return job;
+      }
+
+      const status: AdminJobStatus = job.status === "published" ? "paused" : "published";
+      return { ...job, status };
+    });
+    persistManagedJobs(nextJobs);
+    setJobMessage("募集の公開状態を更新しました。");
+  }
+
+  function openNewJob() {
+    setEditingJob(undefined);
+    setEditorOpen(true);
+    setJobMessage("");
+  }
+
+  function openJobEditor(job: (typeof adminManagedJobs)[number]) {
+    setEditingJob(job);
+    setEditorOpen(true);
+    setJobMessage("");
+  }
+
+  function saveManagedJob(job: (typeof adminManagedJobs)[number]) {
+    const exists = managedJobs.some((currentJob) => currentJob.id === job.id);
+    const nextJobs = exists
+      ? managedJobs.map((currentJob) => (currentJob.id === job.id ? job : currentJob))
+      : [job, ...managedJobs];
+
+    persistManagedJobs(nextJobs);
+    setEditorOpen(false);
+    setEditingJob(undefined);
+    setJobMessage(exists ? "募集内容を更新しました。" : "新しい募集を作成しました。");
   }
 
   function moveApplicant(applicantId: string, status: AdminApplicantStatus) {
@@ -128,11 +175,25 @@ export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
             現場の担当者が、公開状況、面談予定、ポイント承認を迷わず扱える画面です。
           </p>
         </div>
-        <button className={styles.primaryButton} type="button">
+        <button className={styles.primaryButton} type="button" onClick={openNewJob}>
           <FilePlus2 aria-hidden="true" size={18} />
           新しい募集を作成
         </button>
       </section>
+
+      {editorOpen ? (
+        <ManagedJobEditor
+          job={editingJob}
+          onClose={() => setEditorOpen(false)}
+          onSave={saveManagedJob}
+        />
+      ) : null}
+
+      {jobMessage ? (
+        <div className={styles.feedback} role="status">
+          {jobMessage}
+        </div>
+      ) : null}
 
       <section className={styles.metricsGrid} aria-label="管理状況">
         <article className={styles.metricCard}>
@@ -296,7 +357,11 @@ export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
                     )}
                     {job.status === "published" ? "停止" : "公開"}
                   </button>
-                  <button className={styles.secondaryButton} type="button">
+                  <button
+                    className={styles.secondaryButton}
+                    type="button"
+                    onClick={() => openJobEditor(job)}
+                  >
                     編集
                   </button>
                 </div>

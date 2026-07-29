@@ -1,0 +1,143 @@
+.screen {
+  display: grid;
+  min-height: min(42rem, calc(100vh - 7rem));
+  place-items: center;
+  padding: 2rem 1rem;
+}
+
+.content {
+  display: grid;
+  width: min(100%, 38rem);
+  justify-items: center;
+  text-align: center;
+}
+
+.mark {
+  display: grid;
+  width: 4.5rem;
+  height: 4.5rem;
+  place-items: center;
+  border: 1px solid #b9d9d0;
+  border-radius: 1rem;
+  background: #e8f6f1;
+  color: var(--color-primary);
+}
+
+.code {
+  margin-top: 1.4rem;
+  color: var(--color-secondary);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.content h1 {
+  margin: 0.4rem 0 0;
+  color: var(--color-primary-dark);
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.content p {
+  max-width: 34rem;
+  margin: 1rem 0 0;
+  color: var(--color-text-sub);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.65rem;
+  margin-top: 1.6rem;
+}
+
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  min-height: 2.8rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.7rem;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.primaryAction {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.secondaryAction {
+  border-color: #c4d3cd;
+  background: #ffffff;
+  color: var(--color-primary-dark);
+}
+
+.statusLine {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1.5rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 9999px;
+  background: #f0f3f2;
+  color: #52615b;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.pulse {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.loader {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid #cce4dd;
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 800ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+    transform: scale(0.78);
+  }
+}
+
+@media (max-width: 520px) {
+  .screen {
+    min-height: calc(100vh - 9rem);
+    padding: 1.5rem 0;
+  }
+
+  .actions {
+    display: grid;
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader,
+  .pulse {
+    animation: none;
+  }
+}

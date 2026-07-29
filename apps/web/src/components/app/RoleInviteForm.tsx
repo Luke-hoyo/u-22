@@ -51,6 +51,8 @@ export function RoleInviteForm() {
       setMessage(`${result.label ?? "アカウント種別"}を設定しました。`);
       router.replace(result.redirectTo ?? "/role-router");
       router.refresh();
+    } catch {
+      setErrorMessage("通信に失敗しました。接続を確認して、もう一度お試しください。");
     } finally {
       setIsSubmitting(false);
     }

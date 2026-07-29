@@ -134,7 +134,7 @@ export default async function JobDetailPage({
             <strong>{formatCurrency(supportForSixMonths)}</strong>
             <span>返済支援の見込み</span>
           </div>
-          <ApplyButton />
+          <ApplyButton jobId={job.id} expectedSupport={supportForSixMonths} />
         </aside>
       </div>
     </div>

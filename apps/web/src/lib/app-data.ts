@@ -175,7 +175,7 @@ export const applications: Application[] = [
     jobId: "higashihiroshima-grape",
     status: "interview",
     appliedAt: "2026年7月18日",
-    nextAction: "7月28日 18:00 オンライン面談",
+    nextAction: "7月31日 18:00 オンライン面談",
     expectedSupport: 90000
   },
   {
@@ -333,7 +333,7 @@ export const adminApplicants: AdminApplicant[] = [
     status: "interview",
     matchRate: 94,
     supportMonths: 12,
-    nextAction: "7月28日 18:00 オンライン面談"
+    nextAction: "7月31日 18:00 オンライン面談"
   },
   {
     id: "USR-1188",

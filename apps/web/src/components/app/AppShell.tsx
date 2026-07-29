@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   UserRound
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { canAccessAdmin, roleLabels, type UserRole } from "@/lib/access-control";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
@@ -105,6 +106,8 @@ export function AppShell({
   userRole: UserRole;
 }) {
   const pathname = usePathname();
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notificationsRead, setNotificationsRead] = useState(false);
   const demoAuth = isDemoAuthEnabled();
   const rootPath = `/${pathname.split("/")[1]}`;
   const title = pageTitles[rootPath] ?? "はたるくん";
@@ -117,6 +120,10 @@ export function AppShell({
       (userRole !== "operator" || item.href !== "/simulation")
   );
   const homeHref = isAdminUser ? "/farmer/dashboard" : "/dashboard";
+
+  useEffect(() => {
+    setNotificationsOpen(false);
+  }, [pathname]);
 
   return (
     <div className={styles.shell}>
@@ -165,10 +172,36 @@ export function AppShell({
             <h1>{title}</h1>
           </div>
           <div className={styles.account}>
-            <button className={styles.iconButton} type="button" aria-label="お知らせ">
-              <Bell aria-hidden="true" size={20} />
-              <span />
-            </button>
+            <div className={styles.notificationWrap}>
+              <button
+                className={styles.iconButton}
+                type="button"
+                aria-label="お知らせ"
+                aria-expanded={notificationsOpen}
+                onClick={() => setNotificationsOpen((current) => !current)}
+              >
+                <Bell aria-hidden="true" size={20} />
+                {!notificationsRead ? <span /> : null}
+              </button>
+              {notificationsOpen ? (
+                <section className={styles.notificationPanel} aria-label="お知らせ一覧">
+                  <div className={styles.notificationHeader}>
+                    <strong>お知らせ</strong>
+                    <button type="button" onClick={() => setNotificationsRead(true)}>
+                      すべて既読
+                    </button>
+                  </div>
+                  <Link href="/matching">
+                    <b>面談予定が決まりました</b>
+                    <small>7月31日 18:00からオンライン面談です。</small>
+                  </Link>
+                  <Link href="/points">
+                    <b>地域イベントが追加されました</b>
+                    <small>棚田メンテナンスへの参加で600 pt獲得できます。</small>
+                  </Link>
+                </section>
+              ) : null}
+            </div>
             <div className={styles.greeting}>
               <small>こんにちは</small>
               <strong>{displayName}さん</strong>

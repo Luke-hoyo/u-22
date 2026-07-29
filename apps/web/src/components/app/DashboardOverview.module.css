@@ -56,6 +56,10 @@
   color: #ffffff;
 }
 
+.intro .searchLink span {
+  color: #ffffff;
+}
+
 .secondaryAction {
   border-color: #a9c5bc;
   background: #ffffff;

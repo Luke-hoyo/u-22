@@ -94,6 +94,12 @@ HATARAKUN_REQUIRE_AUTH=true
 HATARAKUN_DEVELOPER_USER_IDS=user_aaa,user_bbb
 ```
 
+メンテナンス画面へ切り替える場合は、次を `true` にして再デプロイします。
+
+```env
+HATARAKUN_MAINTENANCE_MODE=true
+```
+
 ## Clerkで詰まる場合のデモ公開モード
 
 Clerkの開発キー、ドメイン、HTTPSの設定が原因で一時的に `auth()` / `clerkMiddleware()` のエラーが出る場合は、コンテスト確認用としてデモ公開モードに切り替えます。

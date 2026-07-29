@@ -16,6 +16,7 @@ import {
   WalletCards
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
+import { useEffect, useState } from "react";
 import {
   applications,
   communityEvents,
@@ -23,36 +24,14 @@ import {
   getJobById,
   jobs
 } from "@/lib/app-data";
+import {
+  defaultDemoPreferences,
+  readDemoPoints,
+  readDemoPreferences
+} from "@/lib/demo-user-state";
 import styles from "./DashboardOverview.module.css";
 
 const matchingSteps = ["応募", "面談", "マッチ成立", "就業開始"];
-
-const metrics = [
-  {
-    label: "年間の返済支援見込み",
-    value: "18万円",
-    note: "希望条件をもとに試算",
-    href: "/simulation",
-    icon: FileCheck2,
-    tone: "support"
-  },
-  {
-    label: "奨学金残高",
-    value: "240万円",
-    note: "登録した貸与型奨学金",
-    href: "/profile",
-    icon: WalletCards,
-    tone: "balance"
-  },
-  {
-    label: "地域ポイント",
-    value: "3,200 pt",
-    note: "あと1,800 ptで体験ツアー",
-    href: "/points",
-    icon: Coins,
-    tone: "points"
-  }
-] as const;
 
 const tasks = [
   {
@@ -63,7 +42,7 @@ const tasks = [
   },
   {
     title: "オンライン面談",
-    description: "7月28日 18:00",
+    description: "7月31日 18:00",
     href: "/matching",
     complete: false
   },
@@ -80,10 +59,45 @@ export function DashboardOverview() {
   const currentApplication = applications[0];
   const currentJob = getJobById(currentApplication.jobId);
   const nextEvent = communityEvents[0];
+  const [points, setPoints] = useState(3200);
+  const [scholarshipBalance, setScholarshipBalance] = useState(
+    defaultDemoPreferences.scholarshipBalance
+  );
+  const metrics = [
+    {
+      label: "年間の返済支援見込み",
+      value: "18万円",
+      note: "希望条件をもとに試算",
+      href: "/simulation",
+      icon: FileCheck2,
+      tone: "support"
+    },
+    {
+      label: "奨学金残高",
+      value: `${Math.round(scholarshipBalance / 10000).toLocaleString("ja-JP")}万円`,
+      note: "登録した貸与型奨学金",
+      href: "/profile",
+      icon: WalletCards,
+      tone: "balance"
+    },
+    {
+      label: "地域ポイント",
+      value: `${points.toLocaleString("ja-JP")} pt`,
+      note: points < 5000 ? `あと${(5000 - points).toLocaleString("ja-JP")} ptで体験ツアー` : "体験ツアーに交換できます",
+      href: "/points",
+      icon: Coins,
+      tone: "points"
+    }
+  ] as const;
   const reveal = {
     hidden: { opacity: 0, y: prefersReducedMotion ? 0 : 16 },
     visible: { opacity: 1, y: 0 }
   };
+
+  useEffect(() => {
+    setPoints(readDemoPoints(3200));
+    setScholarshipBalance(readDemoPreferences().scholarshipBalance);
+  }, []);
 
   return (
     <motion.div
@@ -98,7 +112,7 @@ export function DashboardOverview() {
           <h2>まずは、面談の準備から。</h2>
           <p>返済支援と地域の仕事を、次に必要な行動から確認できます。</p>
         </div>
-        <Link className={styles.searchLink} href="/jobs">
+        <Link className={styles.searchLink} href="/jobs" aria-label="求人を探す">
           <Sprout aria-hidden="true" size={18} />
           <span>求人を探す</span>
         </Link>
@@ -113,7 +127,7 @@ export function DashboardOverview() {
             <span>次にやること</span>
             <h3>オンライン面談に参加する</h3>
             <p>
-              7月28日 18:00 ・ {currentJob.organization}
+              7月31日 18:00 ・ {currentJob.organization}
             </p>
           </div>
           <div className={styles.actionButtons}>

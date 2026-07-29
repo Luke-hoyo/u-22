@@ -3,8 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Fish, Heart, MapPin, Sprout, Trees } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { formatCurrency, industryLabels, type Job } from "@/lib/app-data";
+import { readFavoriteJobIds, toggleFavoriteJob } from "@/lib/demo-user-state";
 import styles from "./ProductUI.module.css";
 
 const industryIcons = {
@@ -16,6 +17,14 @@ const industryIcons = {
 export function JobCard({ job }: { job: Job }) {
   const [favorite, setFavorite] = useState(false);
   const IndustryIcon = industryIcons[job.industry];
+
+  useEffect(() => {
+    setFavorite(readFavoriteJobIds().includes(job.id));
+  }, [job.id]);
+
+  function toggleFavorite() {
+    setFavorite(toggleFavoriteJob(job.id).includes(job.id));
+  }
 
   return (
     <article className={styles.jobCard}>
@@ -40,7 +49,7 @@ export function JobCard({ job }: { job: Job }) {
           type="button"
           aria-label={favorite ? "お気に入りから外す" : "お気に入りに追加"}
           aria-pressed={favorite}
-          onClick={() => setFavorite((current) => !current)}
+          onClick={toggleFavorite}
         >
           <Heart aria-hidden="true" fill={favorite ? "currentColor" : "none"} size={19} />
         </button>

@@ -1,19 +1,35 @@
 "use client";
 
 import { CalendarDays, Gift, TicketCheck } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   communityEvents,
   pointTransactions,
   rewards
 } from "@/lib/app-data";
+import {
+  readDemoPoints,
+  readDemoRewardExchanges,
+  saveDemoRewardExchange,
+  writeDemoPoints
+} from "@/lib/demo-user-state";
 import styles from "./ProductUI.module.css";
 
 const initialPoints = 3200;
 
+function getEventDay(date: string) {
+  return date.match(/月(\d+)日/)?.[1] ?? date.match(/\d+/)?.[0] ?? "--";
+}
+
 export function PointsCenter() {
   const [points, setPoints] = useState(initialPoints);
   const [message, setMessage] = useState("");
+  const [exchangedRewardIds, setExchangedRewardIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    setPoints(readDemoPoints(initialPoints));
+    setExchangedRewardIds(readDemoRewardExchanges().map((exchange) => exchange.rewardId));
+  }, []);
 
   function exchangeReward(reward: (typeof rewards)[number]) {
     if (points < reward.cost) {
@@ -21,7 +37,22 @@ export function PointsCenter() {
       return;
     }
 
-    setPoints((current) => current - reward.cost);
+    const nextPoints = points - reward.cost;
+    setPoints(nextPoints);
+    writeDemoPoints(nextPoints);
+    saveDemoRewardExchange({
+      id: `EXCHANGE-${Date.now()}`,
+      rewardId: reward.id,
+      rewardName: reward.name,
+      pointsUsed: reward.cost,
+      exchangedAt: new Intl.DateTimeFormat("ja-JP", {
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(new Date())
+    });
+    setExchangedRewardIds((current) => [reward.id, ...current]);
     setMessage(`「${reward.name}」に交換しました。`);
   }
 
@@ -48,8 +79,8 @@ export function PointsCenter() {
             {communityEvents.map((event) => (
               <article className={styles.eventCard} key={event.id}>
                 <span className={styles.dateBox}>
-                  {event.date.match(/\d+/)?.[0] ?? "8"}
-                  <small>月</small>
+                  {getEventDay(event.date)}
+                  <small>日</small>
                 </span>
                 <div>
                   <h4>{event.title}</h4>
@@ -100,7 +131,7 @@ export function PointsCenter() {
                 disabled={points < reward.cost}
                 onClick={() => exchangeReward(reward)}
               >
-                交換する
+                {exchangedRewardIds.includes(reward.id) ? "もう一度交換" : "交換する"}
               </button>
             </article>
           ))}
