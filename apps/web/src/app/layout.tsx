@@ -25,21 +25,21 @@ export const metadata: Metadata = {
       "奨学金返済に悩む若者と、担い手を求める農林水産業の地域をつなぐプラットフォーム。",
     images: [
       {
-        url: "/og.png",
-        width: 1200,
-        height: 630,
-        alt: "はたるくん - 奨学金を、地域で働く力に。"
+        url: "/hatarukun-mark.png",
+        width: 1024,
+        height: 1024,
+        alt: "はたるくん"
       }
     ],
     locale: "ja_JP",
     type: "website"
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "はたるくん | 奨学金を、地域で働く力に。",
     description:
       "奨学金返済に悩む若者と、担い手を求める農林水産業の地域をつなぐプラットフォーム。",
-    images: ["/og.png"]
+    images: ["/hatarukun-mark.png"]
   },
   icons: {
     icon: "/hatarukun-mark.png",
