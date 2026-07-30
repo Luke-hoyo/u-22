@@ -168,7 +168,8 @@ SDKは役割で分けています。
 1. Project
 2. Database
 3. `jobs` テーブル
-4. API Key（読み取りだけなら `databases.read` / `tables.read` / `rows.read` 相当。シード投入もするなら `rows.write` も追加）
+4. `users` テーブル
+5. API Key（読み取りだけなら `databases.read` / `tables.read` / `rows.read` 相当。プロフィール保存やシード投入には `rows.write` も追加）
 
 `apps/web/.env.local` に次を追加します。
 
@@ -177,8 +178,20 @@ NEXT_PUBLIC_APPWRITE_ENDPOINT=
 NEXT_PUBLIC_APPWRITE_PROJECT_ID=
 APPWRITE_API_KEY=
 APPWRITE_DATABASE_ID=
+APPWRITE_TABLE_ID_USERS=
 APPWRITE_TABLE_ID_JOBS=
 ```
+
+利用者テーブルを作成:
+
+```sh
+npm run appwrite:setup:users
+```
+
+モバイルの初回プロフィールは、Clerkの短時間JWTを付けて
+`/api/mobile/profile` へ送信し、Next.js側だけがAppwrite API Keyを使って保存します。
+事業者が選んだ `farmer` は `pending_review` として保存され、Clerkの管理権限は
+承認されるまで付与されません。
 
 接続確認:
 

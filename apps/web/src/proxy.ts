@@ -13,6 +13,7 @@ const authBypassPrefixes = [
   "/sign-up",
   "/dev-access-denied",
   "/maintenance",
+  "/api/mobile",
   "/__clerk"
 ] as const;
 
