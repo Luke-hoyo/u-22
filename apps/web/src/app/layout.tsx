@@ -12,7 +12,12 @@ const hankenGrotesk = Hanken_Grotesk({
   variable: "--font-hanken"
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const configuredSiteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const siteUrl = configuredSiteUrl.replace(
+  /^http:\/\/hatarukun\.jp/,
+  "https://hatarukun.jp"
+);
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
