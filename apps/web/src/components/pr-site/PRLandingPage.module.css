@@ -30,17 +30,6 @@
     url("/higashihiroshima.jpg") center / cover;
 }
 
-.hero::after {
-  position: absolute;
-  right: -7rem;
-  bottom: -10rem;
-  width: 28rem;
-  height: 28rem;
-  border: 4rem solid rgb(255 209 102 / 82%);
-  border-radius: 50%;
-  content: "";
-}
-
 .heroContent,
 .storySection,
 .answerInner,
