@@ -21,6 +21,21 @@ type ProfileRequest = {
   consentedAt?: unknown;
 };
 
+type UserProfileRow = {
+  role?: unknown;
+  status?: unknown;
+  displayName?: unknown;
+  email?: unknown;
+  prefecture?: unknown;
+  city?: unknown;
+  desiredIndustry?: unknown;
+  desiredStartMonth?: unknown;
+  workPeriodMonths?: unknown;
+  scholarshipBalance?: unknown;
+  organizationName?: unknown;
+  organizationType?: unknown;
+};
+
 function requiredText(value: unknown, maxLength: number) {
   if (typeof value !== "string") return null;
   const normalized = value.trim();
@@ -36,6 +51,76 @@ function optionalText(value: unknown, maxLength: number) {
 function boundedInteger(value: unknown, min: number, max: number) {
   if (typeof value !== "number" || !Number.isSafeInteger(value)) return min;
   return Math.min(max, Math.max(min, value));
+}
+
+function profileFromRow(row: UserProfileRow) {
+  return {
+    role: typeof row.role === "string" ? row.role : "",
+    status: typeof row.status === "string" ? row.status : "",
+    displayName: typeof row.displayName === "string" ? row.displayName : "",
+    email: typeof row.email === "string" ? row.email : "",
+    prefecture: typeof row.prefecture === "string" ? row.prefecture : "",
+    city: typeof row.city === "string" ? row.city : "",
+    desiredIndustry:
+      typeof row.desiredIndustry === "string" ? row.desiredIndustry : "",
+    desiredStartMonth:
+      typeof row.desiredStartMonth === "string" ? row.desiredStartMonth : "",
+    workPeriodMonths:
+      typeof row.workPeriodMonths === "number" ? row.workPeriodMonths : 0,
+    scholarshipBalance:
+      typeof row.scholarshipBalance === "number" ? row.scholarshipBalance : 0,
+    organizationName:
+      typeof row.organizationName === "string" ? row.organizationName : "",
+    organizationType:
+      typeof row.organizationType === "string" ? row.organizationType : ""
+  };
+}
+
+export async function GET() {
+  const { isAuthenticated, userId } = await auth();
+
+  if (!isAuthenticated || !userId) {
+    return NextResponse.json({ message: "ログインが必要です。" }, { status: 401 });
+  }
+
+  const config = getAppwriteConfig();
+  const usersTableId = config.tables.users ?? "users";
+
+  if (!config.endpoint || !config.projectId || !config.apiKey || !config.databaseId) {
+    return NextResponse.json(
+      { message: "Appwriteのサーバー設定が不足しています。" },
+      { status: 503 }
+    );
+  }
+
+  try {
+    const { tablesDB } = createAppwriteServerClient();
+    const row = (await tablesDB.getRow({
+      databaseId: config.databaseId,
+      tableId: usersTableId,
+      rowId: userId
+    })) as UserProfileRow;
+
+    return NextResponse.json({
+      ok: true,
+      profile: profileFromRow(row)
+    });
+  } catch (error) {
+    const statusCode =
+      typeof error === "object" && error !== null && "code" in error
+        ? Number((error as { code?: unknown }).code)
+        : 0;
+
+    if (statusCode === 404) {
+      return NextResponse.json({ ok: true, profile: null });
+    }
+
+    console.error("Appwrite profile fetch failed", error);
+    return NextResponse.json(
+      { message: "プロフィールを取得できませんでした。" },
+      { status: 502 }
+    );
+  }
 }
 
 export async function POST(request: Request) {
