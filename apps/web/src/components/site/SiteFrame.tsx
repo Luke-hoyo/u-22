@@ -36,7 +36,7 @@ function DemoSiteFrame({ children }: { children: React.ReactNode }) {
         <Link className="brand-link" href="/">
           <Image
             className="brand-mark"
-            src="/hatarukun-mark.png"
+            src="/hatarukun-mark-v2.png"
             alt=""
             width={40}
             height={40}
@@ -77,7 +77,7 @@ function ClerkSiteFrame({ children }: { children: React.ReactNode }) {
         <Link className="brand-link" href="/">
           <Image
             className="brand-mark"
-            src="/hatarukun-mark.png"
+            src="/hatarukun-mark-v2.png"
             alt=""
             width={40}
             height={40}

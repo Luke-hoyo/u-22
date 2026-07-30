@@ -30,7 +30,7 @@ export const metadata: Metadata = {
       "奨学金返済に悩む若者と、担い手を求める農林水産業の地域をつなぐプラットフォーム。",
     images: [
       {
-        url: "/hatarukun-mark.png",
+        url: "/hatarukun-mark-v2.png",
         width: 1024,
         height: 1024,
         alt: "はたるくん"
@@ -44,11 +44,11 @@ export const metadata: Metadata = {
     title: "はたるくん | 奨学金を、地域で働く力に。",
     description:
       "奨学金返済に悩む若者と、担い手を求める農林水産業の地域をつなぐプラットフォーム。",
-    images: ["/hatarukun-mark.png"]
+    images: ["/hatarukun-mark-v2.png"]
   },
   icons: {
-    icon: "/hatarukun-mark.png",
-    apple: "/hatarukun-mark.png"
+    icon: "/hatarukun-mark-v2.png",
+    apple: "/hatarukun-mark-v2.png"
   }
 };
 

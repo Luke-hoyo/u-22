@@ -129,7 +129,7 @@ export function AppShell({
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
         <Link className={styles.brand} href={homeHref}>
-          <Image src="/hatarukun-mark.png" alt="" width={44} height={44} priority />
+          <Image src="/hatarukun-mark-v2.png" alt="" width={44} height={44} priority />
           <span>
             <b>はたるくん</b>
             <small>{isAdminUser ? "受け入れを管理する" : "地域でひらく、次の仕事"}</small>
