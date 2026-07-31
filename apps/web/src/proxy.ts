@@ -5,15 +5,43 @@ import { isDemoAuthEnabled } from "@/lib/demo-auth";
 import { isMaintenanceModeEnabled } from "@/lib/maintenance";
 
 const authBypassPrefixes = [
+  "/",
   "/sign-in",
   "/sign-up",
   "/maintenance",
+  "/farmer/apply",
   "/api/mobile",
   "/__clerk"
 ] as const;
 
+const protectedPrefixes = [
+  "/admin",
+  "/dashboard",
+  "/farmer/dashboard",
+  "/jobs",
+  "/join",
+  "/matching",
+  "/points",
+  "/profile",
+  "/role-router",
+  "/security",
+  "/simulation",
+  "/api/account",
+  "/api/appwrite/jobs"
+] as const;
+
 function isAuthBypassPath(pathname: string) {
-  return authBypassPrefixes.some(
+  return authBypassPrefixes.some((prefix) => {
+    if (prefix === "/") {
+      return pathname === "/";
+    }
+
+    return pathname === prefix || pathname.startsWith(`${prefix}/`);
+  });
+}
+
+function isProtectedPath(pathname: string) {
+  return protectedPrefixes.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
   );
 }
@@ -50,7 +78,7 @@ const proxy = isDemoAuthEnabled()
         return NextResponse.next();
       }
 
-      if (!isLoginRequired()) {
+      if (!isLoginRequired() || !isProtectedPath(request.nextUrl.pathname)) {
         return NextResponse.next();
       }
 
