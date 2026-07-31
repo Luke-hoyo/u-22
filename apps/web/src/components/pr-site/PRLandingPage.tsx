@@ -159,20 +159,6 @@ export function PRLandingPage() {
           <b>×</b>
           <span>地域の仕事</span>
         </motion.div>
-        <motion.aside
-          className={styles.heroFacts}
-          initial={{ opacity: 0, x: prefersReducedMotion ? 0 : 28 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: prefersReducedMotion ? 0 : 0.72, ease: "easeOut", delay: 0.35 }}
-          aria-label="プロジェクトの要点"
-        >
-          <span>target</span>
-          <strong>22-32歳</strong>
-          <p>貸与型奨学金を返済中の若者を想定</p>
-          <span>field</span>
-          <strong>農業・林業・水産業</strong>
-          <p>地域の担い手不足と返済不安を同時に扱う</p>
-        </motion.aside>
       </section>
 
       <section className={styles.appStage} id="story" aria-label="はたるくんのアプリ体験">
