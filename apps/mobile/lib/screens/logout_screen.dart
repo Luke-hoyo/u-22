@@ -1,16 +1,42 @@
+import 'package:clerk_flutter/clerk_flutter.dart';
 import 'package:flutter/material.dart';
 
 import '../models/demo_account.dart';
+import 'launch_screen.dart';
 import 'login_screen.dart';
 
-class LogoutScreen extends StatelessWidget {
+class LogoutScreen extends StatefulWidget {
   const LogoutScreen({required this.account, super.key});
 
   final DemoAccount account;
 
-  void logout(BuildContext context) {
+  @override
+  State<LogoutScreen> createState() => _LogoutScreenState();
+}
+
+class _LogoutScreenState extends State<LogoutScreen> {
+  bool _busy = false;
+
+  Future<void> logout() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+
+    var clerkEnabled = false;
+    try {
+      final authState = ClerkAuth.of(context, listen: false);
+      await authState.signOut();
+      clerkEnabled = true;
+    } catch (_) {
+      clerkEnabled = false;
+    }
+
+    if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      MaterialPageRoute(
+        builder: (_) => clerkEnabled
+            ? const LaunchScreen(clerkEnabled: true, animate: false)
+            : const LoginScreen(),
+      ),
       (route) => false,
     );
   }
@@ -52,15 +78,15 @@ class LogoutScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '${account.name} としてログイン中です。',
+                        '${widget.account.name} としてログイン中です。',
                         textAlign: TextAlign.center,
                         style: const TextStyle(color: Color(0xFF4F5F51)),
                       ),
                       const SizedBox(height: 20),
                       FilledButton.icon(
-                        onPressed: () => logout(context),
+                        onPressed: _busy ? null : logout,
                         icon: const Icon(Icons.logout),
-                        label: const Text('ログアウトする'),
+                        label: Text(_busy ? 'ログアウト中' : 'ログアウトする'),
                       ),
                       const SizedBox(height: 10),
                       OutlinedButton.icon(

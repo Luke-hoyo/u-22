@@ -1,492 +1,284 @@
 import 'package:flutter/material.dart';
 
 import '../data/mock_data.dart';
-import '../models/demo_account.dart';
-import 'access_guide_screen.dart';
 import 'clerk_auth_screen.dart';
 import 'home_screen.dart';
-import 'register_screen.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key, this.clerkEnabled = false});
 
   final bool clerkEnabled;
 
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final emailController = TextEditingController(text: 'demo@hatarukun.jp');
-  final passwordController = TextEditingController(text: 'password');
-  DemoAccount selectedAccount = mockAccounts.first;
-  bool obscurePassword = true;
-
-  @override
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-    super.dispose();
-  }
-
-  void login() {
-    if (emailController.text.trim().isEmpty ||
-        passwordController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('メールアドレスとパスワードを入力してください')),
-      );
-      return;
-    }
-
+  void _openDemo(BuildContext context) {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => HomeScreen(account: selectedAccount),
+        builder: (_) => HomeScreen(account: mockAccounts.first),
       ),
     );
   }
 
-  void selectAccount(DemoAccount account) {
-    setState(() {
-      selectedAccount = account;
-      emailController.text = account.email;
-    });
+  void _openAuthentication(BuildContext context) {
+    if (!clerkEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('現在はデモモードです。認証設定後に利用できます。'),
+        ),
+      );
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const ClerkAuthScreen()),
+    );
+  }
+
+  void _showPolicy(
+    BuildContext context, {
+    required String title,
+    required String body,
+  }) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 4, 24, 28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: const Color(0xFF003F35),
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  body,
+                  style: const TextStyle(
+                    color: Color(0xFF44534E),
+                    height: 1.6,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
-            const SizedBox(height: 18),
-            Row(
+      backgroundColor: Colors.white,
+      body: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          const _RegionalHero(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 26, 24, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF23422D),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.handshake_outlined,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'はたるくん',
-                        style: TextStyle(
-                          color: Color(0xFF23422D),
-                          fontSize: 34,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      Text(
-                        '奨学金返済免除 × 地域の仕事',
-                        style: TextStyle(
-                          color: Color(0xFF4F5F51),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              '信頼できる地域の求人を探しながら、免除見込みと地域ポイントをまとめて確認できます。',
-              style: TextStyle(color: Color(0xFF4F5F51), fontSize: 15),
-            ),
-            const SizedBox(height: 18),
-            const Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _FeatureChip(
-                  icon: Icons.search,
-                  label: '求人を探す',
-                  color: Color(0xFF2F6F44),
-                ),
-                _FeatureChip(
-                  icon: Icons.savings_outlined,
-                  label: '免除見込み',
-                  color: Color(0xFFD9853B),
-                ),
-                _FeatureChip(
-                  icon: Icons.stars_outlined,
-                  label: '地域ポイント',
-                  color: Color(0xFF2F6B7F),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            OutlinedButton.icon(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const AccessGuideScreen()),
-                );
-              },
-              icon: const Icon(Icons.route_outlined),
-              label: const Text('アクセスガイドを見る'),
-            ),
-            const SizedBox(height: 28),
-            _ClerkAuthEntry(enabled: widget.clerkEnabled),
-            const SizedBox(height: 18),
-            const Text(
-              'デモアカウント',
-              style: TextStyle(
-                color: Color(0xFF23422D),
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 10),
-            for (final account in mockAccounts) ...[
-              _AccountTile(
-                account: account,
-                selected: account.id == selectedAccount.id,
-                onTap: () => selectAccount(account),
-              ),
-              const SizedBox(height: 10),
-            ],
-            const SizedBox(height: 18),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFE1E6DC)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 18,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Row(
-                      children: [
-                        Icon(
-                          Icons.verified_user_outlined,
-                          color: Color(0xFF2F6F44),
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          'ログイン',
-                          style: TextStyle(
-                            color: Color(0xFF23422D),
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'デモでは入力済みのアカウントでそのまま入れます。',
-                      style: TextStyle(color: Color(0xFF647067), fontSize: 13),
-                    ),
-                    const SizedBox(height: 18),
-                    TextField(
-                      controller: emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        labelText: 'メールアドレス',
-                        prefixIcon: Icon(Icons.mail_outline),
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    TextField(
-                      controller: passwordController,
-                      obscureText: obscurePassword,
-                      textInputAction: TextInputAction.done,
-                      onSubmitted: (_) => login(),
-                      decoration: InputDecoration(
-                        labelText: 'パスワード',
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          tooltip: obscurePassword ? '表示' : '非表示',
-                          onPressed: () {
-                            setState(() => obscurePassword = !obscurePassword);
-                          },
-                          icon: Icon(
-                            obscurePassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                          ),
-                        ),
-                        border: const OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    FilledButton.icon(
-                      onPressed: login,
-                      icon: const Icon(Icons.login),
-                      label: const Text('ログインする'),
-                    ),
-                    const SizedBox(height: 10),
-                    OutlinedButton.icon(
-                      onPressed: login,
-                      icon: const Icon(Icons.play_circle_outline),
-                      label: const Text('デモで入る'),
-                    ),
-                    const SizedBox(height: 10),
-                    TextButton.icon(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const RegisterScreen(),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.person_add_alt_outlined),
-                      label: const Text('新規登録する'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            const _StatusStrip(),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ClerkAuthEntry extends StatelessWidget {
-  const _ClerkAuthEntry({required this.enabled});
-
-  final bool enabled;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xFFBFC9C4)),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(
-                  Icons.verified_user_outlined,
-                  color: Color(0xFF004D40),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Clerk認証',
-                        style: TextStyle(
-                          color: Color(0xFF00342B),
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        enabled
-                            ? 'Web版と同じ認証基盤でログインを確認できます。'
-                            : '有効化するにはCLERK_PUBLISHABLE_KEYを指定して起動します。',
-                        style: const TextStyle(
-                          color: Color(0xFF3F4945),
-                          fontSize: 13,
-                          height: 1.4,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            FilledButton.icon(
-              onPressed: enabled
-                  ? () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const ClerkAuthScreen(),
-                        ),
-                      );
-                    }
-                  : null,
-              icon: const Icon(Icons.login),
-              label: Text(enabled ? 'Clerkでログインする' : 'Clerkキー未設定'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _AccountTile extends StatelessWidget {
-  const _AccountTile({
-    required this.account,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final DemoAccount account;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: onTap,
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              color:
-                  selected ? const Color(0xFF2F6F44) : const Color(0xFFE1E6DC),
-              width: selected ? 2 : 1,
-            ),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              CircleAvatar(
-                backgroundColor: selected
-                    ? const Color(0xFF2F6F44)
-                    : const Color(0xFFE9F2E5),
-                child: Text(
-                  account.name.substring(0, 1),
+                const Text(
+                  '地域で働くことを、\n返済の力に。',
                   style: TextStyle(
-                    color: selected ? Colors.white : const Color(0xFF23422D),
+                    color: Color(0xFF003F35),
+                    fontSize: 30,
                     fontWeight: FontWeight.w800,
+                    height: 1.25,
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(height: 10),
+                const Text(
+                  '地域の仕事、奨学金の返済支援、暮らしの手続きをひとつに。',
+                  style: TextStyle(
+                    color: Color(0xFF4E5D58),
+                    fontSize: 15,
+                    height: 1.55,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                FilledButton.icon(
+                  onPressed: () => _openAuthentication(context),
+                  icon: const Icon(Icons.account_circle_outlined),
+                  label: const Text('Googleまたはメールで続ける'),
+                ),
+                const SizedBox(height: 10),
+                OutlinedButton.icon(
+                  onPressed: () => _openDemo(context),
+                  icon: const Icon(Icons.visibility_outlined),
+                  label: const Text('デモを見る'),
+                ),
+                const SizedBox(height: 20),
+                const _TrustMessage(),
+                const SizedBox(height: 22),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 2,
                   children: [
-                    Text(
-                      account.name,
-                      style: const TextStyle(
-                        color: Color(0xFF23422D),
-                        fontWeight: FontWeight.w800,
+                    TextButton(
+                      onPressed: () => _showPolicy(
+                        context,
+                        title: '利用規約',
+                        body:
+                            '本アプリはU-22プログラミング・コンテスト向けのプロトタイプです。制度や給付内容は企画段階で、実際の利用条件を確定するものではありません。',
+                      ),
+                      child: const Text('利用規約'),
+                    ),
+                    TextButton(
+                      onPressed: () => _showPolicy(
+                        context,
+                        title: 'プライバシー',
+                        body:
+                            '本人確認情報や奨学金情報は、利用目的を明示したうえで必要な範囲のみ取得し、閲覧権限と保存期間を制限する設計を想定しています。',
+                      ),
+                      child: const Text('プライバシー'),
+                    ),
+                    TextButton(
+                      onPressed: () => _showPolicy(
+                        context,
+                        title: '本人確認について',
+                        body:
+                            '本人確認は認証後、応募や制度申請など必要な場面でのみ案内します。ログイン前に身分証の提出を求めることはありません。',
+                      ),
+                      child: const Text('本人確認'),
+                    ),
+                  ],
+                ),
+                const Center(
+                  child: Text(
+                    '© u.r.ki',
+                    style: TextStyle(
+                      color: Color(0xFF7A8782),
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RegionalHero extends StatelessWidget {
+  const _RegionalHero();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 286,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/brand/higashihiroshima.jpg',
+            fit: BoxFit.cover,
+            alignment: const Alignment(0, 0.15),
+          ),
+          const ColoredBox(color: Color(0x3000241E)),
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FCFA),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Image.asset(
+                        'assets/brand/hatarukun-icon-1024.png',
                       ),
                     ),
-                    const SizedBox(height: 3),
-                    Text(
-                      account.profile,
-                      style: const TextStyle(
-                        color: Color(0xFF647067),
-                        fontSize: 12,
+                    const SizedBox(width: 11),
+                    const Text(
+                      'はたるくん',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        shadows: [
+                          Shadow(
+                            color: Color(0x66000000),
+                            blurRadius: 8,
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-              if (selected)
-                const Icon(Icons.check_circle, color: Color(0xFF2F6F44)),
-            ],
+            ),
+          ),
+          const Positioned(
+            left: 20,
+            right: 20,
+            bottom: 18,
+            child: Row(
+              children: [
+                Icon(Icons.location_on_outlined, color: Colors.white, size: 18),
+                SizedBox(width: 5),
+                Text(
+                  '広島県 東広島市',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    shadows: [
+                      Shadow(color: Color(0x99000000), blurRadius: 8),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TrustMessage extends StatelessWidget {
+  const _TrustMessage();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          Icons.shield_outlined,
+          size: 20,
+          color: Color(0xFF16745F),
+        ),
+        SizedBox(width: 9),
+        Expanded(
+          child: Text(
+            '本人確認情報は、応募や制度申請に必要な場面でのみ案内します。',
+            style: TextStyle(
+              color: Color(0xFF51605B),
+              fontSize: 13,
+              height: 1.45,
+            ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _FeatureChip extends StatelessWidget {
-  const _FeatureChip({
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
-
-  final IconData icon;
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE1E6DC)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color, size: 17),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: const TextStyle(
-                color: Color(0xFF2F3B32),
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StatusStrip extends StatelessWidget {
-  const _StatusStrip();
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0xFFE9F2E5),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: const Padding(
-        padding: EdgeInsets.all(14),
-        child: Row(
-          children: [
-            Icon(Icons.verified_user_outlined, color: Color(0xFF2F6F44)),
-            SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                '本人確認・奨学金情報はコンテスト用モックで再現します',
-                style: TextStyle(color: Color(0xFF2F3B32), fontSize: 13),
-              ),
-            ),
-          ],
-        ),
-      ),
+      ],
     );
   }
 }

@@ -4,88 +4,62 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hatarukun_mobile/main.dart';
 
 void main() {
-  testWidgets('logs in and shows the Hatarukun home screen', (tester) async {
+  testWidgets('logs in and shows the Web-aligned mobile dashboard',
+      (tester) async {
     await tester.binding.setSurfaceSize(const Size(430, 932));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
-    await tester.pumpWidget(const HatarukunApp());
+    await tester.pumpWidget(
+      const HatarukunApp(showLaunchAnimation: false),
+    );
 
     expect(find.text('はたるくん'), findsOneWidget);
-    expect(find.text('デモアカウント'), findsOneWidget);
-    expect(find.text('アクセスガイドを見る'), findsOneWidget);
-    expect(find.text('ログインする'), findsOneWidget);
+    expect(find.text('地域で働くことを、\n返済の力に。'), findsOneWidget);
+    expect(find.text('Googleまたはメールで続ける'), findsOneWidget);
 
-    await tester.tap(find.text('アクセスガイドを見る'));
+    await tester.tap(find.text('デモを見る'));
     await tester.pumpAndSettle();
 
-    expect(find.text('はたるくんの使い方'), findsOneWidget);
+    expect(find.text('まずは、面談の準備から。'), findsOneWidget);
+    expect(find.text('次にやること'), findsOneWidget);
+    expect(find.text('年間の返済支援見込み'), findsOneWidget);
+    expect(find.text('進行中のマッチング'), findsOneWidget);
+    expect(find.text('地域ポイント'), findsOneWidget);
 
-    await tester.pageBack();
+    await tester.tap(find.text('求人検索'));
     await tester.pumpAndSettle();
 
-    await tester.ensureVisible(find.text('新規登録する'));
-    await tester.dragFrom(const Offset(215, 820), const Offset(0, -220));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('新規登録する'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('マイナンバー登録デモ'), findsOneWidget);
-
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(find.text('デモで入る'));
-    await tester.dragFrom(const Offset(215, 820), const Offset(0, -180));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('デモで入る'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('ダッシュボード'), findsOneWidget);
-    expect(find.text('マイページ'), findsOneWidget);
-    expect(find.text('マイナンバー登録'), findsOneWidget);
-    expect(find.text('免税・免除詳細'), findsOneWidget);
-    expect(find.text('求人を見る'), findsOneWidget);
-
-    await tester.tap(find.byIcon(Icons.menu));
-    await tester.pumpAndSettle();
-
-    expect(find.text('求人一覧'), findsOneWidget);
-    expect(find.text('応募の流れ: 求人を選ぶ → 応募内容を入力 → 免除見込みを確認'), findsOneWidget);
-    expect(find.text('ログアウト'), findsOneWidget);
-
-    await tester.tapAt(const Offset(420, 120));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('マイページ'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('返済残高'), findsOneWidget);
-    expect(find.text('Googleアカウント連携'), findsOneWidget);
-    expect(find.text('登録状況'), findsOneWidget);
-
-    await tester.dragFrom(const Offset(215, 820), const Offset(0, -420));
-    await tester.pumpAndSettle();
-
-    expect(find.text('免税審査状況'), findsOneWidget);
-
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('求人を見る'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('求人一覧'), findsOneWidget);
+    expect(find.text('希望条件に近い仕事を探す'), findsOneWidget);
+    expect(find.byIcon(Icons.favorite_border), findsWidgets);
     expect(find.text('応募する'), findsWidgets);
 
+    await tester.ensureVisible(find.text('応募する').first);
+    await tester.pumpAndSettle();
     await tester.tap(find.text('応募する').first);
     await tester.pumpAndSettle();
 
-    expect(find.text('応募フォーム'), findsOneWidget);
-    expect(find.text('勤務開始希望'), findsOneWidget);
+    expect(find.text('応募と返済支援の進み具合'), findsOneWidget);
+    expect(find.text('応募済み'), findsNothing);
+    expect(find.text('確認中'), findsWidgets);
 
-    await tester.dragFrom(const Offset(215, 820), const Offset(0, -700));
+    await tester.tap(find.text('ポイント'));
     await tester.pumpAndSettle();
 
-    expect(find.text('応募内容を送信する'), findsOneWidget);
+    expect(find.text('現在の保有ポイント'), findsOneWidget);
+    expect(find.text('ポイントを地域特典に交換'), findsOneWidget);
+    expect(find.text('交換'), findsWidgets);
+
+    await tester.tapAt(const Offset(386, 890));
+    await tester.pumpAndSettle();
+
+    expect(find.text('希望する働き方'), findsOneWidget);
+    expect(find.text('希望条件を保存'), findsOneWidget);
+    expect(find.text('状態画面', skipOffstage: false), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.notifications_none));
+    await tester.pumpAndSettle();
+
+    expect(find.text('通知センター'), findsOneWidget);
+    expect(find.text('自治体確認の追加書類があります'), findsOneWidget);
   });
 }

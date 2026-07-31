@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:clerk_flutter/clerk_flutter.dart';
 
 import 'config/clerk_mobile_config.dart';
-import 'screens/login_screen.dart';
+import 'screens/launch_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,9 +25,14 @@ void main() {
 }
 
 class HatarukunApp extends StatelessWidget {
-  const HatarukunApp({super.key, this.clerkEnabled = false});
+  const HatarukunApp({
+    super.key,
+    this.clerkEnabled = false,
+    this.showLaunchAnimation = true,
+  });
 
   final bool clerkEnabled;
+  final bool showLaunchAnimation;
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +77,10 @@ class HatarukunApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFFF8F9FA),
         useMaterial3: true,
       ),
-      home: LoginScreen(clerkEnabled: clerkEnabled),
+      home: LaunchScreen(
+        clerkEnabled: clerkEnabled,
+        animate: showLaunchAnimation,
+      ),
     );
   }
 }
