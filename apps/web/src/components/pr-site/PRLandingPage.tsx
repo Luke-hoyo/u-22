@@ -5,40 +5,45 @@ import { Show, SignUpButton, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { useEffect } from "react";
-import {
-  impactItems,
-  journeySteps,
-  problemCards
-} from "@/lib/pr-site-content";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
 import { ProductPreview } from "./ProductPreview";
 import styles from "./PRLandingPage.module.css";
 
-const implementationHighlights = [
+const featureItems = [
   {
     label: "若者",
-    title: "返済と仕事を同じ画面で見る",
-    description: "希望する地域や働き方を選びながら、返済支援の見通しを確認できます。"
+    title: "仕事を探す",
+    description: "地域、業種、開始時期から、自分に合う第一次産業の仕事を選べます。"
+  },
+  {
+    label: "返済",
+    title: "支援額を見る",
+    description: "働く期間に応じた奨学金返済支援の見込みを、応募前に確認できます。"
   },
   {
     label: "地域",
-    title: "受け入れ先と出会う",
-    description: "農業、林業、水産業の現場と、地域で働きたい若者をつなぎます。"
-  },
-  {
-    label: "参加",
-    title: "地域参加がポイントになる",
-    description: "イベントや地域活動への参加を記録し、暮らしに使える特典へつなげます。"
+    title: "ポイントを貯める",
+    description: "地域イベントや活動への参加をポイント化し、商品券などへ交換できます。"
   },
   {
     label: "事業者",
-    title: "募集と応募状況を管理する",
-    description: "受け入れ申請から応募者の確認まで、地域事業者の入口を用意しています。"
+    title: "応募を受ける",
+    description: "農家・事業者は募集内容と応募状況を、専用入口から確認できます。"
+  }
+] as const;
+
+const audienceItems = [
+  {
+    title: "若者の方へ",
+    description: "働く地域を選びながら、返済支援の見通しまで確認できます。",
+    href: "/dashboard",
+    action: "仕事を探す"
   },
   {
-    label: "安心",
-    title: "大切な情報を守る",
-    description: "本人確認、ポイントの不正利用防止、操作履歴の確認を大切にしています。"
+    title: "農家・事業者の方へ",
+    description: "受け入れ申請、募集内容、応募状況をWeb上で確認できます。",
+    href: "/farmer/apply",
+    action: "受け入れ申請へ"
   }
 ] as const;
 
@@ -110,15 +115,15 @@ export function PRLandingPage() {
           variants={stagger}
         >
           <motion.p className={styles.heroEyebrow} variants={reveal}>
-            奨学金返済支援 × 地域のしごと
+            U-22 Programming Contest Project
           </motion.p>
           <motion.h1 variants={reveal}>はたるくん</motion.h1>
           <motion.p className={styles.heroStatement} variants={reveal}>
             地域で働くことを、返済の力に。
           </motion.p>
           <motion.p className={styles.heroLead} variants={reveal}>
-            奨学金返済に悩む若者と、担い手を求める第一次産業をつなぐ。
-            仕事探し、返済支援、地域ポイントまでをひとつの体験にします。
+            奨学金返済に悩む若者と、担い手を求める第一次産業をつなぐWebアプリ。
+            仕事探し、返済支援、地域ポイントをひとつの流れにまとめました。
           </motion.p>
           <motion.div className={styles.heroActions} variants={reveal}>
             {demoAuth ? (
@@ -158,242 +163,90 @@ export function PRLandingPage() {
           <b>×</b>
           <span>地域の仕事</span>
         </motion.div>
-        <motion.div
-          className={styles.heroMotionPanel}
+        <motion.aside
+          className={styles.heroFacts}
           initial={{ opacity: 0, x: prefersReducedMotion ? 0 : 28 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: prefersReducedMotion ? 0 : 0.72, ease: "easeOut", delay: 0.35 }}
-          aria-label="はたるくんのアプリ体験"
+          aria-label="プロジェクトの要点"
         >
-          <div className={styles.motionPhone}>
-            <div className={styles.motionTopbar}>
-              <span />
-              <b>はたるくん</b>
-            </div>
-            <div className={styles.motionTimeline}>
-              {[
-                ["01", "ログイン", "安全に本人を確認"],
-                ["02", "希望登録", "地域・業種・開始月を選ぶ"],
-                ["03", "求人検索", "農業・林業・水産業から探す"],
-                ["04", "面談", "受け入れ先と条件を確認"],
-                ["05", "就業", "働いた年数に応じて返済支援"],
-                ["06", "ポイント", "地域参加を商品券へ交換"]
-              ].map(([index, title, description]) => (
-                <div className={styles.motionStep} key={index}>
-                  <span>{index}</span>
-                  <div>
-                    <strong>{title}</strong>
-                    <small>{description}</small>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className={styles.motionMetric}>
-              <span>返済支援見込み</span>
-              <strong>¥420,000</strong>
-            </div>
-          </div>
-          <div className={styles.motionRail} aria-hidden="true">
-            <span>本人確認</span>
-            <span>求人検索</span>
-            <span>ポイント</span>
-            <span>農家承認</span>
-            <span>返済支援</span>
-          </div>
-        </motion.div>
+          <span>target</span>
+          <strong>22-32歳</strong>
+          <p>貸与型奨学金を返済中の若者を想定</p>
+          <span>field</span>
+          <strong>農業・林業・水産業</strong>
+          <p>地域の担い手不足と返済不安を同時に扱う</p>
+        </motion.aside>
       </section>
 
-      <motion.div
-        className={styles.messageRail}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.7 }}
-        variants={stagger}
-        aria-label="はたるくんの特徴"
-      >
-        <motion.div className={styles.messageItem} variants={reveal}>
-          <span>探す</span>
-          <b>地域の仕事を見つける</b>
-        </motion.div>
-        <motion.div className={styles.messageItem} variants={reveal}>
-          <span>支援</span>
-          <b>返済の見通しがわかる</b>
-        </motion.div>
-        <motion.div className={styles.messageItem} variants={reveal}>
-          <span>定着</span>
-          <b>地域との未来を育てる</b>
-        </motion.div>
-      </motion.div>
-
-      <section className={styles.buildSection} aria-label="はたるくんでできること">
+      <section className={styles.appStage} id="story" aria-label="はたるくんのアプリ体験">
         <motion.div
-          className={styles.buildIntro}
+          className={styles.appCopy}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.35 }}
           variants={reveal}
         >
-          <p className={styles.kicker}>できること</p>
-          <h2>仕事を探すところから、地域に残るところまで。</h2>
+          <p className={styles.kicker}>App experience</p>
+          <h2>仕事、返済支援、ポイントをひとつの入口に。</h2>
           <p>
-            はたるくんは、仕事探し、返済支援、地域ポイント、受け入れ先とのやりとりを
-            ひとつの流れで支えます。
+            ログイン後は、求人を探す、支援額を見る、ポイントを確認する流れまで体験できます。
+            企画だけで終わらせず、使う画面として見せられる状態を目指しました。
           </p>
-        </motion.div>
-        <motion.div
-          className={styles.buildTrack}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.25 }}
-          variants={stagger}
-        >
-          {implementationHighlights.map((item, index) => (
-            <motion.article
-              className={styles.buildCard}
-              variants={reveal}
-              whileHover={prefersReducedMotion ? undefined : { y: -6 }}
-              transition={{ type: "spring", stiffness: 250, damping: 24 }}
-              key={item.label}
-            >
-              <span>{item.label}</span>
-              <strong>{String(index + 1).padStart(2, "0")}</strong>
-              <h3>{item.title}</h3>
-              <p>{item.description}</p>
-            </motion.article>
-          ))}
-        </motion.div>
-      </section>
-
-      <section className={styles.storySection} id="story">
-        <motion.div
-          className={styles.storyNumber}
-          initial={{ opacity: 0, x: prefersReducedMotion ? 0 : 90 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          01
-        </motion.div>
-        <motion.div
-          className={styles.sectionHeading}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.35 }}
-          variants={reveal}
-        >
-          <p className={styles.kicker}>課題</p>
-          <h2>若者の返済不安と、地域の担い手不足を同時に扱う。</h2>
-          <p>
-            返済、仕事探し、移住の情報が別々にあると、最初の一歩が重くなります。
-            はたるくんは、働く選択と返済支援を同じ画面で見えるようにします。
-          </p>
-        </motion.div>
-        <motion.div
-          className={styles.problemGrid}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.25 }}
-          variants={stagger}
-        >
-          {problemCards.map((card) => (
-            <motion.article
-              className={styles.problemCard}
-              variants={reveal}
-              whileHover={prefersReducedMotion ? undefined : { y: -8, scale: 1.01 }}
-              transition={{ type: "spring", stiffness: 260, damping: 22 }}
-              key={card.label}
-            >
-              <span>{card.label}</span>
-              <h3>{card.title}</h3>
-              <p>{card.description}</p>
-            </motion.article>
-          ))}
-        </motion.div>
-      </section>
-
-      <section className={styles.answerSection}>
-        <div className={styles.answerInner}>
-          <motion.div
-            className={styles.storyNumber}
-            initial={{ opacity: 0, x: prefersReducedMotion ? 0 : 90 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            02
-          </motion.div>
-          <motion.div
-            className={styles.sectionHeading}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.35 }}
-            variants={reveal}
-          >
-            <p className={styles.kicker}>アプリ体験</p>
-            <h2>希望登録から、求人、面談、返済支援まで。</h2>
-            <p>
-              プロフィール登録、求人検索、応募状況、ポイント、受け入れ先とのやりとりまでを
-              迷わず進められる画面にまとめています。
-            </p>
-          </motion.div>
-          <motion.ol
-            className={styles.flowPath}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.35 }}
-            variants={stagger}
-            aria-label="利用の流れ"
-          >
-            {journeySteps.map((step) => (
-              <motion.li variants={reveal} key={step.title}>
-                <span />
-                <div>
-                  <h3>{step.title}</h3>
-                  <p>{step.description}</p>
-                </div>
-              </motion.li>
+          <div className={styles.featurePills}>
+            {featureItems.map((item) => (
+              <span key={item.label}>{item.title}</span>
             ))}
-          </motion.ol>
+          </div>
+        </motion.div>
+        <div className={styles.appPreview}>
           <ProductPreview />
         </div>
       </section>
 
-      <section className={styles.futureSection}>
+      <section className={styles.bridgeSection} aria-label="はたるくんの価値">
         <motion.div
-          className={styles.storyNumber}
-          initial={{ opacity: 0, x: prefersReducedMotion ? 0 : 90 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          03
-        </motion.div>
-        <motion.div
-          className={styles.sectionHeading}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.35 }}
           variants={reveal}
         >
-          <p className={styles.kicker}>未来</p>
-          <h2>働く選択が、若者と地域の両方を前に進める。</h2>
+          <p className={styles.kicker}>Why it matters</p>
+          <h2>返済の不安を、地域で働く選択肢に変える。</h2>
+          <p>
+            奨学金返済、地方の担い手不足、地域参加のきっかけ。
+            ばらばらだった情報を、若者が一歩踏み出せる順番に並べ直します。
+          </p>
         </motion.div>
+      </section>
+
+      <section className={styles.audienceSection} aria-label="利用者別の入口">
         <motion.div
-          className={styles.impactGrid}
+          className={styles.audienceHeading}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
+          viewport={{ once: true, amount: 0.35 }}
+          variants={reveal}
+        >
+          <p className={styles.kicker}>Start</p>
+          <h2>入口はふたつ。体験はひとつ。</h2>
+        </motion.div>
+        <motion.div
+          className={styles.audienceGrid}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.25 }}
           variants={stagger}
         >
-          {impactItems.map((item) => (
+          {audienceItems.map((item) => (
             <motion.article
               variants={reveal}
-              whileHover={prefersReducedMotion ? undefined : { y: -8, rotate: -0.7 }}
-              key={item.audience}
+              whileHover={prefersReducedMotion ? undefined : { y: -8 }}
+              key={item.title}
             >
-              <span>{item.audience}</span>
               <h3>{item.title}</h3>
               <p>{item.description}</p>
+              <Link href={item.href}>{item.action}</Link>
             </motion.article>
           ))}
         </motion.div>
@@ -417,8 +270,8 @@ export function PRLandingPage() {
           variants={reveal}
         >
           <p className={styles.kicker}>さあ、次の一歩へ</p>
-          <h2>地域の仕事と、返済支援の見通しを見にいく。</h2>
-          <p>若者ユーザーと地域事業者、それぞれの入口からはじめられます。</p>
+          <h2>はたるくんのデモを開く。</h2>
+          <p>若者ユーザーと地域事業者、それぞれの入口から体験できます。</p>
           {demoAuth ? (
             <Link className="button button-primary" href="/dashboard">
               はたるくんを体験する
