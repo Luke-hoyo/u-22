@@ -1,4 +1,4 @@
-package com.example.hatarukun_mobile
+package com.hatarukun.mobile
 
 import io.flutter.embedding.android.FlutterActivity
 

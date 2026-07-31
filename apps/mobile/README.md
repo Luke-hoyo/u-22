@@ -50,3 +50,19 @@ flutter run --dart-define-from-file=dart_defines.local.json
 `CLERK_PUBLISHABLE_KEY` を指定しない場合、今まで通りコンテスト用のデモログインだけで動きます。
 
 Clerk Flutter SDKはBetaのため、コンテスト段階では「認証の入口確認」として使い、本人確認・奨学金情報・ポイントは引き続きモックデータで再現します。
+
+## アプリ識別子とリリース署名
+
+- Android applicationId / namespace: `com.hatarukun.mobile`
+- iOS bundle identifier: `com.hatarukun.mobile`
+
+Androidのリリース署名を有効にする場合は、以下の環境変数を設定します。
+
+```sh
+HATARUKUN_UPLOAD_STORE_FILE=/absolute/path/to/upload-keystore.jks
+HATARUKUN_UPLOAD_STORE_PASSWORD=*****
+HATARUKUN_UPLOAD_KEY_ALIAS=upload
+HATARUKUN_UPLOAD_KEY_PASSWORD=*****
+```
+
+上記4つが未設定のときは、開発用にdebug署名でビルドされます。
