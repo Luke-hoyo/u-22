@@ -32,7 +32,7 @@ function AnimatedAmount() {
   const amountRef = useRef<HTMLElement>(null);
   const valueRef = useRef<HTMLSpanElement>(null);
   const isInView = useInView(amountRef, { once: true, amount: 0.8 });
-  const amount = useMotionValue(0);
+  const amount = useMotionValue(90000);
   const prefersReducedMotion = useReducedMotion();
 
   useEffect(
@@ -65,7 +65,7 @@ function AnimatedAmount() {
 
   return (
     <motion.strong ref={amountRef}>
-      <span ref={valueRef}>0</span>
+      <span ref={valueRef}>90,000</span>
       <small>円</small>
     </motion.strong>
   );
@@ -111,7 +111,7 @@ export function ProductPreview() {
             </motion.article>
           ))}
         </div>
-        <Link href="/dashboard">すべての仕事を見る</Link>
+        <Link href="/dashboard">ログインしてすべて見る</Link>
       </motion.section>
 
       <motion.section

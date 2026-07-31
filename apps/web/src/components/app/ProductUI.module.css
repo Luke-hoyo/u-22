@@ -911,6 +911,49 @@
   gap: 1rem;
 }
 
+.formSection {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid #e2e9e5;
+}
+
+.formSection:first-of-type {
+  margin-top: 0.5rem;
+}
+
+.formSectionHeader {
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+}
+
+.formSectionHeader > span {
+  display: grid;
+  width: 1.9rem;
+  height: 1.9rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.formSectionHeader h4 {
+  margin: 0;
+  color: var(--color-primary-dark);
+  font-size: 1rem;
+}
+
+.formSectionHeader p {
+  margin: 0.25rem 0 0;
+  color: var(--color-text-sub);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
 .checkboxRow {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);

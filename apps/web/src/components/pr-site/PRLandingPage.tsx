@@ -36,14 +36,16 @@ const audienceItems = [
   {
     title: "若者の方へ",
     description: "働く地域を選びながら、返済支援の見通しまで確認できます。",
-    href: "/dashboard",
-    action: "仕事を探す"
+    href: "#story",
+    action: "求人の例を見る",
+    meta: "ログイン前に雰囲気を確認"
   },
   {
     title: "農家・事業者の方へ",
     description: "受け入れ申請、募集内容、応募状況をWeb上で確認できます。",
     href: "/farmer/apply",
-    action: "受け入れ申請へ"
+    action: "受け入れ申請へ",
+    meta: "申請後にダッシュボードへ"
   }
 ] as const;
 
@@ -174,11 +176,14 @@ export function PRLandingPage() {
             ログイン後は、求人を探す、支援額を見る、ポイントを確認する流れまで体験できます。
             企画だけで終わらせず、使う画面として見せられる状態を目指しました。
           </p>
-          <div className={styles.featurePills}>
-            {featureItems.map((item) => (
-              <span key={item.label}>{item.title}</span>
+          <ol className={styles.featureSteps} aria-label="体験の流れ">
+            {featureItems.map((item, index) => (
+              <li key={item.label}>
+                <span>{index + 1}</span>
+                <strong>{item.title}</strong>
+              </li>
             ))}
-          </div>
+          </ol>
         </motion.div>
         <div className={styles.appPreview}>
           <ProductPreview />
@@ -225,6 +230,7 @@ export function PRLandingPage() {
             >
               <h3>{item.title}</h3>
               <p>{item.description}</p>
+              <small>{item.meta}</small>
               <Link href={item.href}>{item.action}</Link>
             </motion.article>
           ))}
@@ -280,8 +286,8 @@ export function PRLandingPage() {
           <p>奨学金返済支援と地域のしごとをつなぐプラットフォーム</p>
         </div>
         <nav className={styles.footerLinks} aria-label="補助リンク">
-          <Link href="/farmer/apply">農家・事業者の方</Link>
-          <Link href="/farmer/dashboard">農家向けダッシュボード</Link>
+          <Link href="/farmer/apply">まだ申請していない方</Link>
+          <Link href="/farmer/dashboard">申請済みの方（ログイン）</Link>
         </nav>
         <small>© 2026 u.r.ki</small>
       </footer>

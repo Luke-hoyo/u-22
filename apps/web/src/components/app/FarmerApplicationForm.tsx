@@ -131,8 +131,7 @@ export function FarmerApplicationForm() {
         <div className={styles.notice}>
           <ShieldCheck aria-hidden="true" size={18} />
           <span>
-            このデモでは入力内容をブラウザ内に保存します。実運用ではAppwriteなどのDBに保存し、
-            承認後にClerkの農家ロールを付与します。
+            送信後、運営が内容を確認します。承認された方には、募集内容を管理できる画面への案内をお送りします。
           </span>
         </div>
       </section>
@@ -143,134 +142,167 @@ export function FarmerApplicationForm() {
           <span className={styles.statusChip}>承認制</span>
         </div>
 
-        <div className={styles.formGrid}>
-          <div className={styles.formGroup}>
-            <label htmlFor="farmName">事業者名・農園名</label>
-            <input
-              className={styles.input}
-              id="farmName"
-              name="farmName"
-              value={form.farmName}
-              onChange={(event) => updateForm("farmName", event.target.value)}
-              placeholder="例: 西条みのりファーム"
-              required
-            />
+        <section className={styles.formSection} aria-labelledby="farmer-basic">
+          <div className={styles.formSectionHeader}>
+            <span>1</span>
+            <div>
+              <h4 id="farmer-basic">基本情報</h4>
+              <p>事業者名、担当者、連絡先を入力します。</p>
+            </div>
           </div>
-          <div className={styles.formGroup}>
-            <label htmlFor="representativeName">担当者名</label>
-            <input
-              className={styles.input}
-              id="representativeName"
-              name="representativeName"
-              value={form.representativeName}
-              onChange={(event) => updateForm("representativeName", event.target.value)}
-              placeholder="例: 山田 太郎"
-              required
-            />
+          <div className={styles.formGrid}>
+            <div className={styles.formGroup}>
+              <label htmlFor="farmName">事業者名・農園名</label>
+              <input
+                className={styles.input}
+                id="farmName"
+                name="farmName"
+                value={form.farmName}
+                onChange={(event) => updateForm("farmName", event.target.value)}
+                placeholder="例: 西条みのりファーム"
+                required
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="representativeName">担当者名</label>
+              <input
+                className={styles.input}
+                id="representativeName"
+                name="representativeName"
+                value={form.representativeName}
+                onChange={(event) => updateForm("representativeName", event.target.value)}
+                placeholder="例: 山田 太郎"
+                required
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="email">連絡先メール</label>
+              <input
+                className={styles.input}
+                id="email"
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={(event) => updateForm("email", event.target.value)}
+                placeholder="example@example.jp"
+                required
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="industry">分野</label>
+              <select
+                className={styles.select}
+                id="industry"
+                name="industry"
+                value={form.industry}
+                onChange={(event) => updateForm("industry", event.target.value as Industry)}
+              >
+                {Object.entries(industryLabels).map(([value, label]) => (
+                  <option value={value} key={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div className={styles.formGroup}>
-            <label htmlFor="email">連絡先メール</label>
-            <input
-              className={styles.input}
-              id="email"
-              name="email"
-              type="email"
-              value={form.email}
-              onChange={(event) => updateForm("email", event.target.value)}
-              placeholder="example@example.jp"
-              required
-            />
-          </div>
-          <div className={styles.formGroup}>
-            <label htmlFor="industry">分野</label>
-            <select
-              className={styles.select}
-              id="industry"
-              name="industry"
-              value={form.industry}
-              onChange={(event) => updateForm("industry", event.target.value as Industry)}
-            >
-              {Object.entries(industryLabels).map(([value, label]) => (
-                <option value={value} key={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className={styles.formGroup}>
-            <label htmlFor="region">都道府県</label>
-            <input
-              className={styles.input}
-              id="region"
-              name="region"
-              value={form.region}
-              onChange={(event) => updateForm("region", event.target.value)}
-              required
-            />
-          </div>
-          <div className={styles.formGroup}>
-            <label htmlFor="area">市区町村・地域</label>
-            <input
-              className={styles.input}
-              id="area"
-              name="area"
-              value={form.area}
-              onChange={(event) => updateForm("area", event.target.value)}
-              required
-            />
-          </div>
-          <div className={styles.formGroup}>
-            <label htmlFor="capacity">受け入れ人数</label>
-            <input
-              className={styles.input}
-              id="capacity"
-              min={1}
-              max={20}
-              name="capacity"
-              type="number"
-              value={form.capacity}
-              onChange={(event) => updateForm("capacity", event.target.value)}
-              required
-            />
-          </div>
-          <div className={styles.formGroup}>
-            <label htmlFor="desiredStartMonth">希望開始月</label>
-            <input
-              className={styles.input}
-              id="desiredStartMonth"
-              name="desiredStartMonth"
-              type="month"
-              value={form.desiredStartMonth}
-              onChange={(event) => updateForm("desiredStartMonth", event.target.value)}
-              required
-            />
-          </div>
-        </div>
+        </section>
 
-        <label className={styles.checkboxRow}>
-          <input
-            checked={form.housingSupport}
-            onChange={(event) => updateForm("housingSupport", event.target.checked)}
-            type="checkbox"
-          />
-          <span>
-            <strong>住まい支援を用意できる</strong>
-            <small>寮、空き家、家賃補助、自治体の移住支援などを含みます。</small>
-          </span>
-        </label>
+        <section className={styles.formSection} aria-labelledby="farmer-area">
+          <div className={styles.formSectionHeader}>
+            <span>2</span>
+            <div>
+              <h4 id="farmer-area">受け入れ地域</h4>
+              <p>若者が働く地域を確認します。</p>
+            </div>
+          </div>
+          <div className={styles.formGrid}>
+            <div className={styles.formGroup}>
+              <label htmlFor="region">都道府県</label>
+              <input
+                className={styles.input}
+                id="region"
+                name="region"
+                value={form.region}
+                onChange={(event) => updateForm("region", event.target.value)}
+                required
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="area">市区町村・地域</label>
+              <input
+                className={styles.input}
+                id="area"
+                name="area"
+                value={form.area}
+                onChange={(event) => updateForm("area", event.target.value)}
+                required
+              />
+            </div>
+          </div>
+        </section>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="note">受け入れ内容・補足</label>
-          <textarea
-            className={styles.textarea}
-            id="note"
-            name="note"
-            value={form.note}
-            onChange={(event) => updateForm("note", event.target.value)}
-            placeholder="例: 収穫期の作業補助から始め、安全研修後に選果や出荷も経験できます。"
-            rows={5}
-          />
-        </div>
+        <section className={styles.formSection} aria-labelledby="farmer-condition">
+          <div className={styles.formSectionHeader}>
+            <span>3</span>
+            <div>
+              <h4 id="farmer-condition">受け入れ条件</h4>
+              <p>人数、開始月、住まい支援の有無を入力します。</p>
+            </div>
+          </div>
+          <div className={styles.formGrid}>
+            <div className={styles.formGroup}>
+              <label htmlFor="capacity">受け入れ人数</label>
+              <input
+                className={styles.input}
+                id="capacity"
+                min={1}
+                max={20}
+                name="capacity"
+                type="number"
+                value={form.capacity}
+                onChange={(event) => updateForm("capacity", event.target.value)}
+                required
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="desiredStartMonth">希望開始月</label>
+              <input
+                className={styles.input}
+                id="desiredStartMonth"
+                name="desiredStartMonth"
+                type="month"
+                value={form.desiredStartMonth}
+                onChange={(event) => updateForm("desiredStartMonth", event.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <label className={styles.checkboxRow}>
+            <input
+              checked={form.housingSupport}
+              onChange={(event) => updateForm("housingSupport", event.target.checked)}
+              type="checkbox"
+            />
+            <span>
+              <strong>住まい支援を用意できる</strong>
+              <small>寮、空き家、家賃補助、自治体の移住支援などを含みます。</small>
+            </span>
+          </label>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="note">受け入れ内容・補足</label>
+            <textarea
+              className={styles.textarea}
+              id="note"
+              name="note"
+              value={form.note}
+              onChange={(event) => updateForm("note", event.target.value)}
+              placeholder="例: 収穫期の作業補助から始め、安全研修後に選果や出荷も経験できます。"
+              rows={5}
+            />
+          </div>
+        </section>
 
         <div className={styles.formFooter}>
           <p>
