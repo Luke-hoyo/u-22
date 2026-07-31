@@ -49,13 +49,13 @@
 
 .hero {
   position: relative;
-  min-height: min(780px, calc(100vh - 5rem));
+  min-height: min(720px, calc(100vh - 5rem));
   display: grid;
   align-items: center;
   overflow: hidden;
   background:
     linear-gradient(90deg, rgb(0 42 35 / 96%) 0%, rgb(0 52 43 / 82%) 45%, rgb(0 52 43 / 24%) 100%),
-    url("/higashihiroshima.jpg") center / cover;
+    url("/higashihiroshima.jpg") center 56% / cover;
 }
 
 .hero::after {
@@ -86,7 +86,7 @@
   max-width: none;
   margin-left: max(1rem, calc((100vw - 1120px) / 2));
   margin-right: auto;
-  padding: 6rem 0;
+  padding: 5.2rem 0;
   color: #ffffff;
 }
 
@@ -154,8 +154,8 @@
 .heroBadge {
   position: absolute;
   z-index: 5;
-  right: max(1.1rem, calc((100vw - 1120px) / 2 + 25rem));
-  bottom: 4.4rem;
+  right: max(1.1rem, calc((100vw - 1120px) / 2 + 24rem));
+  bottom: 5.8rem;
   display: grid;
   width: clamp(7.4rem, 11vw, 9.2rem);
   height: clamp(7.4rem, 11vw, 9.2rem);
@@ -182,7 +182,7 @@
   position: absolute;
   z-index: 4;
   right: max(1.25rem, calc((100vw - 1120px) / 2));
-  bottom: 4rem;
+  bottom: 5rem;
   display: grid;
   width: min(28vw, 21rem);
   gap: 0.6rem;
@@ -219,11 +219,11 @@
 .appStage {
   display: grid;
   gap: 2.5rem;
-  padding: 7rem 0 5rem;
+  padding: 5.5rem 0 4.5rem;
 }
 
 .appCopy {
-  max-width: 860px;
+  max-width: 940px;
 }
 
 .appCopy .kicker {
@@ -236,7 +236,7 @@
 .audienceHeading h2 {
   margin: 0;
   color: var(--color-primary-dark);
-  font-size: clamp(2.35rem, 5vw, 4.3rem);
+  font-size: clamp(2.25rem, 4.4vw, 3.8rem);
   line-height: 1.12;
   letter-spacing: 0;
 }
@@ -267,13 +267,16 @@
 }
 
 .appPreview {
+  width: min(100%, 900px);
   min-width: 0;
+  margin-inline: auto;
 }
 
 .bridgeSection {
   position: relative;
-  margin-top: 2rem;
-  padding: 7rem 0;
+  isolation: isolate;
+  margin-top: 1rem;
+  padding: 6rem 0;
   overflow: hidden;
   color: #ffffff;
 }
@@ -284,7 +287,7 @@
   z-index: -2;
   background:
     linear-gradient(90deg, rgb(0 52 43 / 94%), rgb(0 52 43 / 58%)),
-    url("/higashihiroshima.jpg") center 62% / cover;
+    url("/higashihiroshima.jpg") center 56% / cover;
   content: "";
 }
 
@@ -311,7 +314,7 @@
 }
 
 .audienceSection {
-  padding: 6rem 0 1rem;
+  padding: 5rem 0 1rem;
 }
 
 .audienceHeading {
@@ -465,22 +468,22 @@
 
 @media (max-width: 860px) {
   .hero {
-    min-height: 760px;
+    min-height: 720px;
     align-items: center;
     background:
       linear-gradient(180deg, rgb(0 52 43 / 36%) 0%, rgb(0 52 43 / 96%) 63%),
-      url("/higashihiroshima.jpg") center / cover;
+      url("/higashihiroshima.jpg") center 56% / cover;
   }
 
   .heroContent {
     width: min(100% - 2rem, 34rem);
     margin-inline: auto;
-    padding: 4rem 0 11rem;
+    padding: 4rem 0 10rem;
   }
 
   .heroBadge {
     right: 1rem;
-    bottom: 1.2rem;
+    bottom: 1.6rem;
     display: grid;
     width: 7rem;
     height: 7rem;
@@ -489,7 +492,7 @@
 
   .heroFacts {
     right: auto;
-    bottom: 1rem;
+    bottom: 1.35rem;
     left: 1rem;
     width: min(calc(100% - 9.2rem), 24rem);
     padding: 1rem;

@@ -73,11 +73,10 @@ export function PRLandingPage() {
   const demoAuth = isDemoAuthEnabled();
   const prefersReducedMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
-  const badgeY = useTransform(scrollYProgress, [0, 0.18], [0, prefersReducedMotion ? 0 : 110]);
   const badgeRotate = useTransform(
     scrollYProgress,
     [0, 0.18],
-    [7, prefersReducedMotion ? 7 : 20]
+    [7, prefersReducedMotion ? 7 : 10]
   );
 
   const reveal = {
@@ -114,9 +113,6 @@ export function PRLandingPage() {
           animate="visible"
           variants={stagger}
         >
-          <motion.p className={styles.heroEyebrow} variants={reveal}>
-            U-22 Programming Contest Project
-          </motion.p>
           <motion.h1 variants={reveal}>はたるくん</motion.h1>
           <motion.p className={styles.heroStatement} variants={reveal}>
             地域で働くことを、返済の力に。
@@ -153,7 +149,7 @@ export function PRLandingPage() {
         </motion.div>
         <motion.div
           className={styles.heroBadge}
-          style={{ y: badgeY, rotate: badgeRotate }}
+          style={{ rotate: badgeRotate }}
           initial={{ scale: prefersReducedMotion ? 1 : 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", stiffness: 180, damping: 16, delay: 0.7 }}
@@ -187,7 +183,6 @@ export function PRLandingPage() {
           viewport={{ once: true, amount: 0.35 }}
           variants={reveal}
         >
-          <p className={styles.kicker}>App experience</p>
           <h2>仕事、返済支援、ポイントをひとつの入口に。</h2>
           <p>
             ログイン後は、求人を探す、支援額を見る、ポイントを確認する流れまで体験できます。
@@ -211,7 +206,6 @@ export function PRLandingPage() {
           viewport={{ once: true, amount: 0.35 }}
           variants={reveal}
         >
-          <p className={styles.kicker}>Why it matters</p>
           <h2>返済の不安を、地域で働く選択肢に変える。</h2>
           <p>
             奨学金返済、地方の担い手不足、地域参加のきっかけ。
@@ -228,7 +222,6 @@ export function PRLandingPage() {
           viewport={{ once: true, amount: 0.35 }}
           variants={reveal}
         >
-          <p className={styles.kicker}>Start</p>
           <h2>入口はふたつ。体験はひとつ。</h2>
         </motion.div>
         <motion.div
@@ -270,7 +263,7 @@ export function PRLandingPage() {
           variants={reveal}
         >
           <p className={styles.kicker}>さあ、次の一歩へ</p>
-          <h2>はたるくんのデモを開く。</h2>
+          <h2>地域の仕事を見にいく。</h2>
           <p>若者ユーザーと地域事業者、それぞれの入口から体験できます。</p>
           {demoAuth ? (
             <Link className="button button-primary" href="/dashboard">
