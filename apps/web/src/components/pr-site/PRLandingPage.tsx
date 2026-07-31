@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Show, SignUpButton } from "@clerk/nextjs";
+import { Show, SignUpButton, useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { useEffect } from "react";
 import {
   impactItems,
   journeySteps,
@@ -13,6 +15,28 @@ import {
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
 import { ProductPreview } from "./ProductPreview";
 import styles from "./PRLandingPage.module.css";
+
+function SignedInLandingRedirect() {
+  const router = useRouter();
+  const { isLoaded, isSignedIn } = useUser();
+
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      router.replace("/role-router");
+    }
+  }, [isLoaded, isSignedIn, router]);
+
+  if (!isLoaded || !isSignedIn) {
+    return null;
+  }
+
+  return (
+    <div className={styles.returningOverlay} role="status" aria-live="polite">
+      <span className={styles.returningMark} aria-hidden="true" />
+      <p>ホームへ移動しています</p>
+    </div>
+  );
+}
 
 export function PRLandingPage() {
   const demoAuth = isDemoAuthEnabled();
@@ -46,6 +70,7 @@ export function PRLandingPage() {
 
   return (
     <div className={styles.landing}>
+      {!demoAuth ? <SignedInLandingRedirect /> : null}
       <motion.div
         className={styles.scrollProgress}
         style={{ scaleX: scrollYProgress }}
@@ -106,6 +131,46 @@ export function PRLandingPage() {
           <span>返済支援</span>
           <b>×</b>
           <span>地域の仕事</span>
+        </motion.div>
+        <motion.div
+          className={styles.heroMotionPanel}
+          initial={{ opacity: 0, x: prefersReducedMotion ? 0 : 28 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: prefersReducedMotion ? 0 : 0.72, ease: "easeOut", delay: 0.35 }}
+          aria-label="はたるくんのアプリ体験"
+        >
+          <div className={styles.motionPhone}>
+            <div className={styles.motionTopbar}>
+              <span />
+              <b>はたるくん</b>
+            </div>
+            <div className={styles.motionTimeline}>
+              {[
+                ["01", "ログイン", "Clerkで安全に本人を確認"],
+                ["02", "希望登録", "地域・業種・開始月を選ぶ"],
+                ["03", "ホーム", "求人と返済支援の見通しへ"]
+              ].map(([index, title, description]) => (
+                <div className={styles.motionStep} key={index}>
+                  <span>{index}</span>
+                  <div>
+                    <strong>{title}</strong>
+                    <small>{description}</small>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className={styles.motionMetric}>
+              <span>返済支援見込み</span>
+              <strong>¥420,000</strong>
+            </div>
+          </div>
+          <div className={styles.motionRail} aria-hidden="true">
+            <span>本人確認</span>
+            <span>求人検索</span>
+            <span>ポイント</span>
+            <span>農家承認</span>
+            <span>返済支援</span>
+          </div>
         </motion.div>
       </section>
 

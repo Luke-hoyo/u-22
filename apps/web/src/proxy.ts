@@ -1,17 +1,12 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import {
-  hasDeveloperAccess,
-  isDeveloperLockEnabled,
-  isLoginRequired
-} from "@/lib/developer-access";
+import { isLoginRequired } from "@/lib/developer-access";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
 import { isMaintenanceModeEnabled } from "@/lib/maintenance";
 
 const authBypassPrefixes = [
   "/sign-in",
   "/sign-up",
-  "/dev-access-denied",
   "/maintenance",
   "/api/mobile",
   "/__clerk"
@@ -55,29 +50,12 @@ const proxy = isDemoAuthEnabled()
         return NextResponse.next();
       }
 
-      if (!isLoginRequired() && !isDeveloperLockEnabled()) {
+      if (!isLoginRequired()) {
         return NextResponse.next();
       }
 
-      const authObject = await auth.protect();
-
-      if (!isDeveloperLockEnabled()) {
-        return NextResponse.next();
-      }
-
-      if (
-        hasDeveloperAccess({
-          sessionClaims: authObject.sessionClaims,
-          userId: authObject.userId
-        })
-      ) {
-        return NextResponse.next();
-      }
-
-      const deniedUrl = new URL("/dev-access-denied", request.url);
-      deniedUrl.searchParams.set("from", request.nextUrl.pathname);
-
-      return NextResponse.redirect(deniedUrl);
+      await auth.protect();
+      return NextResponse.next();
     });
 
 export default proxy;

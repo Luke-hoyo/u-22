@@ -94,24 +94,17 @@ http://localhost:3000/join?code=招待コード
 
 現在のデモでは、申請内容はブラウザ内の保存領域に入ります。実運用に近づける場合は、同じデータ構造をAppwrite TablesDBに保存し、承認時にClerkのサーバーAPIでロール付与または招待メール送信へつなげます。
 
-## 開発者限定デプロイ
+## ログイン必須デプロイ
 
-本番公開前にサーバーへ置く場合は、開発者だけが見られるロックを有効にできます。
+本番公開前にサーバーへ置く場合は、サイト全体をログイン必須にできます。
 
 ```env
 HATARAKUN_REQUIRE_AUTH=true
-HATARAKUN_DEVELOPER_LOCK=true
-HATARAKUN_DEVELOPER_USER_IDS=user_xxxxxxxxx
-HATARAKUN_DEVELOPER_EMAILS=developer@example.com
 ```
 
 `HATARAKUN_REQUIRE_AUTH=true` にすると、PRサイトを含む全ページがログイン必須になります。URLを直接開いても、未ログインなら `/sign-in` に移動します。
 
-`HATARAKUN_DEVELOPER_LOCK=true` も一緒に入れると、ログイン後も許可リストに入っているユーザーだけが入れます。許可されていないユーザーは `/dev-access-denied` に移動します。
-
-おすすめは `HATARAKUN_DEVELOPER_USER_IDS` です。Clerk DashboardのUsersから自分のUser IDを確認して、サーバーの `.env.production` などに入れます。複数人に許可する場合はカンマ区切りにします。
-
-ロックが有効なときは、未ログインのユーザーはログイン画面へ、許可リスト外のユーザーは `/dev-access-denied` へ移動します。ローカル開発では `HATARAKUN_DEVELOPER_LOCK=false` のままで大丈夫です。
+ログイン後の振り分けは `/role-router` で行います。若者ユーザーは通常ダッシュボードへ、農家・自治体・運営ロールは農家向けダッシュボードへ移動します。
 
 ### メンテナンス表示
 

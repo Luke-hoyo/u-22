@@ -71,28 +71,12 @@ APPWRITE_API_KEY=
 APPWRITE_DATABASE_ID=
 APPWRITE_TABLE_ID_JOBS=
 
-HATARAKUN_DEVELOPER_LOCK=true
-HATARAKUN_DEVELOPER_USER_IDS=user_xxxxxxxxx
-HATARAKUN_DEVELOPER_EMAILS=
-```
-
-`HATARAKUN_DEVELOPER_LOCK=true` にすると、許可した開発者だけが開けます。
-
-サイト全体をログイン必須にする場合は、次も入れます。
-
-```env
 HATARAKUN_REQUIRE_AUTH=true
 ```
 
-この設定を入れると、PRサイトや共有リンクを直接開いた場合でも、未ログインなら `/sign-in` に移動します。
+`HATARAKUN_REQUIRE_AUTH=true` にすると、PRサイトや共有リンクを直接開いた場合でも、未ログインなら `/sign-in` に移動します。
 
-`HATARAKUN_REQUIRE_AUTH=true` と `HATARAKUN_DEVELOPER_LOCK=true` を両方入れると、ログイン後も許可リストに入っているユーザーだけが入れます。
-
-`HATARAKUN_DEVELOPER_USER_IDS` はClerkのUser IDを入れます。アプリにログインして `/profile` を開くと「開発者ID」として確認できます。複数人に許可する場合はカンマ区切りです。
-
-```env
-HATARAKUN_DEVELOPER_USER_IDS=user_aaa,user_bbb
-```
+デベロッパーだけに限定するロックは現在使いません。ログイン済みユーザーは `/role-router` でロールに応じて振り分けます。
 
 メンテナンス画面へ切り替える場合は、次を `true` にして再デプロイします。
 
