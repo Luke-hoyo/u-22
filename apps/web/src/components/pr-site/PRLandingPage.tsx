@@ -15,6 +15,34 @@ import { isDemoAuthEnabled } from "@/lib/demo-auth";
 import { ProductPreview } from "./ProductPreview";
 import styles from "./PRLandingPage.module.css";
 
+const implementationHighlights = [
+  {
+    label: "Auth",
+    title: "Clerkログイン",
+    description: "Googleログインとメール認証に対応し、ログイン後はホームへ直接移動します。"
+  },
+  {
+    label: "Jobs",
+    title: "求人・マッチング",
+    description: "地域、業種、就業期間、返済支援見込みを見ながら応募先を選べます。"
+  },
+  {
+    label: "Points",
+    title: "地域ポイント",
+    description: "イベント参加、履歴表示、商品券交換までをデモ内で操作できます。"
+  },
+  {
+    label: "Farmer",
+    title: "農家向け申請",
+    description: "受け入れ事業者の申請と、農家向けダッシュボードの導線を用意しています。"
+  },
+  {
+    label: "Security",
+    title: "安全性の見える化",
+    description: "本人確認、重複検知、監査ログを審査員が確認できる画面にまとめています。"
+  }
+] as const;
+
 function SignedInLandingRedirect() {
   const router = useRouter();
   const { isLoaded, isSignedIn } = useUser();
@@ -197,6 +225,45 @@ export function PRLandingPage() {
           <b>地域との未来を育てる</b>
         </motion.div>
       </motion.div>
+
+      <section className={styles.buildSection} aria-label="実装済みデモ">
+        <motion.div
+          className={styles.buildIntro}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.35 }}
+          variants={reveal}
+        >
+          <p className={styles.kicker}>実装済み</p>
+          <h2>企画書ではなく、触れるプロトタイプとして見せる。</h2>
+          <p>
+            コンテストでは、社会課題の説明だけでなく、ログイン後の操作、ポイント交換、
+            農家側の導線、安全性までを実際の画面で確認できます。
+          </p>
+        </motion.div>
+        <motion.div
+          className={styles.buildTrack}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.25 }}
+          variants={stagger}
+        >
+          {implementationHighlights.map((item, index) => (
+            <motion.article
+              className={styles.buildCard}
+              variants={reveal}
+              whileHover={prefersReducedMotion ? undefined : { y: -6 }}
+              transition={{ type: "spring", stiffness: 250, damping: 24 }}
+              key={item.label}
+            >
+              <span>{item.label}</span>
+              <strong>{String(index + 1).padStart(2, "0")}</strong>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+            </motion.article>
+          ))}
+        </motion.div>
+      </section>
 
       <section className={styles.storySection} id="story">
         <motion.div
