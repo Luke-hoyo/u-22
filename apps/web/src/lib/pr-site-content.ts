@@ -67,18 +67,3 @@ export const impactItems = [
     description: "若者の自立と地域産業の持続を、ひとつの仕組みで前に進めます。"
   }
 ];
-
-export const securityItems = [
-  {
-    title: "ログイン保護",
-    description: "ログイン済みユーザーだけが、仕事探しや応募状況の画面を開けます。"
-  },
-  {
-    title: "ポイント重複検知",
-    description: "同じイベント・同じ利用者・同じ端末のQRチェックインを検知して保留します。"
-  },
-  {
-    title: "操作ログ",
-    description: "本人確認、応募閲覧、ポイント保留などの重要操作を監査ログとして表示します。"
-  }
-];

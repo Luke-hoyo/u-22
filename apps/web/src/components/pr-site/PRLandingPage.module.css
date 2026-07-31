@@ -143,7 +143,21 @@
 }
 
 .heroBadge {
-  display: none;
+  position: absolute;
+  z-index: 3;
+  right: max(1.25rem, calc((100vw - 1120px) / 2 + 25rem));
+  bottom: 2.7rem;
+  display: grid;
+  width: 8.8rem;
+  height: 8.8rem;
+  place-items: center;
+  padding: 1.9rem 0.9rem;
+  border-radius: 50%;
+  background: var(--story-yellow);
+  color: var(--color-primary-dark);
+  text-align: center;
+  box-shadow: 0 22px 50px rgb(0 20 16 / 24%);
+  transform: rotate(7deg);
 }
 
 .heroBadge span {
@@ -354,9 +368,8 @@
 .buildTrack {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 0;
-  border-top: 1px solid rgb(0 52 43 / 16%);
-  border-left: 1px solid rgb(0 52 43 / 16%);
+  gap: 1rem;
+  border: 0;
 }
 
 .buildCard {
@@ -365,11 +378,10 @@
   min-height: 15rem;
   padding: 1.45rem;
   overflow: hidden;
-  border-right: 1px solid rgb(0 52 43 / 16%);
-  border-bottom: 1px solid rgb(0 52 43 / 16%);
-  border-radius: 0;
+  border: 1px solid rgb(0 52 43 / 12%);
+  border-radius: 1.4rem;
   background: #ffffff;
-  box-shadow: none;
+  box-shadow: 0 18px 45px rgb(0 52 43 / 7%);
 }
 
 .buildCard:nth-child(2) {
@@ -739,78 +751,6 @@
   padding-top: 10rem;
 }
 
-.securitySection {
-  position: relative;
-  width: min(100% - 2rem, 1120px);
-  margin: 8rem auto 0;
-  padding: 4rem;
-  overflow: hidden;
-  border-radius: 1.25rem;
-  background: var(--color-primary-dark);
-  color: #ffffff;
-}
-
-.securitySection .storyNumber {
-  top: 2rem;
-  color: rgb(255 255 255 / 8%);
-}
-
-.securitySection .kicker {
-  color: var(--color-secondary-container);
-}
-
-.securitySection h2 {
-  color: #ffffff;
-}
-
-.securitySection .sectionHeading > p:last-child {
-  color: rgb(255 255 255 / 86%);
-}
-
-.securityGrid {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-  margin-top: 3rem;
-}
-
-.securityGrid article {
-  min-height: 11rem;
-  padding: 1.4rem;
-  border: 1px solid rgb(255 255 255 / 16%);
-  border-radius: 1rem;
-  background: rgb(255 255 255 / 7%);
-}
-
-.securityGrid span {
-  color: var(--story-yellow);
-  font-size: 0.86rem;
-  font-weight: 800;
-}
-
-.securityGrid p {
-  margin: 1rem 0 0;
-  color: rgb(255 255 255 / 88%);
-  line-height: 1.7;
-}
-
-.securityLink {
-  position: relative;
-  z-index: 1;
-  display: inline-flex;
-  min-height: 2.85rem;
-  align-items: center;
-  justify-content: center;
-  margin-top: 1.25rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.7rem;
-  background: var(--story-yellow);
-  color: var(--color-primary-dark);
-  font-weight: 800;
-}
-
 .impactGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1012,8 +952,7 @@
   .problemGrid,
   .flowPath,
   .impactGrid,
-  .journeyList,
-  .securityGrid {
+  .journeyList {
     grid-template-columns: 1fr;
   }
 
@@ -1044,13 +983,8 @@
 
   .answerSection,
   .journeySection,
-  .ctaSection,
-  .securitySection {
+  .ctaSection {
     margin-top: 6rem;
-  }
-
-  .securitySection {
-    padding: 3rem 1.5rem;
   }
 
   .answerSection,
@@ -1120,8 +1054,7 @@
   }
 
   .problemCard,
-  .impactGrid article,
-  .securityGrid article {
+  .impactGrid article {
     padding: 1.5rem;
   }
 

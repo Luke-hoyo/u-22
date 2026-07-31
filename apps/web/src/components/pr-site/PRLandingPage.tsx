@@ -8,8 +8,7 @@ import { useEffect } from "react";
 import {
   impactItems,
   journeySteps,
-  problemCards,
-  securityItems
+  problemCards
 } from "@/lib/pr-site-content";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
 import { ProductPreview } from "./ProductPreview";
@@ -359,49 +358,6 @@ export function PRLandingPage() {
         </div>
       </section>
 
-      <section className={styles.securitySection}>
-        <motion.div
-          className={styles.storyNumber}
-          initial={{ opacity: 0, x: prefersReducedMotion ? 0 : 90 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          03
-        </motion.div>
-        <motion.div
-          className={styles.sectionHeading}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.35 }}
-          variants={reveal}
-        >
-          <p className={styles.kicker}>安心のために</p>
-          <h2>本人情報を扱うからこそ、守る仕組みをわかりやすく。</h2>
-          <p>
-            返済や本人確認に関わる情報を扱うからこそ、ログイン保護、ポイント重複検知、
-            操作ログをわかりやすく確認できるようにしています。
-          </p>
-        </motion.div>
-        <motion.div
-          className={styles.securityGrid}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.25 }}
-          variants={stagger}
-        >
-          {securityItems.map((item) => (
-            <motion.article variants={reveal} key={item.title}>
-              <span>{item.title}</span>
-              <p>{item.description}</p>
-            </motion.article>
-          ))}
-        </motion.div>
-        <Link className={styles.securityLink} href="/security">
-          セキュリティセンターを見る
-        </Link>
-      </section>
-
       <section className={styles.futureSection}>
         <motion.div
           className={styles.storyNumber}
@@ -410,7 +366,7 @@ export function PRLandingPage() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          04
+          03
         </motion.div>
         <motion.div
           className={styles.sectionHeading}
@@ -494,7 +450,6 @@ export function PRLandingPage() {
         <nav className={styles.footerLinks} aria-label="補助リンク">
           <Link href="/farmer/apply">農家・事業者の方</Link>
           <Link href="/farmer/dashboard">農家向けダッシュボード</Link>
-          <Link href="/security">セキュリティ</Link>
         </nav>
         <small>© 2026 u.r.ki</small>
       </footer>
