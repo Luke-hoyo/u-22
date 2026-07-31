@@ -1,0 +1,118 @@
+<re-html>
+  <re-head>
+    <re-title>
+      【はたるくん】{{otp_code}} は認証コードです
+    </re-title>
+  </re-head>
+
+  <re-body background-color="#f5faf8" padding="40px 24px 40px 24px">
+    <re-preheader>
+      {{otp_code}} を入力して、メールアドレスを認証してください。
+    </re-preheader>
+
+    <re-header padding="24px 32px 16px 32px" background-color="#ffffff">
+      <re-text
+        align="center"
+        color="#003f35"
+        font-size="18px"
+        font-weight="bold"
+        line-height="26px"
+      >
+        {{> app_logo}}
+      </re-text>
+    </re-header>
+
+    <re-main background-color="#ffffff" border-radius="8px">
+      <re-block
+        align="center"
+        background-color="#ffffff"
+        border-radius="8px"
+        padding="24px 32px 40px 32px"
+      >
+        <re-heading
+          align="center"
+          color="#003f35"
+          font-size="24px"
+          line-height="34px"
+          margin="0"
+          level="h1"
+        >
+          メールアドレスを認証
+        </re-heading>
+
+        <re-text
+          align="center"
+          color="#4e5d58"
+          font-size="14px"
+          line-height="24px"
+          margin="20px 0px 0px 0px"
+        >
+          はたるくんをご利用いただきありがとうございます。<br>
+          アプリの認証画面に、次のコードを入力してください。
+        </re-text>
+
+        <re-text
+          align="center"
+          color="#d97706"
+          font-size="40px"
+          font-weight="bold"
+          line-height="48px"
+          margin="28px 0px 0px 0px"
+        >
+          {{otp_code}}
+        </re-text>
+
+        <re-text
+          align="center"
+          color="#4e5d58"
+          font-size="14px"
+          line-height="24px"
+          margin="20px 0px 0px 0px"
+        >
+          このコードは他の人に共有しないでください。<br>
+          はたるくんの運営がコードを尋ねることはありません。
+        </re-text>
+
+        <re-divider
+          background-color="#dcebe5"
+          height="1px"
+          margin="32px 0px 0px 0px"
+        ></re-divider>
+
+        <re-text
+          align="left"
+          color="#687670"
+          font-size="12px"
+          line-height="20px"
+          margin="24px 0px 0px 0px"
+        >
+          リクエスト元: <b>{{requested_from}}</b><br>
+          リクエスト日時: <b>{{requested_at}}</b>
+        </re-text>
+
+        <re-text
+          align="left"
+          color="#687670"
+          font-size="12px"
+          line-height="20px"
+          margin="16px 0px 0px 0px"
+        >
+          この操作に心当たりがない場合は、何もせずこのメールを
+          破棄してください。
+        </re-text>
+      </re-block>
+    </re-main>
+
+    <re-footer padding="24px 32px 16px 32px">
+      <re-text
+        align="center"
+        color="#7a8782"
+        font-size="12px"
+        line-height="20px"
+        margin="0"
+      >
+        © {{current_year}} {{app.name}} / u.r.ki
+      </re-text>
+    </re-footer>
+  </re-body>
+</re-html>

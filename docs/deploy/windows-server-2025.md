@@ -192,6 +192,31 @@ IIS側は、外から来たアクセスをNext.jsへ流します。
 
 Next.jsは `localhost:3000` に閉じ込めます。外部に公開するのはIISの80/443だけにします。
 
+現在の `hatarukun.jp` 本番サーバーでは、IISサイト「はたるくん」の物理パスは次です。
+
+```text
+C:\hatarukun\iis-site
+```
+
+IISの物理パスを忘れた場合は、管理者PowerShellで確認します。
+
+```powershell
+Import-Module WebAdministration
+Get-Website | Select-Object Name,PhysicalPath
+```
+
+SSL証明書をLet’s Encryptで取得する手順は次に分けています。
+
+```text
+docs/deploy/windows-server-2025-ssl.md
+```
+
+証明書の発行後にHTTPからHTTPSへリダイレクトする場合は、次のテンプレートをIISサイトの `web.config` として使います。
+
+```text
+docs/deploy/windows-server-2025-web.https.config
+```
+
 ## 更新するとき
 
 新しいコードをGitHubへ反映した後、サーバーの `apps/web` で次の1コマンドを実行します。

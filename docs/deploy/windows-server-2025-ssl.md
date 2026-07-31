@@ -4,11 +4,12 @@
 
 ## 現在の前提
 
-2026-07-30時点で、手元から次を確認済みです。
+2026-07-31時点で、手元から次を確認済みです。
 
 ```text
 hatarukun.jp A -> 133.117.154.91
-http://hatarukun.jp -> IIS/ARR経由でNext.jsへ到達
+http://hatarukun.jp -> https://hatarukun.jp/ へ301リダイレクト
+https://hatarukun.jp -> Clerkログイン画面へ307リダイレクト
 ```
 
 まずは `www.hatarukun.jp` なしで、`hatarukun.jp` だけをSSL化します。
@@ -107,6 +108,13 @@ iisreset
 
 `C:\inetpub\hatarukun` は実際にIISサイトへ設定した物理パスに置き換えてください。
 
+現在の `hatarukun.jp` 本番サーバーでは、IISサイト「はたるくん」の物理パスは次です。
+
+```powershell
+copy C:\hatarukun\u-22\docs\deploy\windows-server-2025-web.https.config C:\hatarukun\iis-site\web.config
+iisreset
+```
+
 このHTTPS用テンプレートは、`/.well-known/acme-challenge/` だけはHTTPのまま通すため、Let’s Encryptの更新にも使いやすい設定です。
 
 ## 確認
@@ -165,4 +173,3 @@ Next.jsを起動し直します。
 cd C:\hatarukun\u-22\apps\web
 npm run deploy:server
 ```
-
