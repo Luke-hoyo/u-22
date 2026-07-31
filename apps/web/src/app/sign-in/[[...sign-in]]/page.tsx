@@ -12,10 +12,10 @@ export default function SignInPage() {
       <div className="auth-card">
         <h1>ログイン</h1>
         <SignIn
-          forceRedirectUrl="/role-router"
-          fallbackRedirectUrl="/role-router"
-          signUpForceRedirectUrl="/role-router"
-          signUpFallbackRedirectUrl="/role-router"
+          forceRedirectUrl="/dashboard"
+          fallbackRedirectUrl="/dashboard"
+          signUpForceRedirectUrl="/dashboard"
+          signUpFallbackRedirectUrl="/dashboard"
         />
       </div>
     </section>

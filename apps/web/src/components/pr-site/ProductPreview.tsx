@@ -78,7 +78,7 @@ export function ProductPreview() {
     <div className={styles.preview} aria-label="はたるくんの画面イメージ">
       <motion.section
         className={styles.jobsPanel}
-        initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 28 }}
+        initial={false}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.3 }}
         transition={{ duration: 0.7, ease: "easeOut" }}
@@ -93,7 +93,7 @@ export function ProductPreview() {
         <div className={styles.jobList}>
           {jobs.map((job) => (
             <motion.article
-              initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 24 }}
+              initial={false}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.5 }}
               transition={{ duration: 0.5 }}
@@ -116,7 +116,7 @@ export function ProductPreview() {
 
       <motion.section
         className={styles.supportPanel}
-        initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 28 }}
+        initial={false}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.3 }}
         transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}

@@ -1,10 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Show, SignUpButton, useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { Show, SignUpButton } from "@clerk/nextjs";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import { useEffect } from "react";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
 import { ProductPreview } from "./ProductPreview";
 import styles from "./PRLandingPage.module.css";
@@ -49,28 +47,6 @@ const audienceItems = [
   }
 ] as const;
 
-function SignedInLandingRedirect() {
-  const router = useRouter();
-  const { isLoaded, isSignedIn } = useUser();
-
-  useEffect(() => {
-    if (isLoaded && isSignedIn) {
-      router.replace("/role-router");
-    }
-  }, [isLoaded, isSignedIn, router]);
-
-  if (!isLoaded || !isSignedIn) {
-    return null;
-  }
-
-  return (
-    <div className={styles.returningOverlay} role="status" aria-live="polite">
-      <span className={styles.returningMark} aria-hidden="true" />
-      <p>ホームへ移動しています</p>
-    </div>
-  );
-}
-
 export function PRLandingPage() {
   const demoAuth = isDemoAuthEnabled();
   const prefersReducedMotion = useReducedMotion();
@@ -102,7 +78,6 @@ export function PRLandingPage() {
 
   return (
     <div className={styles.landing}>
-      {!demoAuth ? <SignedInLandingRedirect /> : null}
       <motion.div
         className={styles.scrollProgress}
         style={{ scaleX: scrollYProgress }}
@@ -166,7 +141,7 @@ export function PRLandingPage() {
       <section className={styles.appStage} id="story" aria-label="はたるくんのアプリ体験">
         <motion.div
           className={styles.appCopy}
-          initial="hidden"
+          initial={false}
           whileInView="visible"
           viewport={{ once: true, amount: 0.35 }}
           variants={reveal}
@@ -192,7 +167,7 @@ export function PRLandingPage() {
 
       <section className={styles.bridgeSection} aria-label="はたるくんの価値">
         <motion.div
-          initial="hidden"
+          initial={false}
           whileInView="visible"
           viewport={{ once: true, amount: 0.35 }}
           variants={reveal}
@@ -208,7 +183,7 @@ export function PRLandingPage() {
       <section className={styles.audienceSection} aria-label="利用者別の入口">
         <motion.div
           className={styles.audienceHeading}
-          initial="hidden"
+          initial={false}
           whileInView="visible"
           viewport={{ once: true, amount: 0.35 }}
           variants={reveal}
@@ -217,7 +192,7 @@ export function PRLandingPage() {
         </motion.div>
         <motion.div
           className={styles.audienceGrid}
-          initial="hidden"
+          initial={false}
           whileInView="visible"
           viewport={{ once: true, amount: 0.25 }}
           variants={stagger}
@@ -249,7 +224,7 @@ export function PRLandingPage() {
           aria-hidden="true"
         />
         <motion.div
-          initial="hidden"
+          initial={false}
           whileInView="visible"
           viewport={{ once: true, amount: 0.4 }}
           variants={reveal}

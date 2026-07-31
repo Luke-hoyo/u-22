@@ -10,32 +10,6 @@
   background: #ffffff;
 }
 
-.returningOverlay {
-  position: fixed;
-  z-index: 200;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  gap: 1rem;
-  background: #f5faf8;
-  color: var(--color-primary-dark);
-  font-weight: 800;
-}
-
-.returningMark {
-  display: block;
-  width: 3.25rem;
-  height: 3.25rem;
-  border: 0.45rem solid rgb(0 77 64 / 16%);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: returningSpin 760ms linear infinite;
-}
-
-.returningOverlay p {
-  margin: 0;
-}
-
 .scrollProgress {
   position: fixed;
   z-index: 100;
@@ -471,12 +445,6 @@
   text-decoration-color: currentColor;
 }
 
-@keyframes returningSpin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 @media (max-width: 860px) {
   .hero {
     min-height: 670px;
@@ -535,7 +503,8 @@
   }
 
   .ctaSection {
-    margin-top: 6rem;
+    margin-top: 3rem;
+    padding: 4.5rem 0;
   }
 
   .footer {
@@ -545,12 +514,6 @@
 
   .footerLinks {
     justify-content: flex-start;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .returningMark {
-    animation: none;
   }
 }
 

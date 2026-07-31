@@ -38,7 +38,7 @@ NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 CLERK_SECRET_KEY=
 ```
 
-ログイン画面は `/sign-in`、新規登録画面は `/sign-up`、ログイン後は `/role-router` でアカウント種別ごとに振り分けます。
+ログイン画面は `/sign-in`、新規登録画面は `/sign-up`、ログイン後はまず `/dashboard` に移動します。
 
 キーが未設定のまま `npm run dev` を実行すると、起動前に不足しているキーを表示して停止します。
 
@@ -104,7 +104,7 @@ HATARAKUN_REQUIRE_AUTH=true
 
 `HATARAKUN_REQUIRE_AUTH=true` にすると、PRサイトを含む全ページがログイン必須になります。URLを直接開いても、未ログインなら `/sign-in` に移動します。
 
-ログイン後の振り分けは `/role-router` で行います。若者ユーザーは通常ダッシュボードへ、農家・自治体・運営ロールは農家向けダッシュボードへ移動します。
+農家・自治体・運営ロールの専用入口は、ログイン後のヘッダーや `/role-router` から農家向けダッシュボードへ移動できます。
 
 ### メンテナンス表示
 
