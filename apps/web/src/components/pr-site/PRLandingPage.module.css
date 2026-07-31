@@ -167,7 +167,7 @@
   position: absolute;
   z-index: 1;
   right: max(2rem, calc((100vw - 1120px) / 2));
-  bottom: 7rem;
+  bottom: 4.25rem;
   width: min(34vw, 25rem);
   color: var(--motion-ink);
 }
@@ -202,8 +202,8 @@
 
 .motionTimeline {
   display: grid;
-  gap: 0.75rem;
-  padding: 1.05rem;
+  gap: 0.52rem;
+  padding: 0.82rem;
 }
 
 .motionStep {
@@ -211,7 +211,7 @@
   grid-template-columns: auto minmax(0, 1fr);
   gap: 0.8rem;
   align-items: center;
-  padding: 0.8rem;
+  padding: 0.62rem;
   border: 1px solid rgb(0 77 64 / 10%);
   border-radius: 0.8rem;
   background: #ffffff;
@@ -228,8 +228,8 @@
 
 .motionStep > span {
   display: grid;
-  width: 2.15rem;
-  height: 2.15rem;
+  width: 1.95rem;
+  height: 1.95rem;
   place-items: center;
   border-radius: 0.55rem;
   background: #e9f6f3;
@@ -445,6 +445,59 @@
 
 .answerInner .storyNumber {
   top: -3rem;
+}
+
+.flowPath {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 3rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flowPath::before {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  left: 1rem;
+  height: 0.18rem;
+  background: linear-gradient(90deg, var(--story-coral), var(--color-primary), var(--story-yellow));
+  content: "";
+}
+
+.flowPath li {
+  position: relative;
+  display: grid;
+  gap: 1.15rem;
+  min-width: 0;
+}
+
+.flowPath li > span {
+  position: relative;
+  z-index: 1;
+  width: 2.15rem;
+  height: 2.15rem;
+  border: 0.35rem solid var(--story-sky);
+  border-radius: 999px;
+  background: var(--color-primary);
+  box-shadow: 0 0 0 0.3rem rgb(255 255 255 / 92%);
+}
+
+.flowPath h3 {
+  margin: 0;
+  color: var(--color-primary-dark);
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.flowPath p {
+  margin: 0.45rem 0 0;
+  color: var(--color-text-sub);
+  font-size: 0.95rem;
+  line-height: 1.65;
 }
 
 .worldSection .storyNumber,
@@ -842,10 +895,24 @@
   }
 
   .problemGrid,
+  .flowPath,
   .impactGrid,
   .journeyList,
   .securityGrid {
     grid-template-columns: 1fr;
+  }
+
+  .flowPath {
+    gap: 1.35rem;
+  }
+
+  .flowPath::before {
+    top: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    width: 0.18rem;
+    height: auto;
+    background: linear-gradient(180deg, var(--story-coral), var(--color-primary), var(--story-yellow));
   }
 
   .storySection,

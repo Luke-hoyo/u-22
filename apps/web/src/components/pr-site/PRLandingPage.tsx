@@ -9,8 +9,7 @@ import {
   impactItems,
   journeySteps,
   problemCards,
-  securityItems,
-  workFields
+  securityItems
 } from "@/lib/pr-site-content";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
 import { ProductPreview } from "./ProductPreview";
@@ -88,11 +87,11 @@ export function PRLandingPage() {
           </motion.p>
           <motion.h1 variants={reveal}>はたるくん</motion.h1>
           <motion.p className={styles.heroStatement} variants={reveal}>
-            働くほど、未来は軽くなる。
+            地域で働くことを、返済の力に。
           </motion.p>
           <motion.p className={styles.heroLead} variants={reveal}>
-            返済に悩む若者と、担い手を求める地域。
-            ふたつの未来を「働く」でつなぐ、新しい仕事探しです。
+            奨学金返済に悩む若者と、担い手を求める第一次産業をつなぐ。
+            仕事探し、返済支援、地域ポイントまでをひとつの体験にします。
           </motion.p>
           <motion.div className={styles.heroActions} variants={reveal}>
             {demoAuth ? (
@@ -116,7 +115,7 @@ export function PRLandingPage() {
               </>
             )}
             <a className={styles.heroLink} href="#story">
-              ものがたりを見る
+              仕組みを見る
             </a>
           </motion.div>
         </motion.div>
@@ -148,7 +147,10 @@ export function PRLandingPage() {
               {[
                 ["01", "ログイン", "Clerkで安全に本人を確認"],
                 ["02", "希望登録", "地域・業種・開始月を選ぶ"],
-                ["03", "ホーム", "求人と返済支援の見通しへ"]
+                ["03", "求人検索", "農業・林業・水産業から探す"],
+                ["04", "面談", "受け入れ先と条件を確認"],
+                ["05", "就業", "働いた年数に応じて返済支援"],
+                ["06", "ポイント", "地域参加を商品券へ交換"]
               ].map(([index, title, description]) => (
                 <div className={styles.motionStep} key={index}>
                   <span>{index}</span>
@@ -183,15 +185,15 @@ export function PRLandingPage() {
         aria-label="はたるくんの特徴"
       >
         <motion.div className={styles.messageItem} variants={reveal}>
-          <span>01 / 探す</span>
+          <span>探す</span>
           <b>地域の仕事を見つける</b>
         </motion.div>
         <motion.div className={styles.messageItem} variants={reveal}>
-          <span>02 / 知る</span>
+          <span>支援</span>
           <b>返済の見通しがわかる</b>
         </motion.div>
         <motion.div className={styles.messageItem} variants={reveal}>
-          <span>03 / つながる</span>
+          <span>定着</span>
           <b>地域との未来を育てる</b>
         </motion.div>
       </motion.div>
@@ -213,11 +215,11 @@ export function PRLandingPage() {
           viewport={{ once: true, amount: 0.35 }}
           variants={reveal}
         >
-          <p className={styles.kicker}>はじまりの話</p>
-          <h2>返済だけを理由に、未来を小さくしない。</h2>
+          <p className={styles.kicker}>課題</p>
+          <h2>若者の返済不安と、地域の担い手不足を同時に扱う。</h2>
           <p>
-            やってみたい仕事がある。暮らしてみたい場所がある。
-            その気持ちを、奨学金の返済が止めてしまわないように。
+            返済、仕事探し、移住の情報が別々にあると、最初の一歩が重くなります。
+            はたるくんは、働く選択と返済支援を同じ画面で見えるようにします。
           </p>
         </motion.div>
         <motion.div
@@ -261,18 +263,36 @@ export function PRLandingPage() {
             viewport={{ once: true, amount: 0.35 }}
             variants={reveal}
           >
-            <p className={styles.kicker}>はたるくんの答え</p>
-            <h2>仕事と返済支援を、ひとつの体験に。</h2>
+            <p className={styles.kicker}>体験デモ</p>
+            <h2>希望登録から、求人、面談、返済支援まで。</h2>
             <p>
-              地域の仕事を探す。働く期間を選ぶ。返済負担がどれだけ軽くなるかを知る。
-              ばらばらだった情報を、ひとつの道にします。
+              審査員が触れるデモでは、ログイン、プロフィール登録、求人検索、ポイント、
+              農家向け承認までを一連の流れとして確認できます。
             </p>
           </motion.div>
+          <motion.ol
+            className={styles.flowPath}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.35 }}
+            variants={stagger}
+            aria-label="利用の流れ"
+          >
+            {journeySteps.map((step) => (
+              <motion.li variants={reveal} key={step.title}>
+                <span />
+                <div>
+                  <h3>{step.title}</h3>
+                  <p>{step.description}</p>
+                </div>
+              </motion.li>
+            ))}
+          </motion.ol>
           <ProductPreview />
         </div>
       </section>
 
-      <section className={styles.worldSection}>
+      <section className={styles.securitySection}>
         <motion.div
           className={styles.storyNumber}
           initial={{ opacity: 0, x: prefersReducedMotion ? 0 : 90 }}
@@ -289,99 +309,8 @@ export function PRLandingPage() {
           viewport={{ once: true, amount: 0.35 }}
           variants={reveal}
         >
-          <p className={styles.kicker}>まだ知らない仕事へ</p>
-          <h2>日本中が、働く場所になる。</h2>
-          <p>仕事を知ることは、その土地の暮らしと未来を知ることです。</p>
-        </motion.div>
-        <div className={styles.workGrid}>
-          {workFields.map((field, index) => (
-            <motion.article
-              className={styles.workCard}
-              initial={{ opacity: 0, x: prefersReducedMotion ? 0 : -70 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              whileHover={prefersReducedMotion ? undefined : { x: 10 }}
-              viewport={{ once: true, amount: 0.4 }}
-              transition={{
-                duration: 0.65,
-                delay: prefersReducedMotion ? 0 : index * 0.12,
-                ease: "easeOut"
-              }}
-              key={field.title}
-            >
-              <span className={styles.workIndex}>0{index + 1}</span>
-              <div>
-                <span>{field.label}</span>
-                <h3>{field.title}</h3>
-                <p>{field.description}</p>
-                <Link href="/dashboard">仕事を見てみる</Link>
-              </div>
-            </motion.article>
-          ))}
-        </div>
-      </section>
-
-      <section className={styles.journeySection}>
-        <div className={styles.journeyInner}>
-          <motion.div
-            className={styles.storyNumber}
-            initial={{ opacity: 0, x: prefersReducedMotion ? 0 : 90 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            04
-          </motion.div>
-          <motion.div
-            className={styles.sectionHeading}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.35 }}
-            variants={reveal}
-          >
-            <p className={styles.kicker}>あなたの一歩</p>
-            <h2>見つける。知る。働く。つながる。</h2>
-          </motion.div>
-          <motion.ol
-            className={styles.journeyList}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={stagger}
-          >
-            {journeySteps.map((step, index) => (
-              <motion.li
-                variants={reveal}
-                whileHover={prefersReducedMotion ? undefined : { y: -8 }}
-                key={step.title}
-              >
-                <span>{index + 1}</span>
-                <h3>{step.title}</h3>
-                <p>{step.description}</p>
-              </motion.li>
-            ))}
-          </motion.ol>
-        </div>
-      </section>
-
-      <section className={styles.securitySection}>
-        <motion.div
-          className={styles.storyNumber}
-          initial={{ opacity: 0, x: prefersReducedMotion ? 0 : 90 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          05
-        </motion.div>
-        <motion.div
-          className={styles.sectionHeading}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.35 }}
-          variants={reveal}
-        >
-          <p className={styles.kicker}>実装した安全機能</p>
-          <h2>大事な情報を扱う前提だから、守る仕組みも触れる。</h2>
+          <p className={styles.kicker}>技術と安全性</p>
+          <h2>本人情報を扱う前提で、守る仕組みも見せる。</h2>
           <p>
             マイナンバーや奨学金情報の実データは使わず、認証、ポイント重複検知、操作ログを
             安全なデモとして実装しています。
@@ -414,7 +343,7 @@ export function PRLandingPage() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          06
+          04
         </motion.div>
         <motion.div
           className={styles.sectionHeading}
@@ -423,8 +352,8 @@ export function PRLandingPage() {
           viewport={{ once: true, amount: 0.35 }}
           variants={reveal}
         >
-          <p className={styles.kicker}>目指す未来</p>
-          <h2>ひとりの選択から、地域の明日が動き出す。</h2>
+          <p className={styles.kicker}>未来</p>
+          <h2>働く選択が、若者と地域の両方を前に進める。</h2>
         </motion.div>
         <motion.div
           className={styles.impactGrid}
@@ -465,8 +394,8 @@ export function PRLandingPage() {
           variants={reveal}
         >
           <p className={styles.kicker}>さあ、次の一歩へ</p>
-          <h2>まだ知らない地域が、あなたを待っている。</h2>
-          <p>はたるくんで、返済の未来と働く場所を一緒に探してみませんか。</p>
+          <h2>まずは、動くプロトタイプで確認する。</h2>
+          <p>Webとスマホで、若者ユーザーと農家側の体験を試せます。</p>
           {demoAuth ? (
             <Link className="button button-primary" href="/dashboard">
               はたるくんを体験する
