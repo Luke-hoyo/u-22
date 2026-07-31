@@ -71,7 +71,7 @@ export const impactItems = [
 export const securityItems = [
   {
     title: "ログイン保護",
-    description: "Clerkでアプリ画面を保護し、ログイン済みユーザーだけがデモ画面を開けます。"
+    description: "ログイン済みユーザーだけが、仕事探しや応募状況の画面を開けます。"
   },
   {
     title: "ポイント重複検知",

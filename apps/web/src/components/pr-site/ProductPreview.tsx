@@ -143,7 +143,7 @@ export function ProductPreview() {
             <dd>1,200 pt</dd>
           </div>
         </dl>
-        <small className={styles.note}>表示内容はサービス体験用の一例です。</small>
+        <small className={styles.note}>表示内容は一例です。</small>
       </motion.section>
     </div>
   );

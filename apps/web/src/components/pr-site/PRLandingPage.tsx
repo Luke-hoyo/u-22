@@ -17,29 +17,29 @@ import styles from "./PRLandingPage.module.css";
 
 const implementationHighlights = [
   {
-    label: "Auth",
-    title: "Clerkログイン",
-    description: "Googleログインとメール認証に対応し、ログイン後はホームへ直接移動します。"
+    label: "若者",
+    title: "返済と仕事を同じ画面で見る",
+    description: "希望する地域や働き方を選びながら、返済支援の見通しを確認できます。"
   },
   {
-    label: "Jobs",
-    title: "求人・マッチング",
-    description: "地域、業種、就業期間、返済支援見込みを見ながら応募先を選べます。"
+    label: "地域",
+    title: "受け入れ先と出会う",
+    description: "農業、林業、水産業の現場と、地域で働きたい若者をつなぎます。"
   },
   {
-    label: "Points",
-    title: "地域ポイント",
-    description: "イベント参加、履歴表示、商品券交換までをデモ内で操作できます。"
+    label: "参加",
+    title: "地域参加がポイントになる",
+    description: "イベントや地域活動への参加を記録し、暮らしに使える特典へつなげます。"
   },
   {
-    label: "Farmer",
-    title: "農家向け申請",
-    description: "受け入れ事業者の申請と、農家向けダッシュボードの導線を用意しています。"
+    label: "事業者",
+    title: "募集と応募状況を管理する",
+    description: "受け入れ申請から応募者の確認まで、地域事業者の入口を用意しています。"
   },
   {
-    label: "Security",
-    title: "安全性の見える化",
-    description: "本人確認、重複検知、監査ログを審査員が確認できる画面にまとめています。"
+    label: "安心",
+    title: "大切な情報を守る",
+    description: "本人確認、ポイントの不正利用防止、操作履歴の確認を大切にしています。"
   }
 ] as const;
 
@@ -173,7 +173,7 @@ export function PRLandingPage() {
             </div>
             <div className={styles.motionTimeline}>
               {[
-                ["01", "ログイン", "Clerkで安全に本人を確認"],
+                ["01", "ログイン", "安全に本人を確認"],
                 ["02", "希望登録", "地域・業種・開始月を選ぶ"],
                 ["03", "求人検索", "農業・林業・水産業から探す"],
                 ["04", "面談", "受け入れ先と条件を確認"],
@@ -226,7 +226,7 @@ export function PRLandingPage() {
         </motion.div>
       </motion.div>
 
-      <section className={styles.buildSection} aria-label="実装済みデモ">
+      <section className={styles.buildSection} aria-label="はたるくんでできること">
         <motion.div
           className={styles.buildIntro}
           initial="hidden"
@@ -234,11 +234,11 @@ export function PRLandingPage() {
           viewport={{ once: true, amount: 0.35 }}
           variants={reveal}
         >
-          <p className={styles.kicker}>実装済み</p>
-          <h2>企画書ではなく、触れるプロトタイプとして見せる。</h2>
+          <p className={styles.kicker}>できること</p>
+          <h2>仕事を探すところから、地域に残るところまで。</h2>
           <p>
-            コンテストでは、社会課題の説明だけでなく、ログイン後の操作、ポイント交換、
-            農家側の導線、安全性までを実際の画面で確認できます。
+            はたるくんは、仕事探し、返済支援、地域ポイント、受け入れ先とのやりとりを
+            ひとつの流れで支えます。
           </p>
         </motion.div>
         <motion.div
@@ -330,11 +330,11 @@ export function PRLandingPage() {
             viewport={{ once: true, amount: 0.35 }}
             variants={reveal}
           >
-            <p className={styles.kicker}>体験デモ</p>
+            <p className={styles.kicker}>アプリ体験</p>
             <h2>希望登録から、求人、面談、返済支援まで。</h2>
             <p>
-              審査員が触れるデモでは、ログイン、プロフィール登録、求人検索、ポイント、
-              農家向け承認までを一連の流れとして確認できます。
+              プロフィール登録、求人検索、応募状況、ポイント、受け入れ先とのやりとりまでを
+              迷わず進められる画面にまとめています。
             </p>
           </motion.div>
           <motion.ol
@@ -376,11 +376,11 @@ export function PRLandingPage() {
           viewport={{ once: true, amount: 0.35 }}
           variants={reveal}
         >
-          <p className={styles.kicker}>技術と安全性</p>
-          <h2>本人情報を扱う前提で、守る仕組みも見せる。</h2>
+          <p className={styles.kicker}>安心のために</p>
+          <h2>本人情報を扱うからこそ、守る仕組みをわかりやすく。</h2>
           <p>
-            マイナンバーや奨学金情報の実データは使わず、認証、ポイント重複検知、操作ログを
-            安全なデモとして実装しています。
+            返済や本人確認に関わる情報を扱うからこそ、ログイン保護、ポイント重複検知、
+            操作ログをわかりやすく確認できるようにしています。
           </p>
         </motion.div>
         <motion.div
@@ -461,8 +461,8 @@ export function PRLandingPage() {
           variants={reveal}
         >
           <p className={styles.kicker}>さあ、次の一歩へ</p>
-          <h2>まずは、動くプロトタイプで確認する。</h2>
-          <p>Webとスマホで、若者ユーザーと農家側の体験を試せます。</p>
+          <h2>地域の仕事と、返済支援の見通しを見にいく。</h2>
+          <p>若者ユーザーと地域事業者、それぞれの入口からはじめられます。</p>
           {demoAuth ? (
             <Link className="button button-primary" href="/dashboard">
               はたるくんを体験する
@@ -496,7 +496,7 @@ export function PRLandingPage() {
           <Link href="/farmer/dashboard">農家向けダッシュボード</Link>
           <Link href="/security">セキュリティ</Link>
         </nav>
-        <small>© 2026 u.r.ki / U-22 プログラミング・コンテスト応募作品</small>
+        <small>© 2026 u.r.ki</small>
       </footer>
     </div>
   );
