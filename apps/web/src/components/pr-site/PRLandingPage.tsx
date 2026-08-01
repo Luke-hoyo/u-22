@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Show, SignUpButton } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
 import { ProductPreview } from "./ProductPreview";
@@ -49,6 +49,7 @@ const audienceItems = [
 
 export function PRLandingPage() {
   const demoAuth = isDemoAuthEnabled();
+  const { isSignedIn } = useUser();
   const prefersReducedMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
   const badgeRotate = useTransform(
@@ -103,21 +104,14 @@ export function PRLandingPage() {
               <Link className="button button-primary" href="/dashboard">
                 はたるくんを体験する
               </Link>
+            ) : isSignedIn ? (
+              <Link className="button button-primary" href="/dashboard">
+                仕事を探してみる
+              </Link>
             ) : (
-              <>
-                <Show when="signed-out">
-                  <SignUpButton>
-                    <button className="button button-primary" type="button">
-                      はたるくんを体験する
-                    </button>
-                  </SignUpButton>
-                </Show>
-                <Show when="signed-in">
-                  <Link className="button button-primary" href="/dashboard">
-                    仕事を探してみる
-                  </Link>
-                </Show>
-              </>
+              <Link className="button button-primary" href="/sign-up">
+                はたるくんを体験する
+              </Link>
             )}
             <a className={styles.heroLink} href="#story">
               仕組みを見る
@@ -236,21 +230,14 @@ export function PRLandingPage() {
             <Link className="button button-primary" href="/dashboard">
               はたるくんを体験する
             </Link>
+          ) : isSignedIn ? (
+            <Link className="button button-primary" href="/dashboard">
+              仕事を探してみる
+            </Link>
           ) : (
-            <>
-              <Show when="signed-out">
-                <SignUpButton>
-                  <button className="button button-primary" type="button">
-                    はたるくんを体験する
-                  </button>
-                </SignUpButton>
-              </Show>
-              <Show when="signed-in">
-                <Link className="button button-primary" href="/dashboard">
-                  仕事を探してみる
-                </Link>
-              </Show>
-            </>
+            <Link className="button button-primary" href="/sign-up">
+              はたるくんを体験する
+            </Link>
           )}
         </motion.div>
       </section>

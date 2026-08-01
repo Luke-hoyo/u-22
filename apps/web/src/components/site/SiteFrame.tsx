@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Show, SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import { canAccessAdmin, getUserRole } from "@/lib/access-control";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
@@ -60,7 +60,7 @@ function DemoSiteFrame({ children }: { children: React.ReactNode }) {
 
 function ClerkSiteFrame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { user } = useUser();
+  const { isSignedIn, user } = useUser();
   const role = getUserRole(user?.publicMetadata);
   const signedInHomeHref = canAccessAdmin(role) ? "/farmer/dashboard" : "/dashboard";
   const isProductPage = productPaths.some(
@@ -86,24 +86,23 @@ function ClerkSiteFrame({ children }: { children: React.ReactNode }) {
           <span>はたるくん</span>
         </Link>
         <nav className="header-actions" aria-label="アカウント">
-          <Show when="signed-out">
-            <SignInButton>
-              <button className="button button-secondary" type="button">
-                ログイン
-              </button>
-            </SignInButton>
-            <SignUpButton>
-              <button className="button button-primary" type="button">
-                新規登録
-              </button>
-            </SignUpButton>
-          </Show>
-          <Show when="signed-in">
+          {isSignedIn ? (
+            <>
             <Link className="button button-secondary" href={signedInHomeHref}>
               ダッシュボード
             </Link>
             <UserButton />
-          </Show>
+            </>
+          ) : (
+            <>
+              <Link className="button button-secondary" href="/sign-in">
+                ログイン
+              </Link>
+              <Link className="button button-primary" href="/sign-up">
+                新規登録
+              </Link>
+            </>
+          )}
         </nav>
       </header>
       <main className="page-main">{children}</main>
