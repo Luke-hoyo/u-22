@@ -1,5 +1,4 @@
 import { SignUp } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { AuthRedirectWatcher } from "@/components/auth/AuthRedirectWatcher";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
@@ -41,12 +40,6 @@ function normalizeRedirectUrl(value: string | undefined) {
 
 export default async function SignUpPage({ searchParams }: AuthPageProps) {
   if (isDemoAuthEnabled()) {
-    redirect("/dashboard");
-  }
-
-  const { isAuthenticated } = await auth();
-
-  if (isAuthenticated) {
     redirect("/dashboard");
   }
 
