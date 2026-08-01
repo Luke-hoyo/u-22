@@ -1,6 +1,7 @@
 import { SignUp } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { AuthRedirectWatcher } from "@/components/auth/AuthRedirectWatcher";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
 
 type AuthPageProps = {
@@ -59,6 +60,7 @@ export default async function SignUpPage({ searchParams }: AuthPageProps) {
   return (
     <section className="auth-layout">
       <div className="auth-card">
+        <AuthRedirectWatcher />
         <h1>新規登録</h1>
         <SignUp
           forceRedirectUrl="/dashboard"
