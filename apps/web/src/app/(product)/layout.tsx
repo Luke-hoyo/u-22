@@ -1,4 +1,5 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { AppShell } from "@/components/app/AppShell";
 import { getUserRole } from "@/lib/access-control";
 import { getDemoDisplayName, getDemoUserRole, isDemoAuthEnabled } from "@/lib/demo-auth";
@@ -16,10 +17,10 @@ export default async function ProductLayout({
     );
   }
 
-  const { isAuthenticated, redirectToSignIn } = await auth();
+  const { isAuthenticated } = await auth();
 
   if (!isAuthenticated) {
-    return redirectToSignIn();
+    redirect("/sign-in?redirect_url=/dashboard");
   }
 
   const user = await currentUser();

@@ -65,6 +65,75 @@ function maintenanceResponse(request: NextRequest) {
   return NextResponse.redirect(maintenanceUrl);
 }
 
+function getPublicOrigin(request: NextRequest) {
+  const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
+  if (configuredSiteUrl?.startsWith("http")) {
+    return configuredSiteUrl.replace(/\/$/, "");
+  }
+
+  const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+
+  if (host === "hatarukun.jp" || host === "www.hatarukun.jp") {
+    return `https://${host}`;
+  }
+
+  const proto = request.headers.get("x-forwarded-proto") ?? request.nextUrl.protocol.replace(":", "");
+  return `${proto}://${host ?? request.nextUrl.host}`;
+}
+
+function signInUrlFor(request: NextRequest) {
+  const origin = getPublicOrigin(request);
+  const signInUrl = new URL("/sign-in", origin);
+  const redirectUrl = new URL(request.nextUrl.pathname, origin);
+  redirectUrl.search = request.nextUrl.search;
+  signInUrl.searchParams.set("redirect_url", redirectUrl.toString());
+  return signInUrl.toString();
+}
+
+function normalizeRedirectUrl(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  const url = new URL(value, "https://hatarukun.jp");
+  const isAbsoluteUrl = /^https?:\/\//.test(value);
+
+  if (url.hostname === "hatarukun.jp" || url.hostname === "www.hatarukun.jp") {
+    url.protocol = "https:";
+  }
+
+  if (url.pathname === "/role-router") {
+    return "https://hatarukun.jp/dashboard";
+  }
+
+  if (!isAbsoluteUrl) {
+    return value;
+  }
+
+  return url.toString();
+}
+
+function normalizedAuthRedirectResponse(request: NextRequest) {
+  if (request.nextUrl.pathname !== "/sign-in" && request.nextUrl.pathname !== "/sign-up") {
+    return null;
+  }
+
+  const currentRedirectUrl = request.nextUrl.searchParams.get("redirect_url");
+  const normalizedRedirectUrl = normalizeRedirectUrl(currentRedirectUrl);
+
+  if (!currentRedirectUrl || !normalizedRedirectUrl || currentRedirectUrl === normalizedRedirectUrl) {
+    return null;
+  }
+
+  const redirectUrl = new URL(request.nextUrl.pathname, getPublicOrigin(request));
+  request.nextUrl.searchParams.forEach((value, key) => {
+    redirectUrl.searchParams.set(key, key === "redirect_url" ? normalizedRedirectUrl : value);
+  });
+
+  return NextResponse.redirect(redirectUrl);
+}
+
 const clerkProxy = clerkMiddleware(async (auth, request) => {
   const maintenance = maintenanceResponse(request);
 
@@ -76,7 +145,7 @@ const clerkProxy = clerkMiddleware(async (auth, request) => {
     return NextResponse.next();
   }
 
-  await auth.protect();
+  await auth.protect({ unauthenticatedUrl: signInUrlFor(request) });
   return NextResponse.next();
 });
 
@@ -87,6 +156,12 @@ const proxy = isDemoAuthEnabled()
 
       if (maintenance) {
         return maintenance;
+      }
+
+      const normalizedAuthRedirect = normalizedAuthRedirectResponse(request);
+
+      if (normalizedAuthRedirect) {
+        return normalizedAuthRedirect;
       }
 
       if (isAuthBypassPath(request.nextUrl.pathname)) {

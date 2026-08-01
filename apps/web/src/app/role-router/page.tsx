@@ -10,10 +10,10 @@ export default async function RoleRouterPage() {
     redirect(canAccessAdmin(role) ? "/farmer/dashboard" : "/dashboard");
   }
 
-  const { isAuthenticated, redirectToSignIn } = await auth();
+  const { isAuthenticated } = await auth();
 
   if (!isAuthenticated) {
-    return redirectToSignIn();
+    redirect("/sign-in?redirect_url=/dashboard");
   }
 
   const user = await currentUser();
