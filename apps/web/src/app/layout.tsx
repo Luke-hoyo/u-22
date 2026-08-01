@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { jaJP } from "@clerk/localizations";
 import { Hanken_Grotesk } from "next/font/google";
-import { AppwritePing } from "@/components/appwrite/AppwritePing";
 import { SiteFrame } from "@/components/site/SiteFrame";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
 import "./globals.css";
@@ -58,10 +57,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const content = (
-    <>
-      <AppwritePing />
-      <SiteFrame>{children}</SiteFrame>
-    </>
+    <SiteFrame>{children}</SiteFrame>
   );
 
   return (
