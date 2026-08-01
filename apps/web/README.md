@@ -42,15 +42,11 @@ CLERK_SECRET_KEY=
 
 キーが未設定のまま `npm run dev` を実行すると、起動前に不足しているキーを表示して停止します。
 
-### 本番ドメインのClerk proxy
+### 本番ドメインのClerk設定
 
-Windows Server + IIS配下で `https://hatarukun.jp/v1/client/handshake` が404になる場合は、ClerkのFrontend API通信がアプリ側で止まっています。
+本番ではClerkのCNAME `clerk.hatarukun.jp` と `accounts.hatarukun.jp` を使います。`NEXT_PUBLIC_CLERK_PROXY_URL` は設定しません。
 
-このWebアプリでは `src/proxy.ts` でClerkのFrontend API proxyを有効化し、`/v1/*` をClerkへ中継します。Clerk Dashboard側でも本番ドメインのproxy URLを次に合わせます。
-
-```text
-https://hatarukun.jp/v1
-```
+`https://hatarukun.jp/v1/v1/client/handshake` のように `/v1` が重複する場合は、Clerk Dashboardのproxy URL、または `.env.production` の `NEXT_PUBLIC_CLERK_PROXY_URL` に `https://hatarukun.jp/v1` が残っていないか確認してください。
 
 ログイン後の戻り先は `https://hatarukun.jp/dashboard` に正規化します。古い `http://hatarukun.jp/role-router` が残っていても、middlewareで `/dashboard` に寄せます。
 

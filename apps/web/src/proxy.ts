@@ -148,12 +148,6 @@ const clerkProxy = clerkMiddleware(
 
     await auth.protect({ unauthenticatedUrl: signInUrlFor(request) });
     return NextResponse.next();
-  },
-  {
-    frontendApiProxy: {
-      enabled: true,
-      path: "/v1"
-    }
   }
 );
 
@@ -183,7 +177,6 @@ export default proxy;
 
 export const config = {
   matcher: [
-    "/v1/(.*)",
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
     "/(api|trpc)(.*)",
     "/__clerk/(.*)"
