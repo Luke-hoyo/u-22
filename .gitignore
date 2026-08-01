@@ -5,6 +5,7 @@
 .env.*
 !.env.example
 !apps/**/.env.example
+!apps/**/.env.production.example
 **/dart_defines.local.json
 
 # Node / Web

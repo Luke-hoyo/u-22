@@ -17,6 +17,46 @@ if (-not (Test-Path ".env.production")) {
   exit 1
 }
 
+$envContent = Get-Content ".env.production"
+$envValues = @{}
+
+foreach ($line in $envContent) {
+  $trimmed = $line.Trim()
+
+  if (-not $trimmed -or $trimmed.StartsWith("#") -or -not $trimmed.Contains("=")) {
+    continue
+  }
+
+  $parts = $trimmed.Split("=", 2)
+  $envValues[$parts[0].Trim()] = $parts[1].Trim()
+}
+
+$requiredEnvKeys = @(
+  "NEXT_PUBLIC_SITE_URL",
+  "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
+  "CLERK_SECRET_KEY",
+  "NEXT_PUBLIC_CLERK_SIGN_IN_URL",
+  "NEXT_PUBLIC_CLERK_SIGN_UP_URL",
+  "NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL",
+  "NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL",
+  "NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL",
+  "NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL",
+  "NEXT_PUBLIC_CLERK_PROXY_URL"
+)
+
+$missingEnvKeys = @(
+  $requiredEnvKeys | Where-Object {
+    -not $envValues.ContainsKey($_) -or [string]::IsNullOrWhiteSpace($envValues[$_])
+  }
+)
+
+if ($missingEnvKeys.Count -gt 0) {
+  Write-Host "apps/web/.env.production is missing required values:"
+  $missingEnvKeys | ForEach-Object { Write-Host " - $_" }
+  Write-Host "Copy apps/web/.env.production.example and fill the values before deploying."
+  exit 1
+}
+
 $task = $null
 $manageTask = -not $SkipRestart
 

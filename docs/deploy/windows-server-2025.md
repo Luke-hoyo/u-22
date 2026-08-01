@@ -43,7 +43,7 @@ mkdir C:\hatarukun
 cd C:\hatarukun
 git clone https://github.com/Luke-hoyo/u-22.git
 cd C:\hatarukun\u-22\apps\web
-copy .env.example .env.production
+copy .env.production.example .env.production
 notepad .env.production
 npm.cmd ci
 npm.cmd run build
@@ -57,26 +57,38 @@ npm.cmd run start -- --hostname localhost --port 3000
 `apps/web/.env.production` に入れます。このファイルはGitに入れません。
 
 ```env
-NEXT_PUBLIC_SITE_URL=https://example.com
+NEXT_PUBLIC_SITE_URL=https://hatarukun.jp
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 CLERK_SECRET_KEY=
 NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
 NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/role-router
-NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/role-router
+NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL=/dashboard
+NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL=/dashboard
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
+NEXT_PUBLIC_CLERK_PROXY_URL=https://hatarukun.jp/v1
 
 NEXT_PUBLIC_APPWRITE_ENDPOINT=
 NEXT_PUBLIC_APPWRITE_PROJECT_ID=
 APPWRITE_API_KEY=
 APPWRITE_DATABASE_ID=
+APPWRITE_BUCKET_ID=
+APPWRITE_TABLE_ID_USERS=
 APPWRITE_TABLE_ID_JOBS=
+APPWRITE_TABLE_ID_APPLICATIONS=
+APPWRITE_TABLE_ID_EVENTS=
+APPWRITE_TABLE_ID_POINT_TRANSACTIONS=
+APPWRITE_TABLE_ID_REWARD_EXCHANGES=
 
 HATARAKUN_REQUIRE_AUTH=true
+HATARAKUN_MAINTENANCE_MODE=false
 ```
 
 `HATARAKUN_REQUIRE_AUTH=true` にすると、PRサイトや共有リンクを直接開いた場合でも、未ログインなら `/sign-in` に移動します。
 
-デベロッパーだけに限定するロックは現在使いません。ログイン済みユーザーは `/role-router` でロールに応じて振り分けます。
+ClerkのFrontend API proxyは `https://hatarukun.jp/v1` を使います。Clerk Dashboard側でもproxy URLを同じ値にします。
+
+デベロッパーだけに限定するロックは現在使いません。ログイン後はまず `/dashboard` に移動し、農家・自治体・運営はヘッダーや `/role-router` から農家向けダッシュボードへ移動できます。
 
 メンテナンス画面へ切り替える場合は、次を `true` にして再デプロイします。
 

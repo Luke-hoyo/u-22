@@ -148,7 +148,7 @@ Windows Server 2025に置く場合:
 
 1. サーバーにNode.js LTS、Git、IIS、IIS URL Rewrite、Application Request Routingを入れる
 2. GitHubから `Luke-hoyo/u-22` をcloneする
-3. `apps/web/.env.example` を `apps/web/.env.production` にコピーする
+3. `apps/web/.env.production.example` を `apps/web/.env.production` にコピーする
 4. Clerk、Appwrite、開発者ロック用の値を `.env.production` に入れる
 5. `npm.cmd ci` と `npm.cmd run build` を実行する
 6. `scripts/start-windows-server.ps1` でNext.jsを `localhost:3000` に起動する
