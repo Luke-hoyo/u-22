@@ -134,20 +134,28 @@ function normalizedAuthRedirectResponse(request: NextRequest) {
   return NextResponse.redirect(redirectUrl);
 }
 
-const clerkProxy = clerkMiddleware(async (auth, request) => {
-  const maintenance = maintenanceResponse(request);
+const clerkProxy = clerkMiddleware(
+  async (auth, request) => {
+    const maintenance = maintenanceResponse(request);
 
-  if (maintenance) {
-    return maintenance;
-  }
+    if (maintenance) {
+      return maintenance;
+    }
 
-  if (!isLoginRequired() || !isProtectedPath(request.nextUrl.pathname)) {
+    if (!isLoginRequired() || !isProtectedPath(request.nextUrl.pathname)) {
+      return NextResponse.next();
+    }
+
+    await auth.protect({ unauthenticatedUrl: signInUrlFor(request) });
     return NextResponse.next();
+  },
+  {
+    frontendApiProxy: {
+      enabled: true,
+      path: "/v1"
+    }
   }
-
-  await auth.protect({ unauthenticatedUrl: signInUrlFor(request) });
-  return NextResponse.next();
-});
+);
 
 const proxy = isDemoAuthEnabled()
   ? (request: NextRequest) => maintenanceResponse(request) ?? NextResponse.next()
