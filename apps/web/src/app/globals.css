@@ -245,6 +245,21 @@ button {
   font-size: 1.8rem;
 }
 
+.auth-actions {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.auth-actions a {
+  color: var(--color-primary);
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
 .dashboard {
   display: grid;
   gap: 1.25rem;

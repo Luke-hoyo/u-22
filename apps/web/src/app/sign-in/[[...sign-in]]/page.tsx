@@ -1,4 +1,5 @@
 import { SignIn } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
 
@@ -42,6 +43,12 @@ export default async function SignInPage({ searchParams }: AuthPageProps) {
     redirect("/dashboard");
   }
 
+  const { isAuthenticated } = await auth();
+
+  if (isAuthenticated) {
+    redirect("/dashboard");
+  }
+
   const requestedRedirectUrl = getRedirectUrl((await searchParams)?.redirect_url);
   const normalizedRedirectUrl = normalizeRedirectUrl(requestedRedirectUrl);
 
@@ -59,6 +66,10 @@ export default async function SignInPage({ searchParams }: AuthPageProps) {
           signUpForceRedirectUrl="/dashboard"
           signUpFallbackRedirectUrl="/dashboard"
         />
+        <div className="auth-actions">
+          <a href="/dashboard">ログイン済みの方はダッシュボードへ</a>
+          <a href="/">ホームへ戻る</a>
+        </div>
       </div>
     </section>
   );

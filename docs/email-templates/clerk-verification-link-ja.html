@@ -1,0 +1,111 @@
+<re-html>
+  <re-head>
+    <re-title>
+      【{{app.name}}】メールアドレスの確認
+    </re-title>
+  </re-head>
+
+  <re-body background-color="#f5faf8" padding="40px 24px 40px 24px">
+    <re-preheader>
+      ボタンを押して、{{app.name}}のメールアドレス確認を完了してください。
+    </re-preheader>
+
+    <re-header padding="24px 32px 16px 32px" background-color="#ffffff">
+      <re-text
+        align="center"
+        color="#003f35"
+        font-size="18px"
+        font-weight="bold"
+        line-height="26px"
+      >
+        {{> app_logo}}
+      </re-text>
+    </re-header>
+
+    <re-main background-color="#ffffff" border-radius="8px">
+      <re-block
+        align="center"
+        background-color="#ffffff"
+        border-radius="8px"
+        padding="24px 32px 40px 32px"
+      >
+        <re-heading
+          align="center"
+          color="#003f35"
+          font-size="24px"
+          line-height="34px"
+          margin="0"
+          level="h1"
+        >
+          メールアドレスを確認
+        </re-heading>
+
+        <re-text
+          align="center"
+          color="#4e5d58"
+          font-size="14px"
+          line-height="24px"
+          margin="20px 0px 0px 0px"
+        >
+          はたるくんをご利用いただきありがとうございます。<br>
+          次のボタンから、メールアドレスの確認を完了してください。
+        </re-text>
+
+        <re-button
+          background-color="#005447"
+          border-radius="6px"
+          font-size="14px"
+          href="{{action_url}}"
+          margin="28px 0px 0px 0px"
+          padding="10px 20px"
+        >
+          メールアドレスを確認する
+        </re-button>
+
+        <re-text
+          align="center"
+          color="#687670"
+          font-size="12px"
+          line-height="20px"
+          margin="18px 0px 0px 0px"
+        >
+          ボタンを開けない場合は、
+          <a
+            href="{{action_url}}"
+            style="color: #005447; text-decoration: underline;"
+          >こちらのリンク</a>
+          をお試しください。
+        </re-text>
+
+        <re-divider
+          background-color="#dcebe5"
+          height="1px"
+          margin="32px 0px 0px 0px"
+        ></re-divider>
+
+        <re-text
+          align="left"
+          color="#687670"
+          font-size="12px"
+          line-height="20px"
+          margin="24px 0px 0px 0px"
+        >
+          この操作に心当たりがない場合は、リンクを開かずこのメールを
+          破棄してください。
+        </re-text>
+      </re-block>
+    </re-main>
+
+    <re-footer padding="24px 32px 16px 32px">
+      <re-text
+        align="center"
+        color="#7a8782"
+        font-size="12px"
+        line-height="20px"
+        margin="0"
+      >
+        © {{current_year}} {{app.name}} / u.r.ki
+      </re-text>
+    </re-footer>
+  </re-body>
+</re-html>
