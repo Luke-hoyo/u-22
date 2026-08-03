@@ -3,6 +3,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { ShieldAlert } from "lucide-react";
 import { FarmerDashboard } from "@/components/app/FarmerDashboard";
 import { PageHeader } from "@/components/app/PageHeader";
+import { RoleInviteForm } from "@/components/app/RoleInviteForm";
 import { canAccessAdmin, getUserRole, roleLabels } from "@/lib/access-control";
 import { getDemoUserRole, isDemoAuthEnabled } from "@/lib/demo-auth";
 import styles from "@/components/app/ProductUI.module.css";
@@ -32,6 +33,7 @@ export default async function FarmerDashboardPage() {
             </Link>
           </div>
         </section>
+        <RoleInviteForm />
       </div>
     );
   }
