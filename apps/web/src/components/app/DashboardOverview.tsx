@@ -118,9 +118,7 @@ export function DashboardOverview() {
     >
       <motion.header className={styles.intro} variants={reveal}>
         <div>
-          <span>今日のホーム</span>
-          <h2>まずは、面談の準備から。</h2>
-          <p>返済支援と地域の仕事を、次に必要な行動から確認できます。</p>
+          <span>現在の状況</span>
         </div>
         <Link className={styles.searchLink} href="/jobs" aria-label="求人を探す">
           <Sprout aria-hidden="true" size={18} />

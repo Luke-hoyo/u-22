@@ -132,7 +132,7 @@ export function AppShell({
           <Image src="/hatarukun-mark-v2.png" alt="" width={44} height={44} priority />
           <span>
             <b>はたるくん</b>
-            <small>{isAdminUser ? "受け入れを管理する" : "地域でひらく、次の仕事"}</small>
+            <small>{isAdminUser ? "受け入れ管理" : "利用者ダッシュボード"}</small>
           </span>
         </Link>
 
