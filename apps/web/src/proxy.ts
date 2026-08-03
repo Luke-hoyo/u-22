@@ -9,6 +9,7 @@ const authBypassPrefixes = [
   "/",
   "/sign-in",
   "/sign-up",
+  "/join",
   "/maintenance",
   "/farmer/apply",
   "/__clerk"
@@ -19,7 +20,6 @@ const protectedPrefixes = [
   "/dashboard",
   "/farmer/dashboard",
   "/jobs",
-  "/join",
   "/matching",
   "/points",
   "/profile",

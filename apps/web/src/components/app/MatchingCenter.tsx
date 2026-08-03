@@ -64,7 +64,7 @@ export function MatchingCenter() {
                   {application.nextAction}
                 </p>
 
-                <div className={styles.timeline} aria-label="マッチングの進み具合">
+                <div className={styles.timeline} aria-label="応募の進み具合">
                   {steps.map((step, index) => {
                     const stateClass =
                       index < currentStep
@@ -99,7 +99,7 @@ export function MatchingCenter() {
       </div>
 
       <div className={styles.notice}>
-        応募から面談、マッチング成立、就業開始までの流れをこの画面で確認できます。
+        応募から面談、受け入れ成立、就業開始までの流れをこの画面で確認できます。
       </div>
     </>
   );

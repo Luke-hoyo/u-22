@@ -43,6 +43,12 @@ export function RoleInviteForm() {
       });
       const result = (await response.json().catch(() => ({}))) as InviteResponse;
 
+      if (response.status === 401) {
+        const redirectUrl = `/join?code=${encodeURIComponent(trimmedCode)}`;
+        router.push(`/sign-up?redirect_url=${encodeURIComponent(redirectUrl)}`);
+        return;
+      }
+
       if (!response.ok) {
         setErrorMessage(result.message ?? "招待コードを確認できませんでした。");
         return;
@@ -80,8 +86,8 @@ export function RoleInviteForm() {
       <div>
         <h3>招待コードでアカウント種別を設定</h3>
         <p>
-          農家・自治体・運営アカウントは、運営から渡された招待コードで自動設定します。
-          設定後は農家向けダッシュボードへ移動します。
+          運営から渡されたコードを入力します。ログイン前の場合は、コードを保持したまま
+          アカウント作成へ進みます。
         </p>
         <form className={styles.inviteForm} onSubmit={handleSubmit}>
           <label htmlFor="invite-code">招待コード</label>

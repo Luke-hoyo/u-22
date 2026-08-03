@@ -8,9 +8,9 @@ export default function MatchingPage() {
   return (
     <div className={styles.page}>
       <PageHeader
-        eyebrow="応募・マッチング"
-        title="地域との出会いを進める"
-        description="応募から面談、就業開始までの状況と、次に必要な行動を確認できます。"
+        eyebrow="募集中の事業"
+        title="応募中の事業を確認"
+        description="応募、面談、就業開始までの状況と、次に必要な行動を確認できます。"
         action={
           <Link className={styles.secondaryLink} href="/jobs">
             新しい求人を探す

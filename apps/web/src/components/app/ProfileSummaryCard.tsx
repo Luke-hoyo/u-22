@@ -26,7 +26,7 @@ function getRegionLabel(user: ReturnType<typeof useUser>["user"]) {
   return `${region} / ${ageGroup}`;
 }
 
-function DemoProfileSummaryCard() {
+function DemoProfileSummaryCard({ variant = "young" }: { variant?: "young" | "admin" }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarUrl, setAvatarUrl] = useState(readDemoAvatar);
   const [statusMessage, setStatusMessage] = useState("PNG / JPG / WebP / GIF、5MBまで");
@@ -83,7 +83,7 @@ function DemoProfileSummaryCard() {
       </div>
 
       <h3>{getDemoDisplayName()}</h3>
-      <p>広島県 / 利用者</p>
+      <p>{variant === "admin" ? "受け入れ管理" : "広島県 / 利用者"}</p>
 
       <div className={styles.avatarControls}>
         <button
@@ -125,15 +125,15 @@ function DemoProfileSummaryCard() {
           </b>
         </div>
         <div className={styles.verificationItem}>
-          <span>本人確認</span>
+          <span>{variant === "admin" ? "アカウント権限" : "本人確認"}</span>
           <b>
             <CheckCircle2 aria-hidden="true" size={15} /> 確認済み
           </b>
         </div>
         <div className={styles.verificationItem}>
-          <span>奨学金情報</span>
+          <span>{variant === "admin" ? "招待コード" : "奨学金情報"}</span>
           <b>
-            <CheckCircle2 aria-hidden="true" size={15} /> 登録済み
+            <CheckCircle2 aria-hidden="true" size={15} /> {variant === "admin" ? "利用可" : "登録済み"}
           </b>
         </div>
       </div>
@@ -141,7 +141,7 @@ function DemoProfileSummaryCard() {
   );
 }
 
-function ClerkProfileSummaryCard() {
+function ClerkProfileSummaryCard({ variant = "young" }: { variant?: "young" | "admin" }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isLoaded, user } = useUser();
   const [isUploading, setIsUploading] = useState(false);
@@ -150,7 +150,7 @@ function ClerkProfileSummaryCard() {
 
   const imageUrl = user?.imageUrl;
   const displayName = getDisplayName(user);
-  const regionLabel = getRegionLabel(user);
+  const regionLabel = variant === "admin" ? "受け入れ管理" : getRegionLabel(user);
 
   async function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -266,15 +266,15 @@ function ClerkProfileSummaryCard() {
           </b>
         </div>
         <div className={styles.verificationItem}>
-          <span>本人確認</span>
+          <span>{variant === "admin" ? "アカウント権限" : "本人確認"}</span>
           <b>
             <CheckCircle2 aria-hidden="true" size={15} /> 確認済み
           </b>
         </div>
         <div className={styles.verificationItem}>
-          <span>奨学金情報</span>
+          <span>{variant === "admin" ? "招待コード" : "奨学金情報"}</span>
           <b>
-            <CheckCircle2 aria-hidden="true" size={15} /> 登録済み
+            <CheckCircle2 aria-hidden="true" size={15} /> {variant === "admin" ? "利用可" : "登録済み"}
           </b>
         </div>
       </div>
@@ -282,10 +282,10 @@ function ClerkProfileSummaryCard() {
   );
 }
 
-export function ProfileSummaryCard() {
+export function ProfileSummaryCard({ variant = "young" }: { variant?: "young" | "admin" }) {
   if (isDemoAuthEnabled()) {
-    return <DemoProfileSummaryCard />;
+    return <DemoProfileSummaryCard variant={variant} />;
   }
 
-  return <ClerkProfileSummaryCard />;
+  return <ClerkProfileSummaryCard variant={variant} />;
 }

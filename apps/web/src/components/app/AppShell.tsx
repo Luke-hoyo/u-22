@@ -25,19 +25,19 @@ const navigation = [
     label: "ホーム",
     mobileLabel: "ホーム",
     icon: Home,
-    allowedRoles: ["young_user", "operator"]
+    allowedRoles: ["young_user"]
   },
   {
     href: "/jobs",
     label: "求人検索",
     mobileLabel: "求人検索",
     icon: Search,
-    allowedRoles: ["young_user", "operator"]
+    allowedRoles: ["young_user"]
   },
   {
     href: "/matching",
-    label: "マッチング",
-    mobileLabel: "マッチング",
+    label: "募集中の事業",
+    mobileLabel: "事業",
     icon: Handshake,
     allowedRoles: ["young_user", "operator"]
   },
@@ -46,21 +46,28 @@ const navigation = [
     label: "シミュレーション",
     mobileLabel: "試算",
     icon: Calculator,
-    allowedRoles: ["young_user", "operator"]
+    allowedRoles: ["young_user"]
   },
   {
     href: "/points",
     label: "ポイント",
     mobileLabel: "ポイント",
     icon: Coins,
-    allowedRoles: ["young_user", "operator"]
+    allowedRoles: ["young_user"]
   },
   {
     href: "/farmer/dashboard",
-    label: "農家ダッシュボード",
-    mobileLabel: "農家",
+    label: "農家の招待",
+    mobileLabel: "招待",
     icon: ClipboardList,
-    allowedRoles: ["farmer", "municipality", "operator"]
+    allowedRoles: ["municipality", "operator"]
+  },
+  {
+    href: "/farmer/dashboard",
+    label: "ホーム",
+    mobileLabel: "ホーム",
+    icon: Home,
+    allowedRoles: ["farmer"]
   },
   {
     href: "/profile",
@@ -75,11 +82,11 @@ const pageTitles: Record<string, string> = {
   "/dashboard": "ホーム",
   "/jobs": "求人検索",
   "/join": "招待コード",
-  "/matching": "マッチング",
+  "/matching": "募集中の事業",
   "/simulation": "返済支援シミュレーション",
   "/points": "地域ポイント",
   "/admin": "農家向けダッシュボード",
-  "/farmer": "農家向けダッシュボード",
+  "/farmer": "農家の招待",
   "/profile": "マイページ"
 };
 
@@ -107,7 +114,7 @@ export function AppShell({
   const visibleNavigation = navigation.filter((item) => item.allowedRoles.includes(userRole));
   const mobileNavigation = visibleNavigation.filter(
     (item) =>
-      item.href !== "/matching" &&
+      (userRole === "operator" || item.href !== "/matching") &&
       (userRole !== "operator" || item.href !== "/simulation")
   );
   const homeHref = isAdminUser ? "/farmer/dashboard" : "/dashboard";
