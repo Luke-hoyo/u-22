@@ -46,9 +46,9 @@ export function ApplyButton({
       </button>
       {applied && (
         <div className={styles.feedback} role="status">
-          地域担当者へ応募内容を送りました。
+          応募内容を送信しました。
           <Link className={styles.feedbackLink} href="/matching">
-            マッチング画面で確認
+            応募状況を確認
             <ArrowRight aria-hidden="true" size={14} />
           </Link>
         </div>

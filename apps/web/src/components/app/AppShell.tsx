@@ -13,7 +13,7 @@ import {
   Search,
   UserRound
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { canAccessAdmin, roleLabels, type UserRole } from "@/lib/access-control";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
@@ -99,6 +99,7 @@ export function AppShell({
   const pathname = usePathname();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notificationsRead, setNotificationsRead] = useState(false);
+  const notificationWrapRef = useRef<HTMLDivElement | null>(null);
   const demoAuth = isDemoAuthEnabled();
   const rootPath = `/${pathname.split("/")[1]}`;
   const title = pageTitles[rootPath] ?? "はたるくん";
@@ -114,6 +115,32 @@ export function AppShell({
   useEffect(() => {
     setNotificationsOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (!notificationsOpen) {
+      return;
+    }
+
+    function handlePointerDown(event: MouseEvent) {
+      if (!notificationWrapRef.current?.contains(event.target as Node)) {
+        setNotificationsOpen(false);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setNotificationsOpen(false);
+      }
+    }
+
+    window.addEventListener("mousedown", handlePointerDown);
+    window.addEventListener("keydown", handleEscape);
+
+    return () => {
+      window.removeEventListener("mousedown", handlePointerDown);
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [notificationsOpen]);
 
   return (
     <div className={styles.shell}>
@@ -157,24 +184,29 @@ export function AppShell({
 
       <div className={styles.workspace}>
         <header className={styles.topbar}>
-          <div>
+          <div className={styles.topbarHeading}>
             <span className={styles.mobileBrand}>はたるくん</span>
             <h1>{title}</h1>
           </div>
           <div className={styles.account}>
-            <div className={styles.notificationWrap}>
+            <div className={styles.notificationWrap} ref={notificationWrapRef}>
               <button
                 className={styles.iconButton}
                 type="button"
                 aria-label="お知らせ"
                 aria-expanded={notificationsOpen}
+                aria-controls="notification-panel"
                 onClick={() => setNotificationsOpen((current) => !current)}
               >
                 <Bell aria-hidden="true" size={20} />
                 {!notificationsRead ? <span /> : null}
               </button>
               {notificationsOpen ? (
-                <section className={styles.notificationPanel} aria-label="お知らせ一覧">
+                <section
+                  className={styles.notificationPanel}
+                  aria-label="お知らせ一覧"
+                  id="notification-panel"
+                >
                   <div className={styles.notificationHeader}>
                     <strong>お知らせ</strong>
                     <button type="button" onClick={() => setNotificationsRead(true)}>

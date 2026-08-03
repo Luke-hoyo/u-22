@@ -20,7 +20,7 @@ export default function MaintenancePage() {
         <>
           <Link className={statusStyles.primaryAction} href="/">
             <Home aria-hidden="true" size={17} />
-            再読み込み
+            ホームへ戻る
           </Link>
           <span className={statusStyles.secondaryAction}>
             <Clock3 aria-hidden="true" size={17} />
