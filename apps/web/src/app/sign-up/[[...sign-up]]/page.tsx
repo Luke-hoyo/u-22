@@ -1,7 +1,7 @@
-import { SignUp } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 import { AuthRedirectWatcher } from "@/components/auth/AuthRedirectWatcher";
-import { AuthExperienceShell } from "@/components/auth/AuthExperienceShell";
+import { AuthMobileLayout } from "@/components/auth/AuthMobileLayout";
+import { JapaneseAuthenticationPanel } from "@/components/auth/JapaneseAuthenticationPanel";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
 
 type AuthPageProps = {
@@ -57,25 +57,11 @@ export default async function SignUpPage({ searchParams }: AuthPageProps) {
   }
 
   return (
-    <section className="auth-layout">
+    <section className="auth-mobile-layout">
       <AuthRedirectWatcher to={redirectTarget} />
-      <AuthExperienceShell
-        title="新規登録"
-        description="本人のメール確認後、プロフィールと希望条件を登録できます。"
-        actions={
-          <>
-            <a href="/dashboard">登録済みの方はダッシュボードへ</a>
-            <a href="/">ホームへ戻る</a>
-          </>
-        }
-      >
-        <SignUp
-          forceRedirectUrl={redirectTarget}
-          fallbackRedirectUrl={redirectTarget}
-          signInForceRedirectUrl={redirectTarget}
-          signInFallbackRedirectUrl={redirectTarget}
-        />
-      </AuthExperienceShell>
+      <AuthMobileLayout>
+        <JapaneseAuthenticationPanel redirectTo={redirectTarget} defaultMode="signUp" />
+      </AuthMobileLayout>
     </section>
   );
 }

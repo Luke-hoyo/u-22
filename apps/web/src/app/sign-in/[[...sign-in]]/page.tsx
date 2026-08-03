@@ -1,7 +1,7 @@
-import { SignIn } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 import { AuthRedirectWatcher } from "@/components/auth/AuthRedirectWatcher";
-import { AuthExperienceShell } from "@/components/auth/AuthExperienceShell";
+import { AuthMobileLayout } from "@/components/auth/AuthMobileLayout";
+import { JapaneseAuthenticationPanel } from "@/components/auth/JapaneseAuthenticationPanel";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
 
 type AuthPageProps = {
@@ -57,25 +57,11 @@ export default async function SignInPage({ searchParams }: AuthPageProps) {
   }
 
   return (
-    <section className="auth-layout">
+    <section className="auth-mobile-layout">
       <AuthRedirectWatcher to={redirectTarget} />
-      <AuthExperienceShell
-        title="ログイン"
-        description="登録済みのメール、またはGoogleアカウントで続けます。"
-        actions={
-          <>
-            <a href="/dashboard">ログイン済みの方はダッシュボードへ</a>
-            <a href="/">ホームへ戻る</a>
-          </>
-        }
-      >
-        <SignIn
-          forceRedirectUrl={redirectTarget}
-          fallbackRedirectUrl={redirectTarget}
-          signUpForceRedirectUrl={redirectTarget}
-          signUpFallbackRedirectUrl={redirectTarget}
-        />
-      </AuthExperienceShell>
+      <AuthMobileLayout>
+        <JapaneseAuthenticationPanel redirectTo={redirectTarget} defaultMode="signIn" />
+      </AuthMobileLayout>
     </section>
   );
 }
