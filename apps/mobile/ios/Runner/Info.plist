@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Flutterの実機プレビューとデバッグ接続にローカルネットワークを使用します。</string>
+	<key>NSCameraUsageDescription</key>
+	<string>地域イベントのQRチェックインにカメラを使用します。</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_dartVmService._tcp</string>

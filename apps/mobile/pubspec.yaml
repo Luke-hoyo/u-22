@@ -12,6 +12,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   clerk_auth: 0.0.18-beta
   clerk_flutter: ^0.0.18-beta
+  syncfusion_flutter_charts: ^34.1.33
+  mobile_scanner: ^7.4.0
 
 dev_dependencies:
   flutter_test:

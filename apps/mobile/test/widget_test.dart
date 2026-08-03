@@ -23,7 +23,7 @@ void main() {
     expect(find.text('まずは、面談の準備から。'), findsOneWidget);
     expect(find.text('次にやること'), findsOneWidget);
     expect(find.text('年間の返済支援見込み'), findsOneWidget);
-    expect(find.text('進行中のマッチング'), findsOneWidget);
+    expect(find.text('返済残高の見通し'), findsOneWidget);
     expect(find.text('地域ポイント'), findsOneWidget);
 
     await tester.tap(find.text('求人検索'));
@@ -46,6 +46,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('現在の保有ポイント'), findsOneWidget);
+    expect(find.text('イベントQRチェックイン'), findsOneWidget);
     expect(find.text('ポイントを地域特典に交換'), findsOneWidget);
     expect(find.text('交換'), findsWidgets);
 

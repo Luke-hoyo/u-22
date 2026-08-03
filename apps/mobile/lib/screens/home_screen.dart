@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../data/mock_data.dart';
 import '../models/demo_account.dart';
@@ -145,6 +147,19 @@ class _HomeScreenState extends State<HomeScreen> {
     _showSnack('${reward.name}に交換しました');
   }
 
+  Future<void> openQrCheckIn() async {
+    final result = await Navigator.of(context).push<String>(
+      MaterialPageRoute(builder: (_) => const _QrCheckInScreen()),
+    );
+    if (!mounted || result == null) return;
+    setState(() {
+      points += 600;
+      transactions.insert(0, _PointTransaction('QRチェックイン: $result', '今日', 600));
+      currentIndex = 3;
+    });
+    _showSnack('チェックイン完了。600ptを付与しました');
+  }
+
   void savePreferences(_DemoPreferences next) {
     setState(() => preferences = next);
     _showSnack('希望条件を保存しました');
@@ -223,6 +238,7 @@ class _HomeScreenState extends State<HomeScreen> {
         points: points,
         annualSupportEstimate: annualSupportEstimate,
         scholarshipBalance: preferences.scholarshipBalance,
+        totalExpectedSupport: totalExpectedSupport,
         onJobsTap: () => setState(() => currentIndex = 1),
         onMatchingTap: () => setState(() => currentIndex = 2),
         onPointsTap: () => setState(() => currentIndex = 3),
@@ -249,6 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
         points: points,
         transactions: transactions,
         onExchange: exchangeReward,
+        onQrCheckIn: openQrCheckIn,
       ),
       _ProfileTab(
         account: widget.account,
@@ -345,6 +362,7 @@ class _HomeTab extends StatelessWidget {
     required this.points,
     required this.annualSupportEstimate,
     required this.scholarshipBalance,
+    required this.totalExpectedSupport,
     required this.onJobsTap,
     required this.onMatchingTap,
     required this.onPointsTap,
@@ -357,6 +375,7 @@ class _HomeTab extends StatelessWidget {
   final int points;
   final int annualSupportEstimate;
   final int scholarshipBalance;
+  final int totalExpectedSupport;
   final VoidCallback onJobsTap;
   final VoidCallback onMatchingTap;
   final VoidCallback onPointsTap;
@@ -436,6 +455,12 @@ class _HomeTab extends StatelessWidget {
               ],
             );
           },
+        ),
+        const SizedBox(height: 14),
+        _SupportChartPanel(
+          scholarshipBalance: scholarshipBalance,
+          annualSupportEstimate: annualSupportEstimate,
+          totalExpectedSupport: totalExpectedSupport,
         ),
         const SizedBox(height: 14),
         _MatchingPreview(
@@ -569,11 +594,13 @@ class _PointsTab extends StatelessWidget {
   const _PointsTab(
       {required this.points,
       required this.transactions,
-      required this.onExchange});
+      required this.onExchange,
+      required this.onQrCheckIn});
 
   final int points;
   final List<_PointTransaction> transactions;
   final ValueChanged<_Reward> onExchange;
+  final VoidCallback onQrCheckIn;
 
   @override
   Widget build(BuildContext context) {
@@ -582,6 +609,8 @@ class _PointsTab extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       children: [
         _PointsHero(points: points),
+        const SizedBox(height: 16),
+        _QrCheckInPanel(onQrCheckIn: onQrCheckIn),
         const SizedBox(height: 16),
         const _SectionHeader('参加できる地域イベント'),
         const SizedBox(height: 10),
@@ -964,6 +993,153 @@ class _MetricCard extends StatelessWidget {
   }
 }
 
+class _SupportChartPanel extends StatelessWidget {
+  const _SupportChartPanel({
+    required this.scholarshipBalance,
+    required this.annualSupportEstimate,
+    required this.totalExpectedSupport,
+  });
+
+  final int scholarshipBalance;
+  final int annualSupportEstimate;
+  final int totalExpectedSupport;
+
+  @override
+  Widget build(BuildContext context) {
+    final afterOneYear = (scholarshipBalance - annualSupportEstimate)
+        .clamp(0, scholarshipBalance);
+    final afterApplications = (scholarshipBalance - totalExpectedSupport)
+        .clamp(0, scholarshipBalance);
+    final data = [
+      _MoneyChartPoint('現在', scholarshipBalance, _outlineVariant),
+      _MoneyChartPoint('1年後', afterOneYear, _secondary),
+      _MoneyChartPoint('応募後', afterApplications, _accent),
+    ];
+
+    return _Panel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Expanded(child: Text('返済残高の見通し', style: _titleStyle)),
+              Icon(Icons.bar_chart, color: _primary),
+            ],
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            '登録した残高と応募中の支援見込みから、どれくらい軽くなるかを比較します。',
+            style: TextStyle(color: _textSub, height: 1.45),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            height: 220,
+            child: SfCartesianChart(
+              margin: EdgeInsets.zero,
+              plotAreaBorderWidth: 0,
+              primaryXAxis: const CategoryAxis(
+                majorGridLines: MajorGridLines(width: 0),
+                axisLine: AxisLine(width: 0),
+                majorTickLines: MajorTickLines(width: 0),
+                labelStyle: TextStyle(
+                  color: _textSub,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              primaryYAxis: NumericAxis(
+                isVisible: false,
+                minimum: 0,
+                maximum: scholarshipBalance.toDouble(),
+              ),
+              tooltipBehavior: TooltipBehavior(
+                enable: true,
+                format: 'point.x : point.y円',
+              ),
+              series: <CartesianSeries<_MoneyChartPoint, String>>[
+                ColumnSeries<_MoneyChartPoint, String>(
+                  dataSource: data,
+                  xValueMapper: (point, _) => point.label,
+                  yValueMapper: (point, _) => point.value,
+                  pointColorMapper: (point, _) => point.color,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(12),
+                  ),
+                  width: .58,
+                  dataLabelSettings: const DataLabelSettings(
+                    isVisible: true,
+                    textStyle: TextStyle(
+                      color: _textMain,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  dataLabelMapper: (point, _) =>
+                      '${(point.value / 10000).round()}万',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: _ChartSummary(
+                  label: '年間支援見込み',
+                  value: _yen(annualSupportEstimate),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _ChartSummary(
+                  label: '応募中の支援見込み',
+                  value: _yen(totalExpectedSupport),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ChartSummary extends StatelessWidget {
+  const _ChartSummary({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: _surfaceLow,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label,
+                style: const TextStyle(
+                    color: _textSub,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800)),
+            const SizedBox(height: 4),
+            Text(value,
+                style: const TextStyle(
+                    color: _textMain,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _MatchingPreview extends StatelessWidget {
   const _MatchingPreview(
       {required this.job, required this.application, required this.onTap});
@@ -1315,6 +1491,52 @@ class _PointsHero extends StatelessWidget {
   }
 }
 
+class _QrCheckInPanel extends StatelessWidget {
+  const _QrCheckInPanel({required this.onQrCheckIn});
+
+  final VoidCallback onQrCheckIn;
+
+  @override
+  Widget build(BuildContext context) {
+    return _Panel(
+      color: _accentSoft,
+      child: Row(
+        children: [
+          const CircleAvatar(
+            backgroundColor: Colors.white,
+            foregroundColor: _primaryDark,
+            child: Icon(Icons.qr_code_scanner),
+          ),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('イベントQRチェックイン',
+                    style: TextStyle(fontWeight: FontWeight.w900)),
+                SizedBox(height: 4),
+                Text('会場のQRを読み取って参加ポイントを受け取ります。',
+                    style:
+                        TextStyle(color: _textSub, fontSize: 12, height: 1.35)),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          FilledButton.tonalIcon(
+            onPressed: onQrCheckIn,
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(0, 44),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+            ),
+            icon: const Icon(Icons.center_focus_strong, size: 18),
+            label: const Text('読取'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _EventCard extends StatelessWidget {
   const _EventCard({required this.event});
 
@@ -1627,6 +1849,84 @@ class _NotificationItem extends StatelessWidget {
   }
 }
 
+class _QrCheckInScreen extends StatefulWidget {
+  const _QrCheckInScreen();
+
+  @override
+  State<_QrCheckInScreen> createState() => _QrCheckInScreenState();
+}
+
+class _QrCheckInScreenState extends State<_QrCheckInScreen> {
+  final MobileScannerController controller = MobileScannerController(
+    detectionSpeed: DetectionSpeed.noDuplicates,
+  );
+  bool completed = false;
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  void handleDetect(BarcodeCapture capture) {
+    if (completed) return;
+    final code = capture.barcodes.firstOrNull?.rawValue;
+    if (code == null || code.trim().isEmpty) return;
+    completed = true;
+    Navigator.of(context).pop(code.trim());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: _primaryDark,
+      appBar: AppBar(
+        backgroundColor: _primaryDark,
+        foregroundColor: Colors.white,
+        title: const Text('QRチェックイン'),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+          child: Column(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Stack(
+                    children: [
+                      MobileScanner(
+                        controller: controller,
+                        onDetect: handleDetect,
+                      ),
+                      Center(
+                        child: Container(
+                          width: 230,
+                          height: 230,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: _accent, width: 4),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                '会場スタッフが表示するQRコードを枠の中に入れてください。',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white, height: 1.55),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _TaskRow extends StatelessWidget {
   const _TaskRow(
       {required this.done,
@@ -1790,6 +2090,14 @@ class _MiniChip extends StatelessWidget {
 }
 
 enum _ApplicationStatus { applied, interview, matched, working }
+
+class _MoneyChartPoint {
+  const _MoneyChartPoint(this.label, this.value, this.color);
+
+  final String label;
+  final int value;
+  final Color color;
+}
 
 class _DemoApplication {
   const _DemoApplication(
