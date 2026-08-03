@@ -43,7 +43,7 @@ void main() {
     expect(find.text('ダッシュボード'), findsOneWidget);
     expect(find.text('マイページ'), findsOneWidget);
     expect(find.text('マイナンバー登録'), findsOneWidget);
-    expect(find.text('免税・免除詳細'), findsOneWidget);
+    expect(find.text('返済支援・免除詳細'), findsOneWidget);
     expect(find.text('求人を見る'), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.menu));
@@ -66,7 +66,7 @@ void main() {
     await tester.dragFrom(const Offset(215, 820), const Offset(0, -420));
     await tester.pumpAndSettle();
 
-    expect(find.text('免税審査状況'), findsOneWidget);
+    expect(find.text('返済支援の審査状況'), findsOneWidget);
 
     await tester.pageBack();
     await tester.pumpAndSettle();

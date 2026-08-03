@@ -152,7 +152,7 @@ class _JobCard extends StatelessWidget {
                   ),
                   _InfoChip(
                     icon: Icons.calendar_month_outlined,
-                    label: '${job.workPeriodMonths}ヶ月',
+                    label: '${job.workPeriodMonths}か月',
                   ),
                   _InfoChip(
                     icon: Icons.home_work_outlined,

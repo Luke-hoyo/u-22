@@ -102,13 +102,13 @@ class _ApplicationFormScreenState extends State<ApplicationFormScreen> {
                 },
               ),
               const SizedBox(height: 14),
-              Text('勤務期間: $monthsヶ月'),
+              Text('勤務期間: $monthsか月'),
               Slider(
                 value: months.toDouble(),
                 min: 3,
                 max: 12,
                 divisions: 9,
-                label: '$monthsヶ月',
+                label: '$monthsか月',
                 onChanged: (value) {
                   setState(() => months = value.round());
                 },

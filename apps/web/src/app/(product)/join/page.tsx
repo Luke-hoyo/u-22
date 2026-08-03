@@ -8,8 +8,8 @@ export default function JoinPage() {
     <div className={styles.page}>
       <PageHeader
         eyebrow="招待コード"
-        title="アカウント種別を自動設定"
-        description="農家・自治体・運営向けの招待コードを使って、農家向けダッシュボードに入れるアカウントへ切り替えます。"
+        title="アカウント種別を設定"
+        description="農家・自治体・運営向けの招待コードを使って、権限を設定します。設定後は農家向けダッシュボードへ移動します。"
       />
       <Suspense fallback={null}>
         <RoleInviteForm />

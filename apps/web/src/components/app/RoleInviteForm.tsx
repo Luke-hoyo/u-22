@@ -81,7 +81,7 @@ export function RoleInviteForm() {
         <h3>招待コードでアカウント種別を設定</h3>
         <p>
           農家・自治体・運営アカウントは、運営から渡された招待コードで自動設定します。
-          設定後は農家向けダッシュボードに移動します。
+          設定後は農家向けダッシュボードへ移動します。
         </p>
         <form className={styles.inviteForm} onSubmit={handleSubmit}>
           <label htmlFor="invite-code">招待コード</label>

@@ -99,7 +99,7 @@ export function MatchingCenter() {
       </div>
 
       <div className={styles.notice}>
-        応募内容はこの端末に保存され、応募から面談、就業開始までの流れをデモできます。
+        応募内容はこの端末に保存され、応募から面談、就業開始までの流れを確認できます。
       </div>
     </>
   );

@@ -71,7 +71,10 @@ export function SecurityCenter() {
             ok: false,
             connected: false,
             mode: "mock",
-            error: error instanceof Error ? error.message : "Appwrite status check failed"
+            error:
+              error instanceof Error
+                ? `Appwrite接続の確認に失敗しました: ${error.message}`
+                : "Appwrite接続の確認に失敗しました。"
           });
         }
       }
@@ -88,7 +91,7 @@ export function SecurityCenter() {
     <div className={styles.stack}>
       <section className={styles.securityHero}>
         <div>
-          <span>Security Demo</span>
+          <span>セキュリティデモ</span>
           <h3>実データを使わずに、守る仕組みを動かして見せる。</h3>
           <p>
             本人確認・奨学金情報・ポイント履歴を扱う想定だからこそ、コンテスト段階では安全なモックで

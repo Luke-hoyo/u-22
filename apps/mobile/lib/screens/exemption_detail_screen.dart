@@ -22,7 +22,7 @@ class ExemptionDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('免税・免除詳細')),
+      appBar: AppBar(title: const Text('返済支援・免除詳細')),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
@@ -82,9 +82,9 @@ class _HeroPanel extends StatelessWidget {
             const SizedBox(height: 8),
             Text(job.title),
             const SizedBox(height: 6),
-            Text('${job.region} / ${job.workPeriodMonths}ヶ月勤務'),
+            Text('${job.region} / ${job.workPeriodMonths}か月勤務'),
             const SizedBox(height: 10),
-            Text('税制ステータス: ${account.taxStatus}'),
+            Text('返済支援ステータス: ${account.taxStatus}'),
           ],
         ),
       ),
@@ -111,7 +111,7 @@ class _ReviewStatusCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              '免税審査状況',
+              '返済支援の審査状況',
               style: TextStyle(
                 color: Color(0xFF23422D),
                 fontSize: 18,

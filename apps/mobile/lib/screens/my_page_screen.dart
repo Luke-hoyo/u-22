@@ -99,7 +99,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
           ),
           _StatusTile(
             icon: Icons.receipt_long_outlined,
-            label: '税制ステータス',
+            label: '返済支援ステータス',
             value: widget.account.taxStatus,
           ),
           const SizedBox(height: 16),
@@ -119,7 +119,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
           ),
           _MenuTile(
             icon: Icons.receipt_long_outlined,
-            title: '免税・免除詳細',
+            title: '返済支援・免除詳細',
             subtitle: '選択中求人での免除見込みを確認',
             onTap: () {
               Navigator.of(context).push(
@@ -134,7 +134,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
           ),
           _MenuTile(
             icon: Icons.fact_check_outlined,
-            title: '免税審査状況',
+            title: '返済支援の審査状況',
             subtitle: '本人確認から自治体確認までの進捗を確認',
             onTap: () {
               Navigator.of(context).push(

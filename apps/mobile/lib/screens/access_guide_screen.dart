@@ -40,7 +40,7 @@ class AccessGuideScreen extends StatelessWidget {
             number: '5',
             icon: Icons.savings_outlined,
             title: '免除見込みを確認',
-            body: 'マイページや免税・免除詳細で返済軽減の見込みを確認します。',
+            body: 'マイページや返済支援・免除詳細で返済軽減の見込みを確認します。',
           ),
         ],
       ),

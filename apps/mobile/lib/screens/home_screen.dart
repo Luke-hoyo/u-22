@@ -174,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Expanded(
                   child: _ActionCard(
                     icon: Icons.receipt_long_outlined,
-                    label: '免税・免除詳細',
+                    label: '返済支援・免除詳細',
                     color: const Color(0xFFD9853B),
                     onTap: openExemptionDetail,
                   ),
@@ -280,7 +280,7 @@ class _DashboardDrawer extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.receipt_long_outlined),
-              title: const Text('免税・免除詳細'),
+              title: const Text('返済支援・免除詳細'),
               onTap: () => _closeAndOpen(context, onExemptionTap),
             ),
             ListTile(
