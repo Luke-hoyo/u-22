@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
+  CalendarDays,
   CheckCircle2,
   ClipboardList,
   Clock3,
@@ -60,6 +61,27 @@ const farmerApplicationStatusLabels: Record<FarmerApplicationStatus, string> = {
   approved: "承認済み",
   rejected: "差し戻し"
 };
+
+const todaySchedule = [
+  {
+    time: "09:00",
+    title: "受け入れ枠の確認",
+    target: "ぶどう畑の栽培・収穫サポート",
+    status: "準備"
+  },
+  {
+    time: "13:30",
+    title: "住まい支援の確認",
+    target: "東広島みのりファーム",
+    status: "確認"
+  },
+  {
+    time: "18:00",
+    title: "オンライン面談",
+    target: "佐藤 みなみ",
+    status: "面談"
+  }
+];
 
 export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
   const [managedJobs, setManagedJobs] = useState(adminManagedJobs);
@@ -170,10 +192,8 @@ export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
       <section className={styles.adminHero}>
         <div>
           <span className={styles.sectionEyebrow}>農家向けダッシュボード</span>
-          <h3>募集、応募者、受け入れ準備をひとつの画面で確認。</h3>
-          <p>
-            現場の担当者が、公開状況、面談予定、ポイント承認を迷わず扱える画面です。
-          </p>
+          <h3>今日確認する応募者と予定</h3>
+          <p>面談、受け入れ枠、ポイント承認をこの画面で処理します。</p>
         </div>
         <button className={styles.primaryButton} type="button" onClick={openNewJob}>
           <FilePlus2 aria-hidden="true" size={18} />
@@ -194,6 +214,45 @@ export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
           {jobMessage}
         </div>
       ) : null}
+
+      <section className={styles.adminCommandGrid} aria-label="本日の運用">
+        <article className={`${styles.panel} ${styles.todayPanel}`}>
+          <div className={styles.panelHeader}>
+            <div>
+              <h3>今日の予定</h3>
+              <p className={styles.panelLead}>面談と受け入れ準備の時間順リストです。</p>
+            </div>
+            <CalendarDays aria-hidden="true" size={22} />
+          </div>
+          <div className={styles.scheduleList}>
+            {todaySchedule.map((item) => (
+              <div className={styles.scheduleItem} key={`${item.time}-${item.title}`}>
+                <time>{item.time}</time>
+                <div>
+                  <strong>{item.title}</strong>
+                  <span>{item.target}</span>
+                </div>
+                <b>{item.status}</b>
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article className={`${styles.panel} ${styles.operatorNote}`}>
+          <span>次の操作</span>
+          <strong>面談予定の応募者を確認</strong>
+          <p>
+            マッチ度が高く、受け入れ枠に近い応募者から面談へ進めます。
+          </p>
+          <button
+            className={styles.secondaryButton}
+            type="button"
+            onClick={() => moveApplicant("USR-1042", "interview")}
+          >
+            面談リストを更新
+          </button>
+        </article>
+      </section>
 
       <section className={styles.metricsGrid} aria-label="管理状況">
         <article className={styles.metricCard}>
@@ -407,47 +466,70 @@ export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
       <div className={styles.adminGrid}>
         <section className={styles.panel}>
           <div className={styles.panelHeader}>
-            <h3>応募者確認</h3>
+            <div>
+              <h3>応募者テーブル</h3>
+              <p className={styles.panelLead}>
+                応募者の状態、マッチ度、次の対応だけを一覧で確認します。
+              </p>
+            </div>
             <span className={styles.industryChip}>個人情報は最小限</span>
           </div>
-          <div className={styles.adminApplicantList}>
-            {applicants.map((applicant) => (
-              <article className={styles.adminApplicant} key={applicant.id}>
-                <div>
-                  <span className={styles.adminStatus} data-status={applicant.status}>
-                    {applicantStatusLabels[applicant.status]}
-                  </span>
-                  <h4>{applicant.name}</h4>
-                  <p>
-                    {applicant.ageGroup} / {applicant.region} / {applicant.jobTitle}
-                  </p>
-                  <small>{applicant.nextAction}</small>
-                </div>
-                <div className={styles.adminApplicantScore}>
-                  <span>マッチ度</span>
-                  <strong>{applicant.matchRate}%</strong>
-                  <small>{applicant.supportMonths}か月支援想定</small>
-                </div>
-                <div className={styles.adminActions}>
-                  <button
-                    className={styles.secondaryButton}
-                    type="button"
-                    onClick={() => moveApplicant(applicant.id, "interview")}
-                    disabled={applicant.status === "accepted"}
-                  >
-                    面談へ
-                  </button>
-                  <button
-                    className={styles.primaryButton}
-                    type="button"
-                    onClick={() => moveApplicant(applicant.id, "accepted")}
-                    disabled={applicant.status === "accepted"}
-                  >
-                    確定
-                  </button>
-                </div>
-              </article>
-            ))}
+          <div className={styles.applicantTableWrap}>
+            <table className={styles.applicantTable}>
+              <thead>
+                <tr>
+                  <th>応募者</th>
+                  <th>求人</th>
+                  <th>状態</th>
+                  <th>マッチ</th>
+                  <th>次の対応</th>
+                  <th aria-label="操作" />
+                </tr>
+              </thead>
+              <tbody>
+                {applicants.map((applicant) => (
+                  <tr key={applicant.id}>
+                    <td>
+                      <strong>{applicant.name}</strong>
+                      <span>
+                        {applicant.ageGroup} / {applicant.region}
+                      </span>
+                    </td>
+                    <td>{applicant.jobTitle}</td>
+                    <td>
+                      <span className={styles.adminStatus} data-status={applicant.status}>
+                        {applicantStatusLabels[applicant.status]}
+                      </span>
+                    </td>
+                    <td>
+                      <b className={styles.matchScore}>{applicant.matchRate}%</b>
+                      <span>{applicant.supportMonths}か月支援</span>
+                    </td>
+                    <td>{applicant.nextAction}</td>
+                    <td>
+                      <div className={styles.tableActions}>
+                        <button
+                          className={styles.secondaryButton}
+                          type="button"
+                          onClick={() => moveApplicant(applicant.id, "interview")}
+                          disabled={applicant.status === "accepted"}
+                        >
+                          面談へ
+                        </button>
+                        <button
+                          className={styles.primaryButton}
+                          type="button"
+                          onClick={() => moveApplicant(applicant.id, "accepted")}
+                          disabled={applicant.status === "accepted"}
+                        >
+                          確定
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </section>
 
