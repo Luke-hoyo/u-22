@@ -7,8 +7,10 @@ import {
   CheckCircle2,
   ClipboardList,
   Clock3,
+  Copy,
   FilePlus2,
   Handshake,
+  KeyRound,
   PauseCircle,
   Send,
   UserRoundPlus,
@@ -91,6 +93,8 @@ export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<(typeof adminManagedJobs)[number] | undefined>();
   const [jobMessage, setJobMessage] = useState("");
+  const [inviteCodes, setInviteCodes] = useState<Record<string, string>>({});
+  const [inviteMessage, setInviteMessage] = useState("");
   const canReviewFarmerApplications = userRole === "municipality" || userRole === "operator";
 
   const publishedJobs = managedJobs.filter((job) => job.status === "published").length;
@@ -185,6 +189,55 @@ export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
       writeDemoFarmerApplications(nextApplications);
       return nextApplications;
     });
+  }
+
+  async function issueFarmerInvite(application: (typeof farmerApplicationList)[number]) {
+    setInviteMessage("");
+
+    if (application.status !== "approved") {
+      setInviteMessage("承認済みの申請だけ招待コードを発行できます。");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/account/invites", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          applicationId: application.id,
+          farmName: application.farmName,
+          email: application.email
+        })
+      });
+      const result = (await response.json().catch(() => ({}))) as {
+        inviteCode?: string;
+        message?: string;
+      };
+
+      if (!response.ok || !result.inviteCode) {
+        setInviteMessage(result.message ?? "招待コードを発行できませんでした。");
+        return;
+      }
+
+      setInviteCodes((currentCodes) => ({
+        ...currentCodes,
+        [application.id]: result.inviteCode ?? ""
+      }));
+      setInviteMessage(`${application.farmName} の招待コードを発行しました。`);
+    } catch {
+      setInviteMessage("通信に失敗しました。接続を確認して、もう一度お試しください。");
+    }
+  }
+
+  async function copyInviteCode(inviteCode: string) {
+    try {
+      await navigator.clipboard.writeText(inviteCode);
+      setInviteMessage("招待コードをコピーしました。");
+    } catch {
+      setInviteMessage("コピーできませんでした。コードを選択してコピーしてください。");
+    }
   }
 
   return (
@@ -325,8 +378,21 @@ export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
                     {industryLabels[application.industry]}
                   </p>
                   <small>{application.note}</small>
-                  {application.status === "approved" ? (
-                    <b className={styles.inviteHint}>農家アカウント招待へ進めます</b>
+                  <small>招待先: {application.email}</small>
+                  {inviteCodes[application.id] ? (
+                    <div className={styles.inviteCodeBox}>
+                      <KeyRound aria-hidden="true" size={16} />
+                      <code>{inviteCodes[application.id]}</code>
+                      <button
+                        type="button"
+                        onClick={() => copyInviteCode(inviteCodes[application.id])}
+                        aria-label="招待コードをコピー"
+                      >
+                        <Copy aria-hidden="true" size={15} />
+                      </button>
+                    </div>
+                  ) : application.status === "approved" ? (
+                    <b className={styles.inviteHint}>承認済みです。招待コードを発行できます。</b>
                   ) : null}
                 </div>
                 <div className={styles.farmerApplicationFacts}>
@@ -364,10 +430,23 @@ export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
                   >
                     承認
                   </button>
+                  <button
+                    className={styles.secondaryButton}
+                    type="button"
+                    onClick={() => issueFarmerInvite(application)}
+                    disabled={application.status !== "approved"}
+                  >
+                    招待発行
+                  </button>
                 </div>
               </article>
             ))}
           </div>
+          {inviteMessage ? (
+            <div className={styles.feedback} role="status">
+              {inviteMessage}
+            </div>
+          ) : null}
         </section>
       ) : null}
 

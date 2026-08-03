@@ -82,9 +82,12 @@ Clerk Dashboardで手動設定しなくても、招待コードで `publicMetada
 HATARAKUN_FARMER_INVITE_CODE=
 HATARAKUN_MUNICIPALITY_INVITE_CODE=
 HATARAKUN_OPERATOR_INVITE_CODE=
+HATARAKUN_INVITE_SIGNING_SECRET=
 ```
 
 ログイン後に `/join` を開き、招待コードを入力すると、現在のClerkユーザーにロールが付与されます。
+
+農家申請を承認した後は、農家向けダッシュボード上で申請ごとの招待コードを発行できます。発行されたコードは申請時のメールアドレスとログイン中のClerkメールアドレスが一致する場合だけ使えます。`HATARAKUN_INVITE_SIGNING_SECRET` が未設定の場合、この発行機能は停止します。
 
 招待リンクとして使う場合:
 

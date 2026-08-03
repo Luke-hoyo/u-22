@@ -66,6 +66,7 @@ NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL=/dashboard
 NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL=/dashboard
 NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
 NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
+HATARAKUN_INVITE_SIGNING_SECRET=
 
 NEXT_PUBLIC_APPWRITE_ENDPOINT=
 NEXT_PUBLIC_APPWRITE_PROJECT_ID=
@@ -84,6 +85,8 @@ HATARAKUN_MAINTENANCE_MODE=false
 ```
 
 `HATARAKUN_REQUIRE_AUTH=true` にすると、PRサイトや共有リンクを直接開いた場合でも、未ログインなら `/sign-in` に移動します。
+
+農家申請の承認後に招待コードを発行する場合は、`HATARAKUN_INVITE_SIGNING_SECRET` に十分長いランダム文字列を入れます。この値はGitに入れません。
 
 ClerkのFrontend APIは `clerk.hatarukun.jp` のCNAMEを直接使います。`NEXT_PUBLIC_CLERK_PROXY_URL` やClerk Dashboardのproxy URLに `https://hatarukun.jp/v1` は入れません。ここを入れるとClerkのhandshake URLが `/v1/v1/client/handshake` のように重複することがあります。
 

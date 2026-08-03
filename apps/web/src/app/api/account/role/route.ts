@@ -23,13 +23,15 @@ export async function POST(request: Request) {
 
   const body = (await request.json().catch(() => null)) as { inviteCode?: unknown } | null;
   const inviteCode = typeof body?.inviteCode === "string" ? body.inviteCode : "";
-  const invite = resolveRoleInvite(inviteCode);
+  const client = await clerkClient();
+  const user = await client.users.getUser(userId);
+  const userEmail = user.emailAddresses.find((email) => email.id === user.primaryEmailAddressId)
+    ?.emailAddress;
+  const invite = resolveRoleInvite(inviteCode, userEmail);
 
   if (!invite) {
     return NextResponse.json({ message: "招待コードが正しくありません。" }, { status: 400 });
   }
-
-  const client = await clerkClient();
 
   await client.users.updateUserMetadata(userId, {
     publicMetadata: {

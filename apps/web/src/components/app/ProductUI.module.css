@@ -1986,6 +1986,44 @@
   line-height: 1.45;
 }
 
+.inviteCodeBox {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+  max-width: 38rem;
+  margin-top: 0.7rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #cfe2dc;
+  border-radius: 0.7rem;
+  background: #f5fbf8;
+  color: var(--color-primary-dark);
+}
+
+.inviteCodeBox svg {
+  color: var(--color-secondary);
+}
+
+.inviteCodeBox code {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--color-primary-dark);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.inviteCodeBox button {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border: 1px solid #cbd8d2;
+  border-radius: 0.55rem;
+  background: #ffffff;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
 .accessDeniedPanel {
   display: flex;
   align-items: flex-start;
