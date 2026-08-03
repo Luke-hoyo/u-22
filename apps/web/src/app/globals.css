@@ -380,17 +380,23 @@ button {
     max-height: 10.5rem;
   }
 
-  .auth-visual-copy {
-    inset: auto 1rem 1rem;
-  }
-
-  .auth-visual-copy p {
-    max-width: 18rem;
-    font-size: 1.15rem;
-  }
-
+  .auth-visual-copy p,
   .auth-visual-copy span {
-    font-size: 0.82rem;
+    display: none;
+  }
+
+  .auth-visual-mark {
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-bottom: 0;
+  }
+
+  .auth-visual-copy {
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
   }
 
   .auth-panel {
@@ -413,6 +419,23 @@ button {
     width: 100%;
     max-width: none;
     box-shadow: none;
+    border: 0;
+    background: transparent;
+  }
+
+  .auth-panel .cl-footer,
+  .auth-panel .cl-footerAction {
+    background: transparent;
+  }
+
+  .auth-panel .cl-formButtonPrimary {
+    min-height: 3rem;
+    font-size: 1rem;
+  }
+
+  .auth-panel .cl-formFieldInput {
+    min-height: 3rem;
+    font-size: 1rem;
   }
 
   .auth-actions {

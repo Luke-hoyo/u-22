@@ -24,13 +24,20 @@ const productPaths = [
   "/profile"
 ];
 
+const authPaths = ["/sign-in", "/sign-up"];
+
+function isStandalonePage(pathname: string) {
+  if (authPaths.some((path) => pathname === path || pathname.startsWith(`${path}/`))) {
+    return true;
+  }
+
+  return productPaths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+}
+
 function DemoSiteFrame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isProductPage = productPaths.some(
-    (path) => pathname === path || pathname.startsWith(`${path}/`)
-  );
 
-  if (isProductPage) {
+  if (isStandalonePage(pathname)) {
     return children;
   }
 
@@ -67,11 +74,8 @@ function ClerkSiteFrame({ children }: { children: React.ReactNode }) {
   const { isSignedIn, user } = useUser();
   const role = getUserRole(user?.publicMetadata);
   const signedInHomeHref = canAccessAdmin(role) ? getAdminHomePath(role) : "/dashboard";
-  const isProductPage = productPaths.some(
-    (path) => pathname === path || pathname.startsWith(`${path}/`)
-  );
 
-  if (isProductPage) {
+  if (isStandalonePage(pathname)) {
     return children;
   }
 
