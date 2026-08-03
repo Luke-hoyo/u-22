@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import '../data/mock_data.dart';
 import 'clerk_auth_screen.dart';
 import 'home_screen.dart';
+import 'join_screen.dart';
+import '../models/demo_account.dart';
+import '../models/user_role.dart';
+import 'admin/admin_app_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key, this.clerkEnabled = false});
@@ -14,6 +18,35 @@ class LoginScreen extends StatelessWidget {
       MaterialPageRoute(
         builder: (_) => HomeScreen(account: mockAccounts.first),
       ),
+    );
+  }
+
+  void _openAdminDemo(BuildContext context, AppUserRole role) {
+    final account = DemoAccount(
+      id: 'demo-${role.apiValue}',
+      name: switch (role) {
+        AppUserRole.farmer => 'デモ農家',
+        AppUserRole.municipality => 'デモ自治体',
+        AppUserRole.operator => 'デモ運営',
+        AppUserRole.youngUser => mockAccounts.first.name,
+      },
+      email: 'demo@hatarukun.jp',
+      profile: '${role.label}デモ',
+      scholarshipBalance: 0,
+      verificationStatus: '確認済み',
+      myNumberStatus: '登録済み',
+      taxStatus: '確認済み',
+    );
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => AdminAppScreen(role: role, account: account),
+      ),
+    );
+  }
+
+  void _openJoin(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const JoinScreen()),
     );
   }
 
@@ -114,7 +147,36 @@ class LoginScreen extends StatelessWidget {
                   icon: const Icon(Icons.visibility_outlined),
                   label: const Text('デモを見る'),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
+                OutlinedButton.icon(
+                  onPressed: () => _openJoin(context),
+                  icon: const Icon(Icons.key_outlined),
+                  label: const Text('招待コードで参加'),
+                ),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    ActionChip(
+                      label: const Text('農家デモ'),
+                      onPressed: () =>
+                          _openAdminDemo(context, AppUserRole.farmer),
+                    ),
+                    ActionChip(
+                      label: const Text('自治体デモ'),
+                      onPressed: () =>
+                          _openAdminDemo(context, AppUserRole.municipality),
+                    ),
+                    ActionChip(
+                      label: const Text('運営デモ'),
+                      onPressed: () =>
+                          _openAdminDemo(context, AppUserRole.operator),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
                 const _TrustMessage(),
                 const SizedBox(height: 22),
                 Wrap(

@@ -47,6 +47,8 @@ void main() {
 
     expect(find.text('現在の保有ポイント'), findsOneWidget);
     expect(find.text('イベントQRチェックイン'), findsOneWidget);
+    await tester.drag(find.byKey(const ValueKey('points')), const Offset(0, -500));
+    await tester.pumpAndSettle();
     expect(find.text('ポイントを地域特典に交換'), findsOneWidget);
     expect(find.text('交換'), findsWidgets);
 
@@ -55,11 +57,11 @@ void main() {
 
     expect(find.text('希望する働き方'), findsWidgets);
     expect(find.text('生年月日'), findsOneWidget);
-    expect(find.text('希望条件を保存'), findsOneWidget);
+    expect(find.text('編集'), findsOneWidget);
 
-    await tester.drag(find.byType(ListView).last, const Offset(0, -500));
+    await tester.tap(find.text('試算'));
     await tester.pumpAndSettle();
-    expect(find.text('状態画面', skipOffstage: false), findsOneWidget);
+    expect(find.text('返済支援の見込みを試算'), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.notifications_none));
     await tester.pumpAndSettle();

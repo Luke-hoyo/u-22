@@ -6,7 +6,9 @@ import '../data/mock_data.dart';
 import '../models/demo_account.dart';
 import '../models/job.dart';
 import '../utils/auth_identifier.dart';
+import '../widgets/simulation_panel.dart';
 import 'access_guide_screen.dart';
+import 'job_detail_screen.dart';
 import 'logout_screen.dart';
 import 'my_number_demo_screen.dart';
 
@@ -23,8 +25,9 @@ class _HomeScreenState extends State<HomeScreen> {
   int currentIndex = 0;
   String searchQuery = '';
   String selectedIndustry = 'すべて';
-  bool showOnlyHousing = false;
+  String selectedRegion = 'すべて';
   final favorites = <String>{};
+  final participatedEventIds = <String>{};
   final applications = <_DemoApplication>[
     const _DemoApplication(
       id: 'APP-001',
@@ -57,7 +60,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return mockJobs.where((job) {
       final matchesIndustry =
           selectedIndustry == 'すべて' || job.industry == selectedIndustry;
-      final matchesHousing = !showOnlyHousing || job.housingSupport;
+      final matchesRegion =
+          selectedRegion == 'すべて' || job.region == selectedRegion;
       final target = [
         job.title,
         job.organizationName,
@@ -69,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
         job.tags.join(' '),
       ].join(' ').toLowerCase();
       return matchesIndustry &&
-          matchesHousing &&
+          matchesRegion &&
           (query.isEmpty || target.contains(query));
     }).toList();
   }
@@ -135,6 +139,32 @@ class _HomeScreenState extends State<HomeScreen> {
     _showSnack('${job.title} に応募しました');
   }
 
+  void participateEvent(String eventId, String title, int eventPoints) {
+    if (participatedEventIds.contains(eventId)) return;
+    setState(() {
+      participatedEventIds.add(eventId);
+      points += eventPoints;
+      transactions.insert(
+        0,
+        _PointTransaction(title, '今日', eventPoints),
+      );
+      currentIndex = 4;
+    });
+    _showSnack('$title に参加を記録しました。+$eventPoints pt');
+  }
+
+  void openJobDetail(Job job) {
+    JobDetailScreen.open(
+      context,
+      job: job,
+      applied: hasApplication(job.id),
+      onApply: () {
+        Navigator.of(context).pop();
+        applyForJob(job);
+      },
+    );
+  }
+
   void exchangeReward(_Reward reward) {
     if (points < reward.cost) {
       _showSnack('交換に必要なポイントが足りません');
@@ -156,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       points += 600;
       transactions.insert(0, _PointTransaction('QRチェックイン: $result', '今日', 600));
-      currentIndex = 3;
+      currentIndex = 4;
     });
     _showSnack('チェックイン完了。600ptを付与しました');
   }
@@ -242,30 +272,39 @@ class _HomeScreenState extends State<HomeScreen> {
         totalExpectedSupport: totalExpectedSupport,
         onJobsTap: () => setState(() => currentIndex = 1),
         onMatchingTap: () => setState(() => currentIndex = 2),
-        onPointsTap: () => setState(() => currentIndex = 3),
-        onProfileTap: () => setState(() => currentIndex = 4),
+        onSimulationTap: () => setState(() => currentIndex = 3),
+        onPointsTap: () => setState(() => currentIndex = 4),
+        onProfileTap: () => setState(() => currentIndex = 5),
       ),
       _JobsTab(
         jobs: filteredJobs,
         favorites: favorites,
         selectedIndustry: selectedIndustry,
-        showOnlyHousing: showOnlyHousing,
+        selectedRegion: selectedRegion,
+        regions: mockJobs.map((job) => job.region).toSet().toList()..sort(),
         searchQuery: searchQuery,
         hasApplication: hasApplication,
         onSearchChanged: (value) => setState(() => searchQuery = value),
         onIndustryChanged: (value) => setState(() => selectedIndustry = value),
-        onHousingChanged: (value) => setState(() => showOnlyHousing = value),
+        onRegionChanged: (value) => setState(() => selectedRegion = value),
         onFavorite: toggleFavorite,
         onApply: applyForJob,
+        onOpenDetail: openJobDetail,
       ),
       _MatchingTab(
         applications: applications,
         onJobsTap: () => setState(() => currentIndex = 1),
+        onOpenJob: openJobDetail,
+      ),
+      _SimulationTab(
+        initialBalance: preferences.scholarshipBalance,
       ),
       _PointsTab(
         points: points,
         transactions: transactions,
+        participatedEventIds: participatedEventIds,
         onExchange: exchangeReward,
+        onParticipate: participateEvent,
         onQrCheckIn: openQrCheckIn,
       ),
       _ProfileTab(
@@ -275,7 +314,6 @@ class _HomeScreenState extends State<HomeScreen> {
         applications: applications.length,
         totalExpectedSupport: totalExpectedSupport,
         onSavePreferences: savePreferences,
-        onStatusTap: () => _showSnack('状態画面を確認しました'),
       ),
     ];
 
@@ -337,9 +375,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 selectedIcon: Icon(Icons.manage_search),
                 label: '求人検索'),
             NavigationDestination(
-                icon: Icon(Icons.insights_outlined),
-                selectedIcon: Icon(Icons.insights),
-                label: 'シミュレーション'),
+                icon: Icon(Icons.handshake_outlined),
+                selectedIcon: Icon(Icons.handshake),
+                label: '事業'),
+            NavigationDestination(
+                icon: Icon(Icons.calculate_outlined),
+                selectedIcon: Icon(Icons.calculate),
+                label: '試算'),
             NavigationDestination(
                 icon: Icon(Icons.confirmation_number_outlined),
                 selectedIcon: Icon(Icons.confirmation_number),
@@ -366,6 +408,7 @@ class _HomeTab extends StatelessWidget {
     required this.totalExpectedSupport,
     required this.onJobsTap,
     required this.onMatchingTap,
+    required this.onSimulationTap,
     required this.onPointsTap,
     required this.onProfileTap,
   });
@@ -379,6 +422,7 @@ class _HomeTab extends StatelessWidget {
   final int totalExpectedSupport;
   final VoidCallback onJobsTap;
   final VoidCallback onMatchingTap;
+  final VoidCallback onSimulationTap;
   final VoidCallback onPointsTap;
   final VoidCallback onProfileTap;
 
@@ -415,7 +459,7 @@ class _HomeTab extends StatelessWidget {
                 note: '希望条件をもとに試算',
                 icon: Icons.file_present_outlined,
                 tone: _accentSoft,
-                onTap: onMatchingTap,
+                onTap: onSimulationTap,
               ),
               _MetricCard(
                 label: '奨学金残高',
@@ -482,27 +526,31 @@ class _JobsTab extends StatelessWidget {
     required this.jobs,
     required this.favorites,
     required this.selectedIndustry,
-    required this.showOnlyHousing,
+    required this.selectedRegion,
+    required this.regions,
     required this.searchQuery,
     required this.hasApplication,
     required this.onSearchChanged,
     required this.onIndustryChanged,
-    required this.onHousingChanged,
+    required this.onRegionChanged,
     required this.onFavorite,
     required this.onApply,
+    required this.onOpenDetail,
   });
 
   final List<Job> jobs;
   final Set<String> favorites;
   final String selectedIndustry;
-  final bool showOnlyHousing;
+  final String selectedRegion;
+  final List<String> regions;
   final String searchQuery;
   final bool Function(String jobId) hasApplication;
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<String> onIndustryChanged;
-  final ValueChanged<bool> onHousingChanged;
+  final ValueChanged<String> onRegionChanged;
   final ValueChanged<Job> onFavorite;
   final ValueChanged<Job> onApply;
+  final ValueChanged<Job> onOpenDetail;
 
   @override
   Widget build(BuildContext context) {
@@ -514,7 +562,7 @@ class _JobsTab extends StatelessWidget {
         const _PageIntro(
           eyebrow: '求人検索',
           title: '希望条件に近い仕事を探す',
-          body: '農業、林業、水産業の求人を、マッチ度や住居支援と一緒に確認できます。',
+          body: '農業、林業、水産業の求人を、マッチ度や地域と一緒に確認できます。',
         ),
         const SizedBox(height: 16),
         TextField(
@@ -528,9 +576,10 @@ class _JobsTab extends StatelessWidget {
         const SizedBox(height: 12),
         _FilterChips(
             selectedIndustry: selectedIndustry,
-            showOnlyHousing: showOnlyHousing,
+            selectedRegion: selectedRegion,
+            regions: regions,
             onIndustryChanged: onIndustryChanged,
-            onHousingChanged: onHousingChanged),
+            onRegionChanged: onRegionChanged),
         const SizedBox(height: 16),
         if (jobs.isEmpty)
           const _StatusPanel(
@@ -545,6 +594,7 @@ class _JobsTab extends StatelessWidget {
               applied: hasApplication(job.id),
               onFavorite: () => onFavorite(job),
               onApply: () => onApply(job),
+              onOpenDetail: () => onOpenDetail(job),
             ),
             const SizedBox(height: 12),
           ],
@@ -554,10 +604,15 @@ class _JobsTab extends StatelessWidget {
 }
 
 class _MatchingTab extends StatelessWidget {
-  const _MatchingTab({required this.applications, required this.onJobsTap});
+  const _MatchingTab({
+    required this.applications,
+    required this.onJobsTap,
+    required this.onOpenJob,
+  });
 
   final List<_DemoApplication> applications;
   final VoidCallback onJobsTap;
+  final ValueChanged<Job> onOpenJob;
 
   @override
   Widget build(BuildContext context) {
@@ -566,7 +621,7 @@ class _MatchingTab extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       children: [
         const _PageIntro(
-          eyebrow: 'シミュレーション',
+          eyebrow: '募集中の事業',
           title: '応募と返済支援の進み具合',
           body: '応募から面談、マッチ成立、就業開始までを同じ画面で確認できます。',
         ),
@@ -580,12 +635,43 @@ class _MatchingTab extends StatelessWidget {
               onAction: onJobsTap),
         ] else ...[
           for (final application in applications) ...[
-            _ApplicationCard(application: application),
+            _ApplicationCard(
+              application: application,
+              onOpenJob: onOpenJob,
+            ),
             const SizedBox(height: 12),
           ],
         ],
         const SizedBox(height: 12),
-        const _StatusGallery(),
+        const _Panel(
+          child: Text(
+            '応募から面談、受け入れ成立、就業開始までの流れをこの画面で確認できます。',
+            style: TextStyle(color: _textSub, height: 1.45),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SimulationTab extends StatelessWidget {
+  const _SimulationTab({required this.initialBalance});
+
+  final int initialBalance;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      key: const ValueKey('simulation'),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      children: [
+        const _PageIntro(
+          eyebrow: 'シミュレーション',
+          title: '返済支援の見込みを試算',
+          body: '奨学金残高と働く期間を変えながら、支援額の目安を確認できます。',
+        ),
+        const SizedBox(height: 16),
+        SimulationPanel(initialBalance: initialBalance),
       ],
     );
   }
@@ -595,12 +681,16 @@ class _PointsTab extends StatelessWidget {
   const _PointsTab(
       {required this.points,
       required this.transactions,
+      required this.participatedEventIds,
       required this.onExchange,
+      required this.onParticipate,
       required this.onQrCheckIn});
 
   final int points;
   final List<_PointTransaction> transactions;
+  final Set<String> participatedEventIds;
   final ValueChanged<_Reward> onExchange;
+  final void Function(String eventId, String title, int eventPoints) onParticipate;
   final VoidCallback onQrCheckIn;
 
   @override
@@ -616,7 +706,12 @@ class _PointsTab extends StatelessWidget {
         const _SectionHeader('参加できる地域イベント'),
         const SizedBox(height: 10),
         for (final event in _events) ...[
-          _EventCard(event: event),
+          _EventCard(
+            event: event,
+            participated: participatedEventIds.contains(event.title),
+            onParticipate: () =>
+                onParticipate(event.title, event.title, event.points),
+          ),
           const SizedBox(height: 10),
         ],
         const SizedBox(height: 12),
@@ -652,7 +747,6 @@ class _ProfileTab extends StatefulWidget {
     required this.applications,
     required this.totalExpectedSupport,
     required this.onSavePreferences,
-    required this.onStatusTap,
   });
 
   final DemoAccount account;
@@ -661,7 +755,6 @@ class _ProfileTab extends StatefulWidget {
   final int applications;
   final int totalExpectedSupport;
   final ValueChanged<_DemoPreferences> onSavePreferences;
-  final VoidCallback onStatusTap;
 
   @override
   State<_ProfileTab> createState() => _ProfileTabState();
@@ -682,6 +775,7 @@ class _ProfileTabState extends State<_ProfileTab> {
       text: widget.preferences.scholarshipBalance.toString());
   late String period = widget.preferences.period;
   late bool housingSupport = widget.preferences.housingSupport;
+  bool editing = false;
 
   @override
   void didUpdateWidget(covariant _ProfileTab oldWidget) {
@@ -745,6 +839,23 @@ class _ProfileTabState extends State<_ProfileTab> {
       ),
     );
     FocusScope.of(context).unfocus();
+    setState(() => editing = false);
+  }
+
+  void _startEditing() => setState(() => editing = true);
+
+  void _cancelEditing() {
+    birthDateController.text = widget.preferences.birthDate;
+    addressController.text = widget.preferences.address;
+    workStyleController.text = widget.preferences.workStyle;
+    industriesController.text = widget.preferences.industries;
+    regionsController.text = widget.preferences.regions;
+    balanceController.text = widget.preferences.scholarshipBalance.toString();
+    setState(() {
+      period = widget.preferences.period;
+      housingSupport = widget.preferences.housingSupport;
+      editing = false;
+    });
   }
 
   @override
@@ -765,85 +876,118 @@ class _ProfileTabState extends State<_ProfileTab> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const _SectionHeader('希望する働き方'),
+              Row(
+                children: [
+                  const Expanded(child: _SectionHeader('希望する働き方')),
+                  if (editing)
+                    TextButton(
+                      onPressed: _cancelEditing,
+                      child: const Text('キャンセル'),
+                    )
+                  else
+                    TextButton.icon(
+                      onPressed: _startEditing,
+                      icon: const Icon(Icons.edit_outlined, size: 16),
+                      label: const Text('編集'),
+                    ),
+                ],
+              ),
               const SizedBox(height: 12),
-              TextField(
-                controller: birthDateController,
-                readOnly: true,
-                onTap: _pickBirthDate,
-                decoration: const InputDecoration(
-                  labelText: '生年月日',
-                  suffixIcon: Icon(Icons.calendar_today_outlined),
+              if (editing) ...[
+                TextField(
+                  controller: birthDateController,
+                  readOnly: true,
+                  onTap: _pickBirthDate,
+                  decoration: const InputDecoration(
+                    labelText: '生年月日',
+                    suffixIcon: Icon(Icons.calendar_today_outlined),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: addressController,
-                decoration: const InputDecoration(
-                  labelText: '住所',
-                  hintText: '例）広島県東広島市...',
+                const SizedBox(height: 12),
+                TextField(
+                  controller: addressController,
+                  decoration: const InputDecoration(
+                    labelText: '住所',
+                    hintText: '例）広島県東広島市...',
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: workStyleController,
-                decoration: const InputDecoration(
-                  labelText: '希望する働き方',
-                  hintText: '例）住み込み、週5日フルタイム、副業併用など',
+                const SizedBox(height: 12),
+                TextField(
+                  controller: workStyleController,
+                  decoration: const InputDecoration(
+                    labelText: '希望する働き方',
+                    hintText: '例）住み込み、週5日フルタイム、副業併用など',
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                  controller: industriesController,
-                  decoration: const InputDecoration(labelText: '興味のある仕事')),
-              const SizedBox(height: 12),
-              TextField(
-                  controller: regionsController,
-                  decoration: const InputDecoration(labelText: '希望地域')),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                initialValue: period,
-                decoration: const InputDecoration(labelText: '働ける期間'),
-                items: const ['3か月〜6か月', '6か月〜12か月', '12か月〜24か月']
-                    .map((value) =>
-                        DropdownMenuItem(value: value, child: Text(value)))
-                    .toList(),
-                onChanged: (value) => setState(() => period = value ?? period),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                  controller: balanceController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: '現在の奨学金残高')),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  children: [
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('住まいの支援が必要',
-                              style: TextStyle(fontWeight: FontWeight.w800)),
-                          SizedBox(height: 2),
-                          Text('寮、空き家、家賃補助がある求人を優先します。',
-                              style: TextStyle(color: _textSub, fontSize: 12)),
-                        ],
+                const SizedBox(height: 12),
+                TextField(
+                    controller: industriesController,
+                    decoration:
+                        const InputDecoration(labelText: '興味のある仕事')),
+                const SizedBox(height: 12),
+                TextField(
+                    controller: regionsController,
+                    decoration: const InputDecoration(labelText: '希望地域')),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  initialValue: period,
+                  decoration: const InputDecoration(labelText: '働ける期間'),
+                  items: const ['3か月〜6か月', '6か月〜12か月', '12か月〜24か月']
+                      .map((value) =>
+                          DropdownMenuItem(value: value, child: Text(value)))
+                      .toList(),
+                  onChanged: (value) =>
+                      setState(() => period = value ?? period),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                    controller: balanceController,
+                    keyboardType: TextInputType.number,
+                    decoration:
+                        const InputDecoration(labelText: '現在の奨学金残高')),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    children: [
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('住まいの支援が必要',
+                                style: TextStyle(fontWeight: FontWeight.w800)),
+                            SizedBox(height: 2),
+                            Text('寮、空き家、家賃補助がある求人を優先します。',
+                                style:
+                                    TextStyle(color: _textSub, fontSize: 12)),
+                          ],
+                        ),
                       ),
-                    ),
-                    Switch(
-                      value: housingSupport,
-                      onChanged: (value) =>
-                          setState(() => housingSupport = value),
-                    ),
-                  ],
+                      Switch(
+                        value: housingSupport,
+                        onChanged: (value) =>
+                            setState(() => housingSupport = value),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              FilledButton.icon(
-                  onPressed: save,
-                  icon: const Icon(Icons.check),
-                  label: const Text('希望条件を保存')),
+                FilledButton.icon(
+                    onPressed: save,
+                    icon: const Icon(Icons.check),
+                    label: const Text('希望条件を保存')),
+              ] else ...[
+                _PreferenceRow('生年月日', widget.preferences.birthDate),
+                _PreferenceRow('住所', widget.preferences.address),
+                _PreferenceRow('希望する働き方', widget.preferences.workStyle),
+                _PreferenceRow('興味のある仕事', widget.preferences.industries),
+                _PreferenceRow('希望地域', widget.preferences.regions),
+                _PreferenceRow('働ける期間', widget.preferences.period),
+                _PreferenceRow(
+                    '住まいの支援',
+                    widget.preferences.housingSupport ? '必要' : 'どちらでもよい'),
+                _PreferenceRow('現在の奨学金残高',
+                    '${_number(widget.preferences.scholarshipBalance)}円'),
+              ],
             ],
           ),
         ),
@@ -868,36 +1012,33 @@ class _ProfileTabState extends State<_ProfileTab> {
             ],
           ),
         ),
-        const SizedBox(height: 14),
-        _Panel(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const _SectionHeader('状態画面'),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final label in [
-                    'Loading',
-                    'Empty',
-                    'Error',
-                    'Offline',
-                    'Maintenance',
-                    '404'
-                  ])
-                    ActionChip(
-                        label: Text(label), onPressed: widget.onStatusTap),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Text('API連携前のデモ状態です。後からAppwrite/kintone境界に差し替えます。',
-                  style: TextStyle(color: _textSub, fontSize: 12)),
-            ],
-          ),
-        ),
       ],
+    );
+  }
+}
+
+class _PreferenceRow extends StatelessWidget {
+  const _PreferenceRow(this.label, this.value);
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final display = value.trim().isEmpty ? '未設定' : value;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: Text(label, style: const TextStyle(color: _textSub))),
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(display,
+                textAlign: TextAlign.right,
+                style: const TextStyle(fontWeight: FontWeight.w800)),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -959,6 +1100,17 @@ class _NextActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final title = switch (application?.status) {
+      _ApplicationStatus.interview => 'オンライン面談に参加する',
+      _ApplicationStatus.matched => '受け入れ手続きを進める',
+      _ApplicationStatus.working => '就業開始の準備を確認する',
+      _ApplicationStatus.applied => '応募内容の確認を待つ',
+      null => '求人に応募して次の一歩へ',
+    };
+    final buttonLabel = application?.status == _ApplicationStatus.interview
+        ? '面談の準備を確認'
+        : '進捗を確認';
+
     return _Panel(
       color: _primary,
       child: Column(
@@ -977,8 +1129,8 @@ class _NextActionCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          const Text('オンライン面談に参加する',
-              style: TextStyle(
+          Text(title,
+              style: const TextStyle(
                   color: Colors.white,
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
@@ -991,7 +1143,7 @@ class _NextActionCard extends StatelessWidget {
           FilledButton.tonalIcon(
               onPressed: onTap,
               icon: const Icon(Icons.arrow_forward),
-              label: const Text('面談の準備を確認')),
+              label: Text(buttonLabel)),
         ],
       ),
     );
@@ -1314,55 +1466,76 @@ class _CommunityEventPanel extends StatelessWidget {
 }
 
 class _FilterChips extends StatelessWidget {
-  const _FilterChips(
-      {required this.selectedIndustry,
-      required this.showOnlyHousing,
-      required this.onIndustryChanged,
-      required this.onHousingChanged});
+  const _FilterChips({
+    required this.selectedIndustry,
+    required this.selectedRegion,
+    required this.regions,
+    required this.onIndustryChanged,
+    required this.onRegionChanged,
+  });
 
   final String selectedIndustry;
-  final bool showOnlyHousing;
+  final String selectedRegion;
+  final List<String> regions;
   final ValueChanged<String> onIndustryChanged;
-  final ValueChanged<bool> onHousingChanged;
+  final ValueChanged<String> onRegionChanged;
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final item in ['すべて', '農業', '林業', '水産業'])
-          ChoiceChip(
-              label: Text(item),
-              selected: selectedIndustry == item,
-              onSelected: (_) => onIndustryChanged(item)),
-        FilterChip(
-            label: const Text('住居支援あり'),
-            selected: showOnlyHousing,
-            onSelected: onHousingChanged),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final item in ['すべて', '農業', '林業', '水産業'])
+              ChoiceChip(
+                  label: Text(item),
+                  selected: selectedIndustry == item,
+                  onSelected: (_) => onIndustryChanged(item)),
+          ],
+        ),
+        const SizedBox(height: 10),
+        DropdownButtonFormField<String>(
+          initialValue: selectedRegion,
+          decoration: const InputDecoration(labelText: '地域で絞り込み'),
+          items: [
+            const DropdownMenuItem(value: 'すべて', child: Text('すべて')),
+            for (final region in regions)
+              DropdownMenuItem(value: region, child: Text(region)),
+          ],
+          onChanged: (value) => onRegionChanged(value ?? selectedRegion),
+        ),
       ],
     );
   }
 }
 
 class _JobCard extends StatelessWidget {
-  const _JobCard(
-      {required this.job,
-      required this.favorite,
-      required this.applied,
-      required this.onFavorite,
-      required this.onApply});
+  const _JobCard({
+    required this.job,
+    required this.favorite,
+    required this.applied,
+    required this.onFavorite,
+    required this.onApply,
+    required this.onOpenDetail,
+  });
 
   final Job job;
   final bool favorite;
   final bool applied;
   final VoidCallback onFavorite;
   final VoidCallback onApply;
+  final VoidCallback onOpenDetail;
 
   @override
   Widget build(BuildContext context) {
     return _Panel(
-      child: Column(
+      child: InkWell(
+        onTap: onOpenDetail,
+        borderRadius: BorderRadius.circular(16),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -1418,15 +1591,20 @@ class _JobCard extends StatelessWidget {
             ],
           ),
         ],
+        ),
       ),
     );
   }
 }
 
 class _ApplicationCard extends StatelessWidget {
-  const _ApplicationCard({required this.application});
+  const _ApplicationCard({
+    required this.application,
+    required this.onOpenJob,
+  });
 
   final _DemoApplication application;
+  final ValueChanged<Job> onOpenJob;
 
   @override
   Widget build(BuildContext context) {
@@ -1456,13 +1634,23 @@ class _ApplicationCard extends StatelessWidget {
           _StepTimeline(status: application.status),
           const SizedBox(height: 14),
           Row(children: [
-            const Expanded(
-                child: Text('返済支援見込み', style: TextStyle(color: _textSub))),
-            Text(_yen(application.expectedSupport),
-                style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                    color: _primaryDark))
+            Expanded(
+                child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('返済支援見込み', style: TextStyle(color: _textSub)),
+                Text(_yen(application.expectedSupport),
+                    style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        color: _primaryDark)),
+              ],
+            )),
+            TextButton.icon(
+              onPressed: () => onOpenJob(job),
+              icon: const Icon(Icons.arrow_forward, size: 16),
+              label: const Text('求人詳細'),
+            ),
           ]),
         ],
       ),
@@ -1599,40 +1787,61 @@ class _QrCheckInPanel extends StatelessWidget {
 }
 
 class _EventCard extends StatelessWidget {
-  const _EventCard({required this.event});
+  const _EventCard({
+    required this.event,
+    required this.participated,
+    required this.onParticipate,
+  });
 
   final _CommunityEvent event;
+  final bool participated;
+  final VoidCallback onParticipate;
 
   @override
   Widget build(BuildContext context) {
     return _Panel(
-      child: Row(children: [
-        Container(
-            width: 52,
-            height: 58,
-            decoration: BoxDecoration(
-                color: _surfaceLow, borderRadius: BorderRadius.circular(14)),
-            child: Center(
-                child: Text(event.day,
-                    style: const TextStyle(
-                        color: _primary,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w900)))),
-        const SizedBox(width: 12),
-        Expanded(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(event.title,
-              style: const TextStyle(fontWeight: FontWeight.w900)),
-          const SizedBox(height: 4),
-          Text('${event.region} / ${event.date}',
-              style:
-                  const TextStyle(color: _textSub, fontSize: 12, height: 1.35))
-        ])),
-        Text('+${event.points} pt',
-            style: const TextStyle(
-                color: _primaryDark, fontWeight: FontWeight.w900)),
-      ]),
+      child: Column(
+        children: [
+          Row(children: [
+            Container(
+                width: 52,
+                height: 58,
+                decoration: BoxDecoration(
+                    color: _surfaceLow,
+                    borderRadius: BorderRadius.circular(14)),
+                child: Center(
+                    child: Text(event.day,
+                        style: const TextStyle(
+                            color: _primary,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900)))),
+            const SizedBox(width: 12),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  Text(event.title,
+                      style: const TextStyle(fontWeight: FontWeight.w900)),
+                  const SizedBox(height: 4),
+                  Text('${event.region} / ${event.date}',
+                      style: const TextStyle(
+                          color: _textSub, fontSize: 12, height: 1.35))
+                ])),
+            Text('+${event.points} pt',
+                style: const TextStyle(
+                    color: _primaryDark, fontWeight: FontWeight.w900)),
+          ]),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton.icon(
+              onPressed: participated ? null : onParticipate,
+              icon: Icon(participated ? Icons.check_circle_outline : Icons.add),
+              label: Text(participated ? '参加済み' : '参加を記録'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
