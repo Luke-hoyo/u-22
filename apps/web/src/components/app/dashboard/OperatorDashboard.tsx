@@ -9,11 +9,11 @@ import {
 } from "lucide-react";
 import {
   getOperatorFocusLabel,
-  getOperatorInviteCodePreview,
-  operatorFocusOptions
+  getOperatorInviteCodePreview
 } from "@/lib/operator-focus";
 import { ManagedJobEditor } from "../ManagedJobEditor";
 import { ApplicantProfileList } from "./ApplicantProfileList";
+import { OperatorFocusSelector } from "./OperatorFocusSelector";
 import {
   applicantMatchesFocus,
   jobMatchesFocus,
@@ -127,21 +127,7 @@ export function OperatorDashboard({ state }: { state: DashboardSharedState }) {
         </button>
       </section>
 
-      <section className={styles.focusSelector} aria-label="管理分野の選択">
-        {operatorFocusOptions.map((option) => (
-          <button
-            key={option.value}
-            className={
-              state.operatorFocus === option.value ? styles.focusOptionActive : styles.focusOption
-            }
-            type="button"
-            onClick={() => state.onSetOperatorFocus(option.value)}
-          >
-            <strong>{option.label}</strong>
-            <span>{option.description}</span>
-          </button>
-        ))}
-      </section>
+      <OperatorFocusSelector state={state} />
 
       {state.editorOpen ? (
         <ManagedJobEditor
@@ -244,7 +230,7 @@ export function OperatorDashboard({ state }: { state: DashboardSharedState }) {
             <div className={styles.adminJobList}>
               {filteredJobs.length > 0 ? (
                 filteredJobs.map((job) => (
-                  <article className={styles.adminJobRow} key={job.id}>
+                  <article className={`${styles.adminJobRow} ${styles.adminJobRowOperator}`} key={job.id}>
                     <div>
                       <span className={styles.adminStatus} data-status={job.status}>
                         {jobStatusLabels[job.status]}
@@ -254,29 +240,34 @@ export function OperatorDashboard({ state }: { state: DashboardSharedState }) {
                         {job.organization} / {job.area}
                       </p>
                     </div>
-                    <div className={styles.adminJobFacts}>
-                      <span>
-                        応募
-                        <b>{job.applicants}件</b>
-                      </span>
-                      <span>
-                        募集枠
-                        <b>{job.capacity}人</b>
-                      </span>
-                      <span>
-                        更新
-                        <b>{job.updatedAt}</b>
-                      </span>
-                    </div>
-                    <div className={styles.adminActions}>
-                      <JobReviewActions job={job} onSetJobReviewStatus={state.onSetJobReviewStatus} />
-                      <button
-                        className={styles.secondaryButton}
-                        type="button"
-                        onClick={() => state.onOpenJobEditor(job)}
-                      >
-                        内容確認
-                      </button>
+                    <div className={styles.adminJobRowFooter}>
+                      <div className={styles.adminJobFacts}>
+                        <span>
+                          応募
+                          <b>{job.applicants}件</b>
+                        </span>
+                        <span>
+                          募集枠
+                          <b>{job.capacity}人</b>
+                        </span>
+                        <span>
+                          更新
+                          <b>{job.updatedAt}</b>
+                        </span>
+                      </div>
+                      <div className={styles.adminActions}>
+                        <JobReviewActions
+                          job={job}
+                          onSetJobReviewStatus={state.onSetJobReviewStatus}
+                        />
+                        <button
+                          className={styles.secondaryButton}
+                          type="button"
+                          onClick={() => state.onOpenJobEditor(job)}
+                        >
+                          内容確認
+                        </button>
+                      </div>
                     </div>
                   </article>
                 ))

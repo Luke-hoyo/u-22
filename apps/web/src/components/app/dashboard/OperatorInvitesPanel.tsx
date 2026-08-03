@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Copy, KeyRound } from "lucide-react";
 import { industryLabels } from "@/lib/app-data";
 import { getOperatorFocusLabel, getOperatorInviteCodePreview } from "@/lib/operator-focus";
+import { OperatorFocusSelector } from "./OperatorFocusSelector";
 import {
   farmerApplicationMatchesFocus,
   farmerApplicationStatusLabels,
@@ -33,6 +34,8 @@ export function OperatorInvitesPanel({ state }: { state: DashboardSharedState })
           申請フォーム
         </Link>
       </section>
+
+      <OperatorFocusSelector state={state} />
 
       <section className={styles.panel}>
         <div className={styles.panelHeader}>

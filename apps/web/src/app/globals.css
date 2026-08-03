@@ -360,19 +360,24 @@ button {
   .auth-layout {
     min-height: 100svh;
     place-items: stretch;
-    padding: 0.85rem;
+    padding: 0;
+    background: #ffffff;
   }
 
   .auth-experience {
     grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
     width: 100%;
-    min-height: 0;
-    border-radius: 1.15rem;
-    box-shadow: var(--shadow-card);
+    min-height: 100svh;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   .auth-visual {
-    min-height: 12.5rem;
+    min-height: 9.5rem;
+    max-height: 10.5rem;
   }
 
   .auth-visual-copy {
@@ -389,11 +394,25 @@ button {
   }
 
   .auth-panel {
-    padding: 1.15rem 1rem 1.35rem;
+    padding: 1.25rem 1rem calc(1.35rem + env(safe-area-inset-bottom));
+    overflow-y: auto;
   }
 
   .auth-panel-heading h1 {
-    font-size: 1.75rem;
+    font-size: 1.65rem;
+  }
+
+  .auth-panel-heading p {
+    font-size: 0.88rem;
+    line-height: 1.65;
+  }
+
+  .auth-panel .cl-card,
+  .auth-panel .cl-rootBox,
+  .auth-panel .cl-cardBox {
+    width: 100%;
+    max-width: none;
+    box-shadow: none;
   }
 
   .auth-actions {
