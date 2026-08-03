@@ -9,7 +9,6 @@ import {
   CircleCheck,
   Clock3,
   Coins,
-  FileCheck2,
   MapPin,
   ShieldCheck,
   Sprout,
@@ -66,15 +65,8 @@ export function DashboardOverview() {
   const [scholarshipBalance, setScholarshipBalance] = useState(
     defaultDemoPreferences.scholarshipBalance
   );
+  const annualSupport = 180000;
   const metrics = [
-    {
-      label: "年間の返済支援見込み",
-      value: "18万円",
-      note: "希望条件をもとに試算",
-      href: "/simulation",
-      icon: FileCheck2,
-      tone: "support"
-    },
     {
       label: "奨学金残高",
       value: `${Math.round(scholarshipBalance / 10000).toLocaleString("ja-JP")}万円`,
@@ -126,29 +118,41 @@ export function DashboardOverview() {
         </Link>
       </motion.header>
 
-      {currentJob && (
-        <motion.section className={styles.nextAction} variants={reveal}>
-          <div className={styles.actionIcon}>
-            <CalendarCheck2 aria-hidden="true" size={25} />
-          </div>
-          <div className={styles.actionCopy}>
-            <span>次にやること</span>
-            <h3>オンライン面談に参加する</h3>
-            <p>
-              7月31日 18:00 ・ {currentJob.organization}
-            </p>
-          </div>
-          <div className={styles.actionButtons}>
-            <Link className={styles.primaryAction} href="/matching">
-              面談の準備を確認
-              <ArrowRight aria-hidden="true" size={17} />
-            </Link>
-            <Link className={styles.secondaryAction} href={`/jobs/${currentJob.id}`}>
-              求人詳細
-            </Link>
-          </div>
+      <div className={styles.commandGrid}>
+        <motion.section className={styles.northStar} variants={reveal}>
+          <span>年間の返済支援見込み</span>
+          <strong>{formatCurrency(annualSupport)}</strong>
+          <p>希望条件と進行中の応募をもとに試算</p>
+          <Link href="/simulation">
+            支援額を調整
+            <ArrowRight aria-hidden="true" size={15} />
+          </Link>
         </motion.section>
-      )}
+
+        {currentJob && (
+          <motion.section className={styles.nextAction} variants={reveal}>
+            <div className={styles.actionIcon}>
+              <CalendarCheck2 aria-hidden="true" size={25} />
+            </div>
+            <div className={styles.actionCopy}>
+              <span>次にやること</span>
+              <h3>オンライン面談に参加する</h3>
+              <p>
+                7月31日 18:00 ・ {currentJob.organization}
+              </p>
+            </div>
+            <div className={styles.actionButtons}>
+              <Link className={styles.primaryAction} href="/matching">
+                面談の準備を確認
+                <ArrowRight aria-hidden="true" size={17} />
+              </Link>
+              <Link className={styles.secondaryAction} href={`/jobs/${currentJob.id}`}>
+                求人詳細
+              </Link>
+            </div>
+          </motion.section>
+        )}
+      </div>
 
       <motion.section className={styles.metrics} aria-label="現在の状況" variants={reveal}>
         {metrics.map((metric) => {

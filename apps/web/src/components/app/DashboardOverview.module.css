@@ -59,15 +59,69 @@
   transform: translateY(-2px);
 }
 
+.commandGrid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.northStar {
+  display: grid;
+  grid-column: span 5;
+  align-content: space-between;
+  min-height: 11rem;
+  min-width: 0;
+  padding: 1.35rem;
+  border: 1px solid #cfdad5;
+  border-radius: 0.85rem;
+  background: #ffffff;
+}
+
+.northStar > span {
+  color: #46554f;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.northStar strong {
+  display: block;
+  margin-top: 0.75rem;
+  color: var(--color-primary-dark);
+  font-size: clamp(2.4rem, 6vw, 4.35rem);
+  font-weight: 850;
+  line-height: 0.95;
+  letter-spacing: 0;
+}
+
+.northStar p {
+  margin: 0.65rem 0 1.05rem;
+  color: #56655f;
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+
+.northStar a {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--color-secondary);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
 .nextAction {
   display: grid;
+  grid-column: span 7;
   grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 1rem;
   align-items: center;
-  padding: 1.15rem 1.25rem;
-  border: 1px solid #a8d5c8;
+  min-height: 11rem;
+  padding: 1.35rem;
+  border: 1px solid #cfdad5;
   border-radius: 0.85rem;
-  background: #eaf7f3;
+  background: #f6faf8;
 }
 
 .actionIcon {
@@ -109,7 +163,7 @@
 
 .metrics {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.8rem;
 }
 
@@ -162,10 +216,6 @@
   color: #56655f;
   font-size: 0.72rem;
   line-height: 1.4;
-}
-
-.support {
-  border-top: 3px solid var(--color-secondary);
 }
 
 .points {
@@ -559,6 +609,15 @@
 }
 
 @media (max-width: 1060px) {
+  .commandGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .northStar,
+  .nextAction {
+    grid-column: auto;
+  }
+
   .nextAction {
     grid-template-columns: auto minmax(0, 1fr);
   }
@@ -604,6 +663,15 @@
     font-size: 0.88rem;
   }
 
+  .northStar {
+    min-height: auto;
+    padding: 1.05rem;
+  }
+
+  .northStar strong {
+    font-size: 2.45rem;
+  }
+
   .searchLink {
     width: 2.75rem;
     height: 2.75rem;
@@ -622,6 +690,7 @@
 
   .nextAction {
     grid-template-columns: auto minmax(0, 1fr);
+    min-height: auto;
     padding: 1rem;
   }
 
