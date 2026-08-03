@@ -12,7 +12,7 @@ export function getClerkAuthErrorMessage(error: unknown, mode: "signIn" | "signU
 
   if (normalized.includes("not found") || firstCode === "form_identifier_not_found") {
     return mode === "signIn"
-      ? "このメールアドレスのアカウントが見つかりません。新規登録をお試しください。"
+      ? "メールアドレスまたはユーザーIDが見つかりません。新規登録をお試しください。"
       : "このメールアドレスは登録できません。入力内容を確認してください。";
   }
 

@@ -257,7 +257,7 @@ class _JapaneseAuthenticationPanelState
     setState(() {
       _errorMessage = switch (message) {
         String value when value.contains('not found') =>
-          'このメールアドレスのアカウントが見つかりません。新規登録をお試しください。',
+          'メールアドレスまたはユーザーIDが見つかりません。新規登録をお試しください。',
         String value when value.contains('already') =>
           'このメールアドレスは登録済みです。ログインをお試しください。',
         String value when value.contains('code') => '認証コードが正しくないか、有効期限が切れています。',
@@ -417,8 +417,12 @@ class _JapaneseAuthenticationPanelState
         _AuthHeading(
           title: _step == _AuthStep.code ? '認証コードを入力' : 'アカウントで続ける',
           description: _step == _AuthStep.code
-              ? '${_emailController.text.trim()} に届いた6桁のコードを入力してください。'
-              : 'Googleアカウントまたはメールアドレスで、安全に利用を始められます。',
+              ? (_isSignUp
+                  ? '${_emailController.text.trim()} に届いた6桁のコードを入力してください。'
+                  : _emailController.text.trim().contains('@')
+                      ? '${_emailController.text.trim()} に届いた6桁のコードを入力してください。'
+                      : '登録メールアドレスに届いた6桁のコードを入力してください。')
+              : 'Googleアカウント、メールアドレス、またはユーザーIDで、安全に利用を始められます。',
         ),
         const SizedBox(height: 24),
         if (_step == _AuthStep.identifier) ...[
@@ -440,21 +444,29 @@ class _JapaneseAuthenticationPanelState
             child: TextFormField(
               controller: _emailController,
               enabled: !_busy,
-              keyboardType: TextInputType.emailAddress,
-              autofillHints: const [AutofillHints.email],
+              keyboardType:
+                  _isSignUp ? TextInputType.emailAddress : TextInputType.text,
+              autofillHints: _isSignUp
+                  ? const [AutofillHints.email]
+                  : const [AutofillHints.username, AutofillHints.email],
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (_) => _sendCode(),
               validator: (value) {
-                final email = value?.trim() ?? '';
-                if (email.isEmpty) return 'メールアドレスを入力してください';
-                if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
+                final input = value?.trim() ?? '';
+                if (input.isEmpty) {
+                  return _isSignUp
+                      ? 'メールアドレスを入力してください'
+                      : 'メールアドレスまたはユーザーIDを入力してください';
+                }
+                if (_isSignUp &&
+                    !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(input)) {
                   return '正しいメールアドレスを入力してください';
                 }
                 return null;
               },
-              decoration: const InputDecoration(
-                labelText: 'メールアドレス',
-                prefixIcon: Icon(Icons.mail_outline),
+              decoration: InputDecoration(
+                labelText: _isSignUp ? 'メールアドレス' : 'メールアドレスまたはユーザーID',
+                prefixIcon: const Icon(Icons.person_outline),
               ),
             ),
           ),

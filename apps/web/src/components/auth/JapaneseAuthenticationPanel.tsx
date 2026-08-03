@@ -4,17 +4,22 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   AlertCircle,
+  LogIn,
   LoaderCircle,
   Lock,
-  LogIn,
-  Mail,
   ShieldCheck,
+  UserRound,
   UserRoundPlus
 } from "lucide-react";
 import { useSignIn, useSignUp } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { getClerkAuthErrorMessage } from "@/lib/clerk-auth-errors";
+import {
+  getAuthCodeDeliveryMessage,
+  isEmailAddress,
+  validateAuthIdentifier
+} from "@/lib/auth-identifier";
 
 type AuthMode = "signIn" | "signUp";
 type AuthStep = "identifier" | "code";
@@ -32,7 +37,7 @@ export function JapaneseAuthenticationPanel({
 
   const [mode, setMode] = useState<AuthMode>(defaultMode);
   const [step, setStep] = useState<AuthStep>("identifier");
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [code, setCode] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -109,14 +114,11 @@ export function JapaneseAuthenticationPanel({
     setErrorMessage("");
     setStatusMessage("");
 
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail) {
-      setErrorMessage("メールアドレスを入力してください。");
-      return;
-    }
+    const trimmedIdentifier = identifier.trim();
+    const validationError = validateAuthIdentifier(trimmedIdentifier, mode);
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-      setErrorMessage("正しいメールアドレスを入力してください。");
+    if (validationError) {
+      setErrorMessage(validationError);
       return;
     }
 
@@ -128,7 +130,7 @@ export function JapaneseAuthenticationPanel({
     try {
       if (isSignUp) {
         const { error } = await signUp.create({
-          emailAddress: trimmedEmail,
+          emailAddress: trimmedIdentifier,
           legalAccepted: acceptTerms
         });
 
@@ -144,11 +146,11 @@ export function JapaneseAuthenticationPanel({
         }
 
         setStep("code");
-        setStatusMessage(`${trimmedEmail} に認証コードを送信しました。`);
+        setStatusMessage(`${trimmedIdentifier} に認証コードを送信しました。`);
         return;
       }
 
-      const { error } = await signIn.create({ identifier: trimmedEmail });
+      const { error } = await signIn.create({ identifier: trimmedIdentifier });
       if (error) {
         setErrorMessage(getClerkAuthErrorMessage(error, mode));
         return;
@@ -161,7 +163,7 @@ export function JapaneseAuthenticationPanel({
       }
 
       setStep("code");
-      setStatusMessage(`${trimmedEmail} に認証コードを送信しました。`);
+      setStatusMessage(getAuthCodeDeliveryMessage(trimmedIdentifier));
     } catch (error) {
       setErrorMessage(getClerkAuthErrorMessage(error, mode));
     }
@@ -271,8 +273,8 @@ export function JapaneseAuthenticationPanel({
         <h1>{step === "code" ? "認証コードを入力" : "アカウントで続ける"}</h1>
         <p>
           {step === "code"
-            ? `${email.trim()} に届いた6桁のコードを入力してください。`
-            : "Googleアカウントまたはメールアドレスで、安全に利用を始められます。"}
+            ? getAuthCodeDeliveryMessage(identifier)
+            : "Googleアカウント、メールアドレス、またはユーザーIDで安全に利用を始められます。"}
         </p>
       </div>
 
@@ -318,20 +320,20 @@ export function JapaneseAuthenticationPanel({
           </div>
 
           <form className="auth-mobile-form" onSubmit={sendCode}>
-            <label className="auth-field" htmlFor="auth-email">
-              <span>メールアドレス</span>
+            <label className="auth-field" htmlFor="auth-identifier">
+              <span>{isSignUp ? "メールアドレス" : "メールアドレスまたはユーザーID"}</span>
               <div className="auth-input-wrap">
-                <Mail aria-hidden="true" size={18} />
+                <UserRound aria-hidden="true" size={18} />
                 <input
-                  autoComplete="email"
+                  autoComplete={isSignUp ? "email" : "username email"}
                   disabled={busy}
-                  id="auth-email"
-                  inputMode="email"
-                  name="email"
-                  placeholder="name@example.com"
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
+                  id="auth-identifier"
+                  inputMode={isSignUp || isEmailAddress(identifier) ? "email" : "text"}
+                  name="identifier"
+                  placeholder={isSignUp ? "name@example.com" : "メールまたはユーザーID"}
+                  type={isSignUp ? "email" : "text"}
+                  value={identifier}
+                  onChange={(event) => setIdentifier(event.target.value)}
                   required
                 />
               </div>
