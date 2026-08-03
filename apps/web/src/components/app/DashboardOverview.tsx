@@ -26,9 +26,10 @@ import {
 import styles from "./DashboardOverview.module.css";
 
 const supportTrend = [240, 222, 204, 186, 168, 150, 132];
-const pointTrend = [1200, 1800, 2400, 3200, 3800, 4300];
+const supportForecast = [0, 3, 6, 9, 12, 15, 18];
+const chartMonths = ["現在", "2か月", "4か月", "6か月", "8か月", "10か月", "12か月"];
 
-function linePoints(values: number[]) {
+function linePoints(values: number[], height = 130) {
   const max = Math.max(...values);
   const min = Math.min(...values);
   const range = max - min || 1;
@@ -36,7 +37,7 @@ function linePoints(values: number[]) {
   return values
     .map((value, index) => {
       const x = (index / (values.length - 1 || 1)) * 100;
-      const y = 86 - ((value - min) / range) * 64;
+      const y = height - 18 - ((value - min) / range) * (height - 42);
       return `${x.toFixed(1)},${y.toFixed(1)}`;
     })
     .join(" ");
@@ -109,10 +110,6 @@ export function DashboardOverview() {
           <span>年間の返済支援見込み</span>
           <strong>{formatCurrency(annualSupport)}</strong>
           <p>希望条件と進行中の応募をもとに試算</p>
-          <svg className={styles.supportChart} viewBox="0 0 100 92" aria-label="返済残高の見込み推移">
-            <path d="M0 86H100" />
-            <polyline points={linePoints(supportTrend)} />
-          </svg>
           <Link href="/simulation">
             支援額を調整
             <ArrowRight aria-hidden="true" size={15} />
@@ -159,20 +156,6 @@ export function DashboardOverview() {
                 <Icon aria-hidden="true" size={19} />
               </div>
               <strong>{metric.value}</strong>
-              {metric.tone === "points" ? (
-                <div className={styles.barChart} aria-label="ポイント推移">
-                  {pointTrend.map((value) => (
-                    <span
-                      key={value}
-                      style={{ height: `${Math.max(18, (value / 5000) * 100)}%` }}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <svg className={styles.balanceChart} viewBox="0 0 100 32" aria-label="残高推移">
-                  <polyline points={linePoints(supportTrend)} />
-                </svg>
-              )}
               <small>
                 {metric.note}
                 <ChevronRight aria-hidden="true" size={14} />
@@ -180,6 +163,51 @@ export function DashboardOverview() {
             </Link>
           );
         })}
+      </motion.section>
+
+      <motion.section className={styles.chartSection} aria-label="返済と支援の推移" variants={reveal}>
+        <div className={styles.chartHeader}>
+          <div>
+            <span>推移</span>
+            <h3>奨学金残高と返済支援見込み</h3>
+          </div>
+          <Link href="/simulation">
+            条件を変更
+            <ArrowRight aria-hidden="true" size={15} />
+          </Link>
+        </div>
+
+        <div className={styles.chartGrid}>
+          <div className={styles.chartBlock}>
+            <div className={styles.chartTitle}>
+              <span>奨学金残高</span>
+              <strong>240万円 → 132万円</strong>
+            </div>
+            <svg className={styles.lineChart} viewBox="0 0 100 130" preserveAspectRatio="none">
+              <path d="M0 112H100" />
+              <polyline points={linePoints(supportTrend)} />
+            </svg>
+            <div className={styles.chartLabels}>
+              <span>現在</span>
+              <span>12か月後</span>
+            </div>
+          </div>
+
+          <div className={styles.chartBlock}>
+            <div className={styles.chartTitle}>
+              <span>返済支援見込み</span>
+              <strong>年間18万円</strong>
+            </div>
+            <div className={styles.columnChart}>
+              {supportForecast.map((value, index) => (
+                <div key={chartMonths[index]}>
+                  <span style={{ height: `${Math.max(6, (value / 18) * 100)}%` }} />
+                  <small>{chartMonths[index]}</small>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </motion.section>
     </motion.div>
   );
