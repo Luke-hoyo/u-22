@@ -25,6 +25,23 @@ import {
 } from "@/lib/demo-user-state";
 import styles from "./DashboardOverview.module.css";
 
+const supportTrend = [240, 222, 204, 186, 168, 150, 132];
+const pointTrend = [1200, 1800, 2400, 3200, 3800, 4300];
+
+function linePoints(values: number[]) {
+  const max = Math.max(...values);
+  const min = Math.min(...values);
+  const range = max - min || 1;
+
+  return values
+    .map((value, index) => {
+      const x = (index / (values.length - 1 || 1)) * 100;
+      const y = 86 - ((value - min) / range) * 64;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+}
+
 export function DashboardOverview() {
   const prefersReducedMotion = useReducedMotion();
   const [dashboardApplications, setDashboardApplications] = useState<Application[]>(applications);
@@ -92,6 +109,10 @@ export function DashboardOverview() {
           <span>年間の返済支援見込み</span>
           <strong>{formatCurrency(annualSupport)}</strong>
           <p>希望条件と進行中の応募をもとに試算</p>
+          <svg className={styles.supportChart} viewBox="0 0 100 92" aria-label="返済残高の見込み推移">
+            <path d="M0 86H100" />
+            <polyline points={linePoints(supportTrend)} />
+          </svg>
           <Link href="/simulation">
             支援額を調整
             <ArrowRight aria-hidden="true" size={15} />
@@ -138,6 +159,20 @@ export function DashboardOverview() {
                 <Icon aria-hidden="true" size={19} />
               </div>
               <strong>{metric.value}</strong>
+              {metric.tone === "points" ? (
+                <div className={styles.barChart} aria-label="ポイント推移">
+                  {pointTrend.map((value) => (
+                    <span
+                      key={value}
+                      style={{ height: `${Math.max(18, (value / 5000) * 100)}%` }}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <svg className={styles.balanceChart} viewBox="0 0 100 32" aria-label="残高推移">
+                  <polyline points={linePoints(supportTrend)} />
+                </svg>
+              )}
               <small>
                 {metric.note}
                 <ChevronRight aria-hidden="true" size={14} />

@@ -66,6 +66,8 @@
 }
 
 .northStar {
+  position: relative;
+  overflow: hidden;
   display: grid;
   grid-column: span 5;
   align-content: space-between;
@@ -79,12 +81,16 @@
 }
 
 .northStar > span {
+  position: relative;
+  z-index: 1;
   color: #cfe9df;
   font-size: 0.78rem;
   font-weight: 800;
 }
 
 .northStar strong {
+  position: relative;
+  z-index: 1;
   display: block;
   margin-top: 0.75rem;
   color: #ffffff;
@@ -95,6 +101,8 @@
 }
 
 .northStar p {
+  position: relative;
+  z-index: 1;
   margin: 0.65rem 0 1.05rem;
   color: #dcefe8;
   font-size: 0.82rem;
@@ -102,6 +110,8 @@
 }
 
 .northStar a {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   width: fit-content;
   align-items: center;
@@ -109,6 +119,30 @@
   color: #ffffff;
   font-size: 0.78rem;
   font-weight: 800;
+}
+
+.supportChart {
+  position: absolute;
+  right: 0.7rem;
+  bottom: 0.2rem;
+  width: min(58%, 17rem);
+  height: 7rem;
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+.supportChart path {
+  fill: none;
+  stroke: rgb(255 255 255 / 22%);
+  stroke-width: 1;
+}
+
+.supportChart polyline {
+  fill: none;
+  stroke: #c8f3df;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
 }
 
 .nextAction {
@@ -207,6 +241,35 @@
   line-height: 1;
 }
 
+.balanceChart {
+  display: block;
+  width: 100%;
+  height: 2rem;
+  margin-top: 0.8rem;
+}
+
+.balanceChart polyline {
+  fill: none;
+  stroke: var(--color-secondary);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 6;
+}
+
+.barChart {
+  display: flex;
+  height: 2.15rem;
+  align-items: end;
+  gap: 0.26rem;
+  margin-top: 0.75rem;
+}
+
+.barChart span {
+  width: 100%;
+  border-radius: 9999px 9999px 0.2rem 0.2rem;
+  background: #c87510;
+}
+
 .metric small {
   display: flex;
   align-items: center;
@@ -265,6 +328,12 @@
 
   .northStar strong {
     font-size: 2.45rem;
+  }
+
+  .supportChart {
+    width: 62%;
+    height: 5.8rem;
+    opacity: 0.55;
   }
 
   .searchLink {
