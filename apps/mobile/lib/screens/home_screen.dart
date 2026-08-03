@@ -5,6 +5,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 import '../data/mock_data.dart';
 import '../models/demo_account.dart';
 import '../models/job.dart';
+import '../utils/auth_identifier.dart';
 import 'access_guide_screen.dart';
 import 'logout_screen.dart';
 import 'my_number_demo_screen.dart';
@@ -667,6 +668,12 @@ class _ProfileTab extends StatefulWidget {
 }
 
 class _ProfileTabState extends State<_ProfileTab> {
+  late final birthDateController =
+      TextEditingController(text: widget.preferences.birthDate);
+  late final addressController =
+      TextEditingController(text: widget.preferences.address);
+  late final workStyleController =
+      TextEditingController(text: widget.preferences.workStyle);
   late final industriesController =
       TextEditingController(text: widget.preferences.industries);
   late final regionsController =
@@ -680,6 +687,9 @@ class _ProfileTabState extends State<_ProfileTab> {
   void didUpdateWidget(covariant _ProfileTab oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.preferences != widget.preferences) {
+      birthDateController.text = widget.preferences.birthDate;
+      addressController.text = widget.preferences.address;
+      workStyleController.text = widget.preferences.workStyle;
       industriesController.text = widget.preferences.industries;
       regionsController.text = widget.preferences.regions;
       balanceController.text = widget.preferences.scholarshipBalance.toString();
@@ -690,15 +700,39 @@ class _ProfileTabState extends State<_ProfileTab> {
 
   @override
   void dispose() {
+    birthDateController.dispose();
+    addressController.dispose();
+    workStyleController.dispose();
     industriesController.dispose();
     regionsController.dispose();
     balanceController.dispose();
     super.dispose();
   }
 
+  Future<void> _pickBirthDate() async {
+    final initial = DateTime.tryParse(birthDateController.text.trim()) ??
+        DateTime(2000, 1, 1);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(1950),
+      lastDate: DateTime.now(),
+      helpText: '生年月日を選択',
+      cancelText: 'キャンセル',
+      confirmText: '選択',
+    );
+    if (picked == null || !mounted) return;
+    birthDateController.text =
+        '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+    setState(() {});
+  }
+
   void save() {
     widget.onSavePreferences(
       _DemoPreferences(
+        birthDate: birthDateController.text.trim(),
+        address: addressController.text.trim(),
+        workStyle: workStyleController.text.trim(),
         industries: industriesController.text.trim().isEmpty
             ? '農業、水産業'
             : industriesController.text.trim(),
@@ -722,6 +756,7 @@ class _ProfileTabState extends State<_ProfileTab> {
       children: [
         _ProfileHeader(
             account: widget.account,
+            preferences: widget.preferences,
             favorites: widget.favorites,
             applications: widget.applications,
             totalExpectedSupport: widget.totalExpectedSupport),
@@ -731,6 +766,32 @@ class _ProfileTabState extends State<_ProfileTab> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const _SectionHeader('希望する働き方'),
+              const SizedBox(height: 12),
+              TextField(
+                controller: birthDateController,
+                readOnly: true,
+                onTap: _pickBirthDate,
+                decoration: const InputDecoration(
+                  labelText: '生年月日',
+                  suffixIcon: Icon(Icons.calendar_today_outlined),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: addressController,
+                decoration: const InputDecoration(
+                  labelText: '住所',
+                  hintText: '例）広島県東広島市...',
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: workStyleController,
+                decoration: const InputDecoration(
+                  labelText: '希望する働き方',
+                  hintText: '例）住み込み、週5日フルタイム、副業併用など',
+                ),
+              ),
               const SizedBox(height: 12),
               TextField(
                   controller: industriesController,
@@ -1646,17 +1707,24 @@ class _TransactionRow extends StatelessWidget {
 class _ProfileHeader extends StatelessWidget {
   const _ProfileHeader(
       {required this.account,
+      required this.preferences,
       required this.favorites,
       required this.applications,
       required this.totalExpectedSupport});
 
   final DemoAccount account;
+  final _DemoPreferences preferences;
   final int favorites;
   final int applications;
   final int totalExpectedSupport;
 
   @override
   Widget build(BuildContext context) {
+    final subtitle = profileRegionLabel(
+      regions: preferences.regions,
+      birthDate: preferences.birthDate,
+    );
+
     return _Panel(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
@@ -1675,7 +1743,9 @@ class _ProfileHeader extends StatelessWidget {
                 Text(account.name,
                     style: const TextStyle(
                         fontSize: 22, fontWeight: FontWeight.w900)),
-                Text(account.email, style: const TextStyle(color: _textSub))
+                Text(account.email, style: const TextStyle(color: _textSub)),
+                const SizedBox(height: 2),
+                Text(subtitle, style: const TextStyle(color: _textSub)),
               ])),
         ]),
         const SizedBox(height: 14),
@@ -2127,7 +2197,10 @@ class _DemoApplication {
 
 class _DemoPreferences {
   const _DemoPreferences(
-      {required this.industries,
+      {required this.birthDate,
+      required this.address,
+      required this.workStyle,
+      required this.industries,
       required this.regions,
       required this.period,
       required this.housingSupport,
@@ -2135,6 +2208,9 @@ class _DemoPreferences {
 
   factory _DemoPreferences.defaults() {
     return const _DemoPreferences(
+        birthDate: '',
+        address: '',
+        workStyle: '',
         industries: '農業、水産業',
         regions: '中国・四国地方、九州地方',
         period: '6か月〜12か月',
@@ -2142,6 +2218,9 @@ class _DemoPreferences {
         scholarshipBalance: 2400000);
   }
 
+  final String birthDate;
+  final String address;
+  final String workStyle;
   final String industries;
   final String regions;
   final String period;

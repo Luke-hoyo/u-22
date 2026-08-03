@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import '../models/demo_account.dart';
 import '../models/onboarding_profile.dart';
 import '../services/profile_service.dart';
+import '../utils/auth_identifier.dart';
+import '../widgets/auth_status_notice.dart';
 import 'home_screen.dart';
 import 'onboarding_screen.dart';
 
@@ -232,7 +234,7 @@ class _JapaneseAuthenticationPanel extends StatefulWidget {
 
 class _JapaneseAuthenticationPanelState
     extends State<_JapaneseAuthenticationPanel> {
-  final _emailController = TextEditingController();
+  final _identifierController = TextEditingController();
   final _codeController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
@@ -241,12 +243,13 @@ class _JapaneseAuthenticationPanelState
   bool _acceptTerms = false;
   bool _busy = false;
   String? _errorMessage;
+  String? _statusMessage;
 
   bool get _isSignUp => _mode == _AuthMode.signUp;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _identifierController.dispose();
     _codeController.dispose();
     super.dispose();
   }
@@ -271,6 +274,7 @@ class _JapaneseAuthenticationPanelState
     setState(() {
       _busy = true;
       _errorMessage = null;
+      _statusMessage = null;
     });
 
     try {
@@ -293,6 +297,7 @@ class _JapaneseAuthenticationPanelState
       _step = _AuthStep.identifier;
       _codeController.clear();
       _errorMessage = null;
+      _statusMessage = null;
     });
   }
 
@@ -317,11 +322,22 @@ class _JapaneseAuthenticationPanelState
   }
 
   Future<void> _sendCode() async {
+    final validationError = validateAuthIdentifier(
+      _identifierController.text,
+      isSignUp: _isSignUp,
+    );
+    if (validationError != null) {
+      setState(() => _errorMessage = validationError);
+      return;
+    }
+
     if (_formKey.currentState?.validate() != true) return;
     if (_isSignUp && !_acceptTerms) {
       setState(() => _errorMessage = '利用規約とプライバシーポリシーへの同意が必要です。');
       return;
     }
+
+    final trimmedIdentifier = _identifierController.text.trim();
 
     await _run((authState) async {
       await authState.resetClient();
@@ -330,7 +346,7 @@ class _JapaneseAuthenticationPanelState
           context,
           () => authState.attemptSignUp(
             strategy: clerk.Strategy.emailCode,
-            emailAddress: _emailController.text.trim(),
+            emailAddress: trimmedIdentifier,
             legalAccepted: _acceptTerms,
           ),
           onError: _showError,
@@ -340,14 +356,19 @@ class _JapaneseAuthenticationPanelState
           context,
           () => authState.attemptSignIn(
             strategy: clerk.Strategy.emailCode,
-            identifier: _emailController.text.trim(),
+            identifier: trimmedIdentifier,
           ),
           onError: _showError,
         );
       }
 
       if (!mounted || _errorMessage != null || authState.user != null) return;
-      setState(() => _step = _AuthStep.code);
+      setState(() {
+        _step = _AuthStep.code;
+        _statusMessage = _isSignUp
+            ? '$trimmedIdentifier に認証コードを送信しました。'
+            : getAuthCodeDeliveryMessage(trimmedIdentifier);
+      });
     });
   }
 
@@ -392,9 +413,7 @@ class _JapaneseAuthenticationPanelState
         onError: _showError,
       );
       if (!mounted || _errorMessage != null) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('認証コードを再送しました')),
-      );
+      setState(() => _statusMessage = '認証コードを再送しました。');
     });
   }
 
@@ -406,7 +425,16 @@ class _JapaneseAuthenticationPanelState
       _step = _AuthStep.identifier;
       _codeController.clear();
       _errorMessage = null;
+      _statusMessage = null;
     });
+  }
+
+  String get _headingDescription {
+    if (_step == _AuthStep.code) {
+      return getAuthCodeDeliveryMessage(_identifierController.text);
+    }
+
+    return 'Googleアカウント、メールアドレス、またはユーザーIDで安全に利用を始められます。';
   }
 
   @override
@@ -416,13 +444,7 @@ class _JapaneseAuthenticationPanelState
       children: [
         _AuthHeading(
           title: _step == _AuthStep.code ? '認証コードを入力' : 'アカウントで続ける',
-          description: _step == _AuthStep.code
-              ? (_isSignUp
-                  ? '${_emailController.text.trim()} に届いた6桁のコードを入力してください。'
-                  : _emailController.text.trim().contains('@')
-                      ? '${_emailController.text.trim()} に届いた6桁のコードを入力してください。'
-                      : '登録メールアドレスに届いた6桁のコードを入力してください。')
-              : 'Googleアカウント、メールアドレス、またはユーザーIDで、安全に利用を始められます。',
+          description: _headingDescription,
         ),
         const SizedBox(height: 24),
         if (_step == _AuthStep.identifier) ...[
@@ -442,7 +464,7 @@ class _JapaneseAuthenticationPanelState
           Form(
             key: _formKey,
             child: TextFormField(
-              controller: _emailController,
+              controller: _identifierController,
               enabled: !_busy,
               keyboardType:
                   _isSignUp ? TextInputType.emailAddress : TextInputType.text,
@@ -452,20 +474,15 @@ class _JapaneseAuthenticationPanelState
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (_) => _sendCode(),
               validator: (value) {
-                final input = value?.trim() ?? '';
-                if (input.isEmpty) {
-                  return _isSignUp
-                      ? 'メールアドレスを入力してください'
-                      : 'メールアドレスまたはユーザーIDを入力してください';
-                }
-                if (_isSignUp &&
-                    !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(input)) {
-                  return '正しいメールアドレスを入力してください';
-                }
-                return null;
+                return validateAuthIdentifier(
+                  value ?? '',
+                  isSignUp: _isSignUp,
+                );
               },
               decoration: InputDecoration(
                 labelText: _isSignUp ? 'メールアドレス' : 'メールアドレスまたはユーザーID',
+                hintText:
+                    _isSignUp ? 'name@example.com' : 'メールまたはユーザーID',
                 prefixIcon: const Icon(Icons.person_outline),
               ),
             ),
@@ -535,6 +552,10 @@ class _JapaneseAuthenticationPanelState
         if (_errorMessage case final message?) ...[
           const SizedBox(height: 16),
           _ErrorMessage(message: message),
+        ],
+        if (_statusMessage case final message?) ...[
+          const SizedBox(height: 16),
+          AuthStatusNotice(message: message),
         ],
         const SizedBox(height: 22),
         const _SecurityMessage(),

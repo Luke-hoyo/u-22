@@ -15,7 +15,7 @@ void main() {
 
     expect(find.text('はたるくん'), findsOneWidget);
     expect(find.text('地域で働くことを、\n返済の力に。'), findsOneWidget);
-    expect(find.text('Googleまたはメールで続ける'), findsOneWidget);
+    expect(find.text('Google・メール・ユーザーIDで続ける'), findsOneWidget);
 
     await tester.tap(find.text('デモを見る'));
     await tester.pumpAndSettle();
@@ -50,11 +50,15 @@ void main() {
     expect(find.text('ポイントを地域特典に交換'), findsOneWidget);
     expect(find.text('交換'), findsWidgets);
 
-    await tester.tapAt(const Offset(386, 890));
+    await tester.tap(find.text('マイページ'));
     await tester.pumpAndSettle();
 
-    expect(find.text('希望する働き方'), findsOneWidget);
+    expect(find.text('希望する働き方'), findsWidgets);
+    expect(find.text('生年月日'), findsOneWidget);
     expect(find.text('希望条件を保存'), findsOneWidget);
+
+    await tester.drag(find.byType(ListView).last, const Offset(0, -500));
+    await tester.pumpAndSettle();
     expect(find.text('状態画面', skipOffstage: false), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.notifications_none));
