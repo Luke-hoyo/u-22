@@ -5,18 +5,30 @@ import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import {
   Bell,
+  Building2,
   Calculator,
   ClipboardList,
   Coins,
   Handshake,
   Home,
   Search,
+  ShieldCheck,
+  Sprout,
   UserRound
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { canAccessAdmin, roleLabels, type UserRole } from "@/lib/access-control";
+import {
+  canAccessAdmin,
+  getAdminHomePath,
+  isFarmerRole,
+  isMunicipalityRole,
+  isOperatorRole,
+  roleLabels,
+  type UserRole
+} from "@/lib/access-control";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
+import { getNotificationsForRole, getNotificationTitleForRole, getShellLabelForRole } from "@/lib/notifications";
 import styles from "./AppShell.module.css";
 
 const navigation = [
@@ -39,7 +51,7 @@ const navigation = [
     label: "募集中の事業",
     mobileLabel: "事業",
     icon: Handshake,
-    allowedRoles: ["young_user", "operator"]
+    allowedRoles: ["young_user"]
   },
   {
     href: "/simulation",
@@ -57,17 +69,45 @@ const navigation = [
   },
   {
     href: "/farmer/dashboard",
-    label: "農家の招待",
-    mobileLabel: "招待",
-    icon: ClipboardList,
-    allowedRoles: ["municipality", "operator"]
+    label: "ホーム",
+    mobileLabel: "ホーム",
+    icon: Sprout,
+    allowedRoles: ["farmer"]
+  },
+  {
+    href: "/farmer/dashboard#applicants",
+    label: "応募者一覧",
+    mobileLabel: "応募",
+    icon: Handshake,
+    allowedRoles: ["farmer"]
   },
   {
     href: "/farmer/dashboard",
     label: "ホーム",
     mobileLabel: "ホーム",
-    icon: Home,
-    allowedRoles: ["farmer"]
+    icon: Building2,
+    allowedRoles: ["municipality"]
+  },
+  {
+    href: "/farmer/dashboard",
+    label: "申請審査",
+    mobileLabel: "審査",
+    icon: ClipboardList,
+    allowedRoles: ["municipality"]
+  },
+  {
+    href: "/farmer/dashboard",
+    label: "ホーム",
+    mobileLabel: "ホーム",
+    icon: ShieldCheck,
+    allowedRoles: ["operator"]
+  },
+  {
+    href: "/farmer/dashboard",
+    label: "招待管理",
+    mobileLabel: "招待",
+    icon: ClipboardList,
+    allowedRoles: ["operator"]
   },
   {
     href: "/profile",
@@ -85,13 +125,38 @@ const pageTitles: Record<string, string> = {
   "/matching": "募集中の事業",
   "/simulation": "返済支援シミュレーション",
   "/points": "地域ポイント",
-  "/admin": "農家向けダッシュボード",
-  "/farmer": "農家の招待",
+  "/admin": "管理ダッシュボード",
+  "/farmer": "管理ダッシュボード",
   "/profile": "マイページ"
 };
 
 function isActivePath(pathname: string, href: string) {
-  return pathname === href || pathname.startsWith(`${href}/`);
+  const normalizedHref = href.split("#")[0];
+  return pathname === normalizedHref || pathname.startsWith(`${normalizedHref}/`);
+}
+
+function getRolePageTitle(role: UserRole, rootPath: string) {
+  if (rootPath === "/farmer") {
+    if (isFarmerRole(role)) return "農家ダッシュボード";
+    if (isMunicipalityRole(role)) return "自治体ダッシュボード";
+    if (isOperatorRole(role)) return "運営ダッシュボード";
+  }
+
+  return pageTitles[rootPath] ?? "はたるくん";
+}
+
+function dedupeNavigation(items: typeof navigation) {
+  const seen = new Set<string>();
+
+  return items.filter((item) => {
+    const key = `${item.href}:${item.label}`;
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
 }
 
 export function AppShell({
@@ -105,19 +170,36 @@ export function AppShell({
 }) {
   const pathname = usePathname();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [notificationsRead, setNotificationsRead] = useState(false);
+  const [readNotificationIds, setReadNotificationIds] = useState<string[]>([]);
   const notificationWrapRef = useRef<HTMLDivElement | null>(null);
   const demoAuth = isDemoAuthEnabled();
   const rootPath = `/${pathname.split("/")[1]}`;
-  const title = pageTitles[rootPath] ?? "はたるくん";
+  const title = getRolePageTitle(userRole, rootPath);
   const isAdminUser = canAccessAdmin(userRole);
-  const visibleNavigation = navigation.filter((item) => item.allowedRoles.includes(userRole));
-  const mobileNavigation = visibleNavigation.filter(
-    (item) =>
-      (userRole === "operator" || item.href !== "/matching") &&
-      (userRole !== "operator" || item.href !== "/simulation")
+  const shellLabel = getShellLabelForRole(userRole);
+  const notifications = useMemo(() => getNotificationsForRole(userRole), [userRole]);
+  const unreadNotifications = notifications.filter(
+    (notification) => !readNotificationIds.includes(notification.id)
   );
-  const homeHref = isAdminUser ? "/farmer/dashboard" : "/dashboard";
+  const visibleNavigation = dedupeNavigation(
+    navigation.filter((item) => item.allowedRoles.includes(userRole))
+  );
+  const mobileNavigation = visibleNavigation.filter((item) => {
+    if (isFarmerRole(userRole)) {
+      return item.label === "ホーム" || item.label === "応募者一覧" || item.label === "マイページ";
+    }
+
+    if (isMunicipalityRole(userRole)) {
+      return item.label === "ホーム" || item.label === "申請審査" || item.label === "マイページ";
+    }
+
+    if (isOperatorRole(userRole)) {
+      return item.label === "ホーム" || item.label === "招待管理" || item.label === "マイページ";
+    }
+
+    return true;
+  });
+  const homeHref = isAdminUser ? getAdminHomePath(userRole) : "/dashboard";
 
   useEffect(() => {
     setNotificationsOpen(false);
@@ -156,7 +238,7 @@ export function AppShell({
           <Image src="/hatarukun-mark-v2.png" alt="" width={44} height={44} priority />
           <span>
             <b>はたるくん</b>
-            <small>{isAdminUser ? "受け入れ管理" : "利用者ダッシュボード"}</small>
+            <small>{shellLabel.brand}</small>
           </span>
         </Link>
 
@@ -169,7 +251,7 @@ export function AppShell({
               <Link
                 className={active ? styles.activeNavItem : styles.navItem}
                 href={item.href}
-                key={item.href}
+                key={`${item.href}-${item.label}`}
               >
                 <Icon aria-hidden="true" size={20} strokeWidth={2} />
                 <span>{item.label}</span>
@@ -179,13 +261,9 @@ export function AppShell({
         </nav>
 
         <div className={styles.sideSupport}>
-          <span>{isAdminUser ? "受け入れ権限" : "本人確認"}</span>
+          <span>{shellLabel.supportTitle}</span>
           <strong>{isAdminUser ? roleLabels[userRole] : "確認済み"}</strong>
-          <p>
-            {isAdminUser
-              ? "募集、応募者、ポイント申請を確認できます。"
-              : "応募と返済支援の準備ができています。"}
-          </p>
+          <p>{shellLabel.supportBody}</p>
         </div>
       </aside>
 
@@ -206,7 +284,7 @@ export function AppShell({
                 onClick={() => setNotificationsOpen((current) => !current)}
               >
                 <Bell aria-hidden="true" size={20} />
-                {!notificationsRead ? <span /> : null}
+                {unreadNotifications.length > 0 ? <span /> : null}
               </button>
               {notificationsOpen ? (
                 <section
@@ -215,19 +293,31 @@ export function AppShell({
                   id="notification-panel"
                 >
                   <div className={styles.notificationHeader}>
-                    <strong>お知らせ</strong>
-                    <button type="button" onClick={() => setNotificationsRead(true)}>
+                    <strong>{getNotificationTitleForRole(userRole)}</strong>
+                    <button
+                      type="button"
+                      onClick={() => setReadNotificationIds(notifications.map((item) => item.id))}
+                    >
                       すべて既読
                     </button>
                   </div>
-                  <Link href="/matching">
-                    <b>面談予定が決まりました</b>
-                    <small>7月31日 18:00からオンライン面談です。</small>
-                  </Link>
-                  <Link href="/points">
-                    <b>地域イベントが追加されました</b>
-                    <small>棚田メンテナンスへの参加で600 pt獲得できます。</small>
-                  </Link>
+                  {notifications.map((notification) => (
+                    <Link
+                      href={notification.href}
+                      key={notification.id}
+                      data-tone={notification.tone}
+                      onClick={() =>
+                        setReadNotificationIds((current) =>
+                          current.includes(notification.id)
+                            ? current
+                            : [...current, notification.id]
+                        )
+                      }
+                    >
+                      <b>{notification.title}</b>
+                      <small>{notification.body}</small>
+                    </Link>
+                  ))}
                 </section>
               ) : null}
             </div>
@@ -257,7 +347,7 @@ export function AppShell({
               className={active ? styles.activeBottomItem : styles.bottomItem}
               href={item.href}
               aria-label={item.label}
-              key={item.href}
+              key={`${item.href}-${item.label}`}
             >
               <Icon aria-hidden="true" size={20} strokeWidth={2} />
               <span>{item.mobileLabel}</span>

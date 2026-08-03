@@ -2,8 +2,21 @@ import { currentUser } from "@clerk/nextjs/server";
 import { ProfileSummaryCard } from "@/components/app/ProfileSummaryCard";
 import { PreferencesEditor } from "@/components/app/PreferencesEditor";
 import { PageHeader } from "@/components/app/PageHeader";
-import { canAccessAdmin, getUserRole, roleLabels } from "@/lib/access-control";
+import { canAccessAdmin, getUserRole, roleLabels, type UserRole } from "@/lib/access-control";
 import styles from "@/components/app/ProductUI.module.css";
+
+function getAccessibleScreens(role: UserRole) {
+  switch (role) {
+    case "farmer":
+      return "ホーム、応募者一覧";
+    case "municipality":
+      return "ホーム、申請審査";
+    case "operator":
+      return "ホーム、招待管理";
+    default:
+      return "ホーム";
+  }
+}
 
 export default async function ProfilePage() {
   const user = await currentUser();
@@ -16,7 +29,7 @@ export default async function ProfilePage() {
         <PageHeader
           eyebrow="マイページ"
           title="アカウントと受け入れ情報"
-          description="農家・自治体・運営として使う情報だけを確認します。"
+          description="農家・自治体・運営として使う情報を確認します。"
         />
 
         <div className={styles.profileGrid}>
@@ -41,9 +54,7 @@ export default async function ProfilePage() {
               </div>
               <div className={styles.preferenceRow}>
                 <span>利用できる画面</span>
-                <strong>
-                  {role === "farmer" ? "農家ホーム、募集中の事業" : "農家の招待、募集中の事業"}
-                </strong>
+                <strong>{getAccessibleScreens(role)}</strong>
               </div>
               <div className={styles.preferenceRow}>
                 <span>招待方式</span>

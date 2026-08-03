@@ -26,3 +26,27 @@ export function getUserRole(metadata: Metadata): UserRole {
 export function canAccessAdmin(role: UserRole) {
   return adminRoles.includes(role);
 }
+
+export function isFarmerRole(role: UserRole) {
+  return role === "farmer";
+}
+
+export function isOperatorRole(role: UserRole) {
+  return role === "operator";
+}
+
+export function isMunicipalityRole(role: UserRole) {
+  return role === "municipality";
+}
+
+export function canReviewFarmerApplications(role: UserRole) {
+  return role === "municipality" || role === "operator";
+}
+
+export function canManagePlatformJobs(role: UserRole) {
+  return role === "operator";
+}
+
+export function getAdminHomePath(role: UserRole) {
+  return "/farmer/dashboard";
+}

@@ -1611,6 +1611,88 @@
   color: var(--color-secondary-container);
 }
 
+.dashboardHeroFarmer {
+  background:
+    linear-gradient(135deg, rgb(0 77 64 / 94%), rgb(0 106 98 / 86%)),
+    url("/higashihiroshima.jpg") center / cover;
+}
+
+.dashboardHeroOperator {
+  background:
+    linear-gradient(135deg, rgb(24 53 45 / 96%), rgb(0 77 64 / 88%)),
+    url("/higashihiroshima.jpg") center / cover;
+}
+
+.dashboardHeroMunicipality {
+  background:
+    linear-gradient(135deg, rgb(0 58 82 / 94%), rgb(0 106 98 / 82%)),
+    url("/higashihiroshima.jpg") center / cover;
+}
+
+.dashboardFarmer,
+.dashboardOperator,
+.dashboardMunicipality {
+  display: grid;
+  gap: 1rem;
+}
+
+.farmerNote {
+  display: grid;
+  gap: 0.55rem;
+  align-content: start;
+  padding: 1.2rem;
+  border: 1px solid #d7e8e1;
+  border-radius: 0.9rem;
+  background: #f4fbf8;
+  color: var(--color-primary-dark);
+}
+
+.farmerNote span {
+  color: var(--color-secondary);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.farmerNote strong {
+  font-size: 1.1rem;
+}
+
+.farmerNote p {
+  margin: 0;
+  color: var(--color-text-sub);
+  line-height: 1.6;
+}
+
+.applicantCardList {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.applicantCard {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid #dbe3df;
+  border-radius: 0.8rem;
+  background: #fbfcfc;
+}
+
+.applicantCard h4 {
+  margin: 0.35rem 0 0;
+  color: var(--color-primary-dark);
+}
+
+.applicantCard p {
+  margin: 0.2rem 0 0;
+  color: var(--color-text-sub);
+  font-size: 0.88rem;
+}
+
+.applicantCard small {
+  color: var(--color-text-sub);
+  font-size: 0.78rem;
+}
+
 .adminGrid {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(19rem, 0.65fr);

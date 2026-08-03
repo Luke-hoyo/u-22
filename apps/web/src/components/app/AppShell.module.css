@@ -223,6 +223,18 @@
   line-height: 1.45;
 }
 
+.notificationPanel > a[data-tone="action"] b {
+  color: #8a4d00;
+}
+
+.notificationPanel > a[data-tone="action"] {
+  background: #fff8eb;
+}
+
+.notificationPanel > a[data-tone="success"] b {
+  color: #0d6b4f;
+}
+
 .iconButton {
   position: relative;
   display: grid;
