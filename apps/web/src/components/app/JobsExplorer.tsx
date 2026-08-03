@@ -25,8 +25,7 @@ export function JobsExplorer() {
   const [industry, setIndustry] = useState<IndustryFilter>("all");
   const [region, setRegion] = useState("all");
   const [jobs, setJobs] = useState<Job[]>(mockJobs);
-  const [dataSource, setDataSource] = useState<"appwrite" | "mock">("mock");
-  const [sourceMessage, setSourceMessage] = useState("モック求人を表示しています。");
+  const [sourceMessage, setSourceMessage] = useState("公開中の仕事を表示しています。");
 
   useEffect(() => {
     let active = true;
@@ -50,11 +49,10 @@ export function JobsExplorer() {
         }
 
         setJobs(result.jobs);
-        setDataSource(result.source);
         setSourceMessage(
           result.source === "appwrite"
-            ? "Appwrite TablesDBから求人を取得しています。"
-            : result.reason ?? "モック求人を表示しています。"
+            ? "地域事業者が登録した仕事を表示しています。"
+            : "公開サンプルの仕事を表示しています。"
         );
       } catch (error) {
         if (!active) {
@@ -62,12 +60,7 @@ export function JobsExplorer() {
         }
 
         setJobs(mockJobs);
-        setDataSource("mock");
-        setSourceMessage(
-          error instanceof Error
-            ? `Appwrite接続確認に失敗したため、モック求人を表示しています: ${error.message}`
-            : "Appwrite接続確認に失敗したため、モック求人を表示しています。"
-        );
+        setSourceMessage("公開サンプルの仕事を表示しています。");
       }
     }
 
@@ -141,10 +134,7 @@ export function JobsExplorer() {
 
       <div className={styles.resultMeta}>
         <strong>{filteredJobs.length}件の仕事</strong>
-        <span>
-          {dataSource === "appwrite" ? "Appwrite接続中" : "モック表示"} /{" "}
-          {sourceMessage}
-        </span>
+        <span>{sourceMessage}</span>
       </div>
 
       <div className={styles.jobsGrid}>

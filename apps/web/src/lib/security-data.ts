@@ -37,7 +37,7 @@ export const securityChecks: SecurityCheck[] = [
   {
     id: "auth-session",
     label: "ログイン管理",
-    status: "Clerkで保護中",
+    status: "ログイン必須",
     detail: "アプリ画面はログイン済みユーザーだけが閲覧できるようにしています。",
     severity: "safe"
   },
@@ -45,14 +45,14 @@ export const securityChecks: SecurityCheck[] = [
     id: "sensitive-mock",
     label: "重要情報",
     status: "実データ未使用",
-    detail: "マイナンバー、JASSO、行政APIはコンテスト段階ではモックで再現します。",
+    detail: "マイナンバー、JASSO、行政連携などの高リスク情報は、提出用環境では扱いません。",
     severity: "safe"
   },
   {
     id: "api-secret",
     label: "APIキー",
     status: "フロント非公開",
-    detail: "kintoneやAppwriteの秘密情報はサーバー側で扱う想定に分けています。",
+    detail: "外部サービスの秘密情報はサーバー側に分離し、画面側へ公開しない設計です。",
     severity: "safe"
   },
   {
@@ -68,7 +68,7 @@ export const pointCheckInAttempts: PointCheckInAttempt[] = [
   {
     eventId: "EVT-001",
     eventTitle: "夏の棚田メンテナンス",
-    userId: "USER-DEMO-001",
+    userId: "USER-001",
     deviceHash: "device-a91f",
     checkedInAt: "2026-08-03 09:08",
     points: 600
@@ -76,7 +76,7 @@ export const pointCheckInAttempts: PointCheckInAttempt[] = [
   {
     eventId: "EVT-001",
     eventTitle: "夏の棚田メンテナンス",
-    userId: "USER-DEMO-001",
+    userId: "USER-001",
     deviceHash: "device-a91f",
     checkedInAt: "2026-08-03 09:12",
     points: 600
@@ -84,7 +84,7 @@ export const pointCheckInAttempts: PointCheckInAttempt[] = [
   {
     eventId: "EVT-002",
     eventTitle: "港の朝市サポーター",
-    userId: "USER-DEMO-001",
+    userId: "USER-001",
     deviceHash: "device-a91f",
     checkedInAt: "2026-08-09 06:35",
     points: 800
@@ -94,7 +94,7 @@ export const pointCheckInAttempts: PointCheckInAttempt[] = [
 export const operationLogs: OperationLog[] = [
   {
     id: "LOG-001",
-    actor: "デモユーザー",
+    actor: "若者ユーザー",
     action: "本人確認ステータスを確認",
     target: "プロフィール",
     time: "2026-07-27 09:42",

@@ -192,6 +192,6 @@
   }
 
   .supportPanel {
-    min-height: 22rem;
+    min-height: auto;
   }
 }

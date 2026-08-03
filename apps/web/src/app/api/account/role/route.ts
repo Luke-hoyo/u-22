@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     const role = getDemoUserRole();
 
     return NextResponse.json({
-      label: "デモ公開モード",
+      label: "確認モード",
       role,
       redirectTo: canAccessAdmin(role) ? "/farmer/dashboard" : "/dashboard"
     });

@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, Gift, TicketCheck } from "lucide-react";
+import { CalendarDays, CheckCircle2, Gift, TicketCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   communityEvents,
@@ -8,8 +8,11 @@ import {
   rewards
 } from "@/lib/app-data";
 import {
+  readDemoEventParticipations,
+  readDemoPointLedger,
   readDemoPoints,
   readDemoRewardExchanges,
+  saveDemoEventParticipation,
   saveDemoRewardExchange,
   writeDemoPoints
 } from "@/lib/demo-user-state";
@@ -25,11 +28,45 @@ export function PointsCenter() {
   const [points, setPoints] = useState(initialPoints);
   const [message, setMessage] = useState("");
   const [exchangedRewardIds, setExchangedRewardIds] = useState<string[]>([]);
+  const [participatedEventIds, setParticipatedEventIds] = useState<string[]>([]);
+  const [ledger, setLedger] = useState(pointTransactions);
 
   useEffect(() => {
     setPoints(readDemoPoints(initialPoints));
     setExchangedRewardIds(readDemoRewardExchanges().map((exchange) => exchange.rewardId));
+    setParticipatedEventIds(
+      readDemoEventParticipations().map((participation) => participation.eventId)
+    );
+    setLedger([...readDemoPointLedger(), ...pointTransactions]);
   }, []);
+
+  function participateEvent(event: (typeof communityEvents)[number]) {
+    if (participatedEventIds.includes(event.id)) {
+      setMessage("このイベントはすでに参加済みです。");
+      return;
+    }
+
+    const participatedAt = new Intl.DateTimeFormat("ja-JP", {
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    }).format(new Date());
+    const nextPoints = points + event.points;
+    const nextParticipations = saveDemoEventParticipation({
+      id: `EVENT-${Date.now()}`,
+      eventId: event.id,
+      eventTitle: event.title,
+      pointsEarned: event.points,
+      participatedAt
+    });
+
+    setPoints(nextPoints);
+    writeDemoPoints(nextPoints);
+    setParticipatedEventIds(nextParticipations.map((participation) => participation.eventId));
+    setLedger([...readDemoPointLedger(), ...pointTransactions]);
+    setMessage(`「${event.title}」の参加を記録し、${event.points} ptを付与しました。`);
+  }
 
   function exchangeReward(reward: (typeof rewards)[number]) {
     if (points < reward.cost) {
@@ -53,6 +90,7 @@ export function PointsCenter() {
       }).format(new Date())
     });
     setExchangedRewardIds((current) => [reward.id, ...current]);
+    setLedger([...readDemoPointLedger(), ...pointTransactions]);
     setMessage(`「${reward.name}」に交換しました。`);
   }
 
@@ -89,6 +127,21 @@ export function PointsCenter() {
                   </p>
                 </div>
                 <b>+{event.points} pt</b>
+                <button
+                  className={styles.secondaryButton}
+                  type="button"
+                  disabled={participatedEventIds.includes(event.id)}
+                  onClick={() => participateEvent(event)}
+                >
+                  {participatedEventIds.includes(event.id) ? (
+                    <>
+                      <CheckCircle2 aria-hidden="true" size={16} />
+                      参加済み
+                    </>
+                  ) : (
+                    "参加を記録"
+                  )}
+                </button>
               </article>
             ))}
           </div>
@@ -99,7 +152,7 @@ export function PointsCenter() {
             <h3>ポイント履歴</h3>
           </div>
           <div className={styles.transactionList}>
-            {pointTransactions.map((transaction) => (
+            {ledger.map((transaction) => (
               <div className={styles.transaction} key={transaction.id}>
                 <span>
                   {transaction.label}

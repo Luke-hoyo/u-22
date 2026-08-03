@@ -78,7 +78,7 @@ export function Simulator() {
         <div className={styles.notice}>
           <Info aria-hidden="true" size={18} />
           <span>
-            この金額はコンテスト用の想定制度をもとにした見込みです。実際の支援額を保証するものではありません。
+            この金額は入力内容をもとにした見込みです。実際の支援額を保証するものではありません。
           </span>
         </div>
       </section>

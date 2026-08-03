@@ -17,7 +17,7 @@ export default async function FarmerDashboardPage() {
         <PageHeader
           eyebrow="農家向けダッシュボード"
           title="農家・自治体向けアカウントが必要です"
-          description="募集管理や応募者確認は、農家・自治体・運営アカウントだけが利用できます。"
+          description="募集管理や応募者確認は、承認済みの農家・自治体・運営アカウントだけが利用できます。"
         />
         <section className={`${styles.panel} ${styles.accessDeniedPanel}`}>
           <ShieldAlert aria-hidden="true" size={34} />
@@ -25,11 +25,10 @@ export default async function FarmerDashboardPage() {
             <span>現在のアカウント種別</span>
             <h3>{roleLabels[role]}</h3>
             <p>
-              Clerkのユーザー設定で `publicMetadata.role` を `farmer`、`municipality`、
-              `operator` のいずれかにすると、このダッシュボードを開けます。
+              受け入れ申請が承認されると、農家向けダッシュボードを利用できます。
             </p>
-            <Link className={styles.primaryLink} href="/dashboard">
-              若者向けホームへ戻る
+            <Link className={styles.primaryLink} href="/farmer/apply">
+              受け入れ申請へ進む
             </Link>
           </div>
         </section>

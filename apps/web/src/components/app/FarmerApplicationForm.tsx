@@ -117,7 +117,7 @@ export function FarmerApplicationForm() {
         <h3>まずは申請。承認後に、農家アカウントへ進みます。</h3>
         <p>
           農家側に難しいアカウント設定をさせず、運営が審査してからダッシュボードに招待する流れです。
-          コンテストでは、申請から承認までの仕組みを触って見せられます。
+          申請、承認、募集管理までをひとつの流れで扱えます。
         </p>
         <div className={styles.applicationFlow} aria-label="申請フロー">
           {flowSteps.map((step, index) => (
@@ -320,7 +320,7 @@ export function FarmerApplicationForm() {
             <div>
               <strong>{submittedApplication.farmName}の申請を受け付けました。</strong>
               <p>
-                承認されると、農家向けダッシュボード用の招待に進める想定です。
+                承認後、農家向けダッシュボードへの招待に進みます。
               </p>
               <Link href="/farmer/dashboard">ダッシュボードで確認する</Link>
             </div>

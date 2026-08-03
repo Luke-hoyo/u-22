@@ -20,13 +20,13 @@ export default async function ProductLayout({
   const { isAuthenticated } = await auth();
 
   if (!isAuthenticated) {
-    redirect("/sign-in?redirect_url=/dashboard");
+    redirect("/sign-in");
   }
 
   const user = await currentUser();
   const userRole = getUserRole(user?.publicMetadata);
   const displayName =
-    user?.firstName ?? user?.emailAddresses[0]?.emailAddress.split("@")[0] ?? "デモユーザー";
+    user?.firstName ?? user?.emailAddresses[0]?.emailAddress.split("@")[0] ?? "利用者";
 
   return (
     <AppShell displayName={displayName} userRole={userRole}>

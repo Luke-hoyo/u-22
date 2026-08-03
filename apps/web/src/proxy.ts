@@ -146,7 +146,12 @@ const clerkProxy = clerkMiddleware(
       return NextResponse.next();
     }
 
-    await auth.protect({ unauthenticatedUrl: signInUrlFor(request) });
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.redirect(signInUrlFor(request));
+    }
+
     return NextResponse.next();
   }
 );

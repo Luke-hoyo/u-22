@@ -28,14 +28,18 @@ function normalizeRedirectUrl(value: string | undefined) {
   }
 
   if (url.pathname === "/role-router") {
-    return `${productionOrigin}/dashboard`;
+    return "/dashboard";
+  }
+
+  if (url.hostname === "hatarukun.jp" || url.hostname === "www.hatarukun.jp") {
+    return `${url.pathname}${url.search}${url.hash}`;
   }
 
   if (!isAbsoluteUrl) {
-    return value;
+    return value.startsWith("/") && !value.startsWith("//") ? value : "/dashboard";
   }
 
-  return url.toString();
+  return "/dashboard";
 }
 
 export default async function SignInPage({ searchParams }: AuthPageProps) {
@@ -45,6 +49,7 @@ export default async function SignInPage({ searchParams }: AuthPageProps) {
 
   const requestedRedirectUrl = getRedirectUrl((await searchParams)?.redirect_url);
   const normalizedRedirectUrl = normalizeRedirectUrl(requestedRedirectUrl);
+  const redirectTarget = normalizedRedirectUrl ?? "/dashboard";
 
   if (requestedRedirectUrl && normalizedRedirectUrl && requestedRedirectUrl !== normalizedRedirectUrl) {
     redirect(`/sign-in?redirect_url=${encodeURIComponent(normalizedRedirectUrl)}`);
@@ -53,13 +58,13 @@ export default async function SignInPage({ searchParams }: AuthPageProps) {
   return (
     <section className="auth-layout">
       <div className="auth-card">
-        <AuthRedirectWatcher />
+        <AuthRedirectWatcher to={redirectTarget} />
         <h1>ログイン</h1>
         <SignIn
-          forceRedirectUrl="/dashboard"
-          fallbackRedirectUrl="/dashboard"
-          signUpForceRedirectUrl="/dashboard"
-          signUpFallbackRedirectUrl="/dashboard"
+          forceRedirectUrl={redirectTarget}
+          fallbackRedirectUrl={redirectTarget}
+          signUpForceRedirectUrl={redirectTarget}
+          signUpFallbackRedirectUrl={redirectTarget}
         />
         <div className="auth-actions">
           <a href="/dashboard">ログイン済みの方はダッシュボードへ</a>

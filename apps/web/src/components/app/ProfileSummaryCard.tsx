@@ -4,6 +4,7 @@ import { ChangeEvent, useRef, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Camera, CheckCircle2, LoaderCircle, UserRound } from "lucide-react";
 import { getDemoDisplayName, isDemoAuthEnabled } from "@/lib/demo-auth";
+import { clearDemoAvatar, readDemoAvatar, writeDemoAvatar } from "@/lib/demo-user-state";
 import styles from "./ProductUI.module.css";
 
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
@@ -13,7 +14,7 @@ function getDisplayName(user: ReturnType<typeof useUser>["user"]) {
     user?.fullName ??
     user?.firstName ??
     user?.primaryEmailAddress?.emailAddress.split("@")[0] ??
-    "デモユーザー"
+    "利用者"
   );
 }
 
@@ -26,30 +27,107 @@ function getRegionLabel(user: ReturnType<typeof useUser>["user"]) {
 }
 
 function DemoProfileSummaryCard() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [avatarUrl, setAvatarUrl] = useState(readDemoAvatar);
+  const [statusMessage, setStatusMessage] = useState("PNG / JPG / WebP / GIF、5MBまで");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    setErrorMessage("");
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setErrorMessage("画像ファイルを選んでください。");
+      return;
+    }
+
+    if (file.size > MAX_AVATAR_BYTES) {
+      setErrorMessage("5MB以下の画像を選んでください。");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      const result = typeof reader.result === "string" ? reader.result : "";
+      setAvatarUrl(result);
+      writeDemoAvatar(result);
+      setStatusMessage("アイコンを更新しました。");
+    });
+    reader.addEventListener("error", () => {
+      setErrorMessage("画像を読み込めませんでした。別の画像で試してください。");
+    });
+    reader.readAsDataURL(file);
+  }
+
+  function handleAvatarReset() {
+    clearDemoAvatar();
+    setAvatarUrl("");
+    setStatusMessage("アイコンを初期状態に戻しました。");
+    setErrorMessage("");
+  }
+
   return (
     <section className={`${styles.panel} ${styles.profileSummary}`}>
       <div className={styles.avatar}>
-        <UserRound aria-hidden="true" size={42} />
+        {avatarUrl ? (
+          <img className={styles.avatarImage} src={avatarUrl} alt="ユーザーアイコン" />
+        ) : (
+          <UserRound aria-hidden="true" size={42} />
+        )}
       </div>
 
       <h3>{getDemoDisplayName()}</h3>
-      <p>広島県 / デモ公開</p>
+      <p>広島県 / 利用者</p>
 
-      <p className={styles.avatarStatus} aria-live="polite">
-        デモ公開モードでは画像変更は省略しています
+      <div className={styles.avatarControls}>
+        <button
+          className={`${styles.secondaryButton} ${styles.avatarActionButton}`}
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Camera aria-hidden="true" size={17} />
+          画像を変更
+        </button>
+        {avatarUrl ? (
+          <button
+            className={`${styles.secondaryButton} ${styles.avatarActionButton}`}
+            type="button"
+            onClick={handleAvatarReset}
+          >
+            初期化
+          </button>
+        ) : null}
+      </div>
+
+      <input
+        ref={fileInputRef}
+        className={styles.avatarInput}
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif"
+        onChange={handleAvatarChange}
+      />
+
+      <p className={errorMessage ? styles.avatarError : styles.avatarStatus} aria-live="polite">
+        {errorMessage || statusMessage}
       </p>
 
       <div className={styles.verificationList}>
         <div className={styles.verificationItem}>
           <span>メールアドレス</span>
           <b>
-            <CheckCircle2 aria-hidden="true" size={15} /> デモ確認済み
+            <CheckCircle2 aria-hidden="true" size={15} /> 確認済み
           </b>
         </div>
         <div className={styles.verificationItem}>
           <span>本人確認</span>
           <b>
-            <CheckCircle2 aria-hidden="true" size={15} /> デモ確認済み
+            <CheckCircle2 aria-hidden="true" size={15} /> 確認済み
           </b>
         </div>
         <div className={styles.verificationItem}>

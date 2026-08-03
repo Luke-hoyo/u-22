@@ -19,6 +19,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
 import {
   applications,
+  type Application,
   communityEvents,
   formatCurrency,
   getJobById,
@@ -27,7 +28,8 @@ import {
 import {
   defaultDemoPreferences,
   readDemoPoints,
-  readDemoPreferences
+  readDemoPreferences,
+  readSavedApplications
 } from "@/lib/demo-user-state";
 import styles from "./DashboardOverview.module.css";
 
@@ -56,7 +58,8 @@ const tasks = [
 
 export function DashboardOverview() {
   const prefersReducedMotion = useReducedMotion();
-  const currentApplication = applications[0];
+  const [dashboardApplications, setDashboardApplications] = useState<Application[]>(applications);
+  const currentApplication = dashboardApplications[0];
   const currentJob = getJobById(currentApplication.jobId);
   const nextEvent = communityEvents[0];
   const [points, setPoints] = useState(3200);
@@ -95,6 +98,13 @@ export function DashboardOverview() {
   };
 
   useEffect(() => {
+    const merged = new Map(applications.map((application) => [application.id, application]));
+
+    for (const application of readSavedApplications()) {
+      merged.set(application.id, application);
+    }
+
+    setDashboardApplications(Array.from(merged.values()));
     setPoints(readDemoPoints(3200));
     setScholarshipBalance(readDemoPreferences().scholarshipBalance);
   }, []);

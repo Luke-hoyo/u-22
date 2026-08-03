@@ -49,7 +49,7 @@ function DemoSiteFrame({ children }: { children: React.ReactNode }) {
             農家ダッシュボード
           </Link>
           <Link className="button button-primary" href="/dashboard">
-            デモを開く
+            はじめる
           </Link>
         </nav>
       </header>

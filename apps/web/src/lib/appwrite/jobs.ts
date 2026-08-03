@@ -92,8 +92,8 @@ function mapRowToJob(row: AppwriteJobRow): Job {
     periodMonths: parseNumberList(row.periodMonths, [6, 12]),
     housingSupport: Boolean(row.housingSupport),
     training: Boolean(row.training),
-    tags: parseStringList(row.tags, ["Appwrite連携"]),
-    summary: row.summary ?? "Appwriteから取得した求人データです。",
+    tags: parseStringList(row.tags, ["地域連携"]),
+    summary: row.summary ?? "地域事業者が登録した求人データです。",
     description: row.description ?? row.summary ?? "詳細説明は地域側のダッシュボードから登録します。",
     duties: parseStringList(row.duties, ["仕事内容を確認", "地域担当者と面談"]),
     schedule: row.schedule ?? "勤務時間は地域担当者と確認",
@@ -110,7 +110,7 @@ export async function getJobsData(): Promise<JobsDataResult> {
     return {
       source: "mock",
       configured: false,
-      reason: "Appwriteの接続情報が未設定のため、モック求人を表示しています。",
+      reason: "求人データベースの接続情報が未設定のため、公開サンプルを表示しています。",
       missingKeys: status.missingKeys,
       total: mockJobs.length,
       jobs: mockJobs,
@@ -130,7 +130,7 @@ export async function getJobsData(): Promise<JobsDataResult> {
       return {
         source: "mock",
         configured: true,
-        reason: "Appwriteには接続できましたが、求人テーブルが空のためモック求人を表示しています。",
+        reason: "求人データベースは利用できますが、求人が未登録のため公開サンプルを表示しています。",
         missingKeys: [],
         total: mockJobs.length,
         jobs: mockJobs,
@@ -152,8 +152,8 @@ export async function getJobsData(): Promise<JobsDataResult> {
       configured: true,
       reason:
         error instanceof Error
-          ? `Appwrite接続に失敗したため、モック求人を表示しています: ${error.message}`
-          : "Appwrite接続に失敗したため、モック求人を表示しています。",
+          ? `求人データベースに接続できないため、公開サンプルを表示しています: ${error.message}`
+          : "求人データベースに接続できないため、公開サンプルを表示しています。",
       missingKeys: [],
       total: mockJobs.length,
       jobs: mockJobs,

@@ -88,10 +88,10 @@ export function SecurityCenter() {
     <div className={styles.stack}>
       <section className={styles.securityHero}>
         <div>
-          <span>Security Demo</span>
+          <span>Security</span>
           <h3>実データを使わずに、守る仕組みを動かして見せる。</h3>
           <p>
-            本人確認・奨学金情報・ポイント履歴を扱う想定だからこそ、コンテスト段階では安全なモックで
+            本人確認・奨学金情報・ポイント履歴を扱うサービスとして、
             認証、権限、重複検知、監査ログを確認できるようにしています。
           </p>
         </div>
@@ -106,22 +106,22 @@ export function SecurityCenter() {
                 appwriteStatus?.connected ? styles.securitySafe : styles.securityWatch
               }`}
             >
-              {appwriteStatus?.connected ? "接続中" : "モック"}
+              {appwriteStatus?.connected ? "接続中" : "待機中"}
             </span>
             <Database aria-hidden="true" size={20} />
           </div>
-          <h3>Appwrite DB</h3>
+          <h3>求人データベース</h3>
           <strong>
             {appwriteStatus?.connected
               ? `求人 ${appwriteStatus.totalJobs ?? 0}件を確認`
-              : "未設定でも安全に動作"}
+              : "公開求人で安全に動作"}
           </strong>
           <p>
             {appwriteStatus?.connected
-              ? "TablesDBに接続して、求人テーブルの疎通確認ができています。"
+              ? "求人テーブルの疎通確認ができています。"
               : appwriteStatus?.missingKeys?.length
-                ? `不足: ${appwriteStatus.missingKeys.join(", ")}`
-                : appwriteStatus?.error ?? "接続情報が入るまでモックデータで動きます。"}
+                ? "本番データベースの接続情報はサーバー側で管理します。"
+                : appwriteStatus?.error ?? "外部接続がない場合も、公開求人で画面を確認できます。"}
           </p>
         </article>
         {securityChecks.map((check) => (
@@ -223,7 +223,7 @@ export function SecurityCenter() {
       <section className={styles.panel}>
         <div className={styles.panelHeader}>
           <h3>操作ログ</h3>
-          <span className={styles.industryChip}>監査用デモ</span>
+          <span className={styles.industryChip}>監査ログ</span>
         </div>
         <div className={styles.logTable}>
           {operationLogs.map((log) => (

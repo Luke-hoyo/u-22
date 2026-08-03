@@ -5,6 +5,9 @@ const applicationsKey = "hatarukun:applications";
 const pointsKey = "hatarukun:points";
 const rewardExchangesKey = "hatarukun:reward-exchanges";
 const preferencesKey = "hatarukun:preferences";
+const eventParticipationsKey = "hatarukun:event-participations";
+const pointLedgerKey = "hatarukun:point-ledger";
+const demoAvatarKey = "hatarukun:demo-avatar";
 
 export type DemoPreferences = {
   industries: string;
@@ -20,6 +23,21 @@ export type DemoRewardExchange = {
   rewardName: string;
   pointsUsed: number;
   exchangedAt: string;
+};
+
+export type DemoEventParticipation = {
+  id: string;
+  eventId: string;
+  eventTitle: string;
+  pointsEarned: number;
+  participatedAt: string;
+};
+
+export type DemoPointLedgerItem = {
+  id: string;
+  label: string;
+  date: string;
+  amount: number;
 };
 
 export const defaultDemoPreferences: DemoPreferences = {
@@ -120,6 +138,38 @@ export function writeDemoPoints(points: number) {
   writeJson(pointsKey, Math.max(0, points));
 }
 
+export function readDemoPointLedger() {
+  const value = readJson<unknown>(pointLedgerKey, []);
+  return Array.isArray(value) ? (value as DemoPointLedgerItem[]) : [];
+}
+
+export function addDemoPointLedgerItem(item: DemoPointLedgerItem) {
+  writeJson(pointLedgerKey, [item, ...readDemoPointLedger()]);
+}
+
+export function readDemoEventParticipations() {
+  const value = readJson<unknown>(eventParticipationsKey, []);
+  return Array.isArray(value) ? (value as DemoEventParticipation[]) : [];
+}
+
+export function saveDemoEventParticipation(participation: DemoEventParticipation) {
+  const current = readDemoEventParticipations();
+
+  if (current.some((item) => item.eventId === participation.eventId)) {
+    return current;
+  }
+
+  const next = [participation, ...current];
+  writeJson(eventParticipationsKey, next);
+  addDemoPointLedgerItem({
+    id: participation.id,
+    label: `${participation.eventTitle}に参加`,
+    date: participation.participatedAt,
+    amount: participation.pointsEarned
+  });
+  return next;
+}
+
 export function readDemoRewardExchanges() {
   const value = readJson<unknown>(rewardExchangesKey, []);
   return Array.isArray(value) ? (value as DemoRewardExchange[]) : [];
@@ -127,6 +177,12 @@ export function readDemoRewardExchanges() {
 
 export function saveDemoRewardExchange(exchange: DemoRewardExchange) {
   writeJson(rewardExchangesKey, [exchange, ...readDemoRewardExchanges()]);
+  addDemoPointLedgerItem({
+    id: exchange.id,
+    label: `${exchange.rewardName}に交換`,
+    date: exchange.exchangedAt,
+    amount: -exchange.pointsUsed
+  });
 }
 
 export function readDemoPreferences() {
@@ -138,4 +194,19 @@ export function readDemoPreferences() {
 
 export function writeDemoPreferences(preferences: DemoPreferences) {
   writeJson(preferencesKey, preferences);
+}
+
+export function readDemoAvatar() {
+  const value = readJson<unknown>(demoAvatarKey, "");
+  return typeof value === "string" ? value : "";
+}
+
+export function writeDemoAvatar(dataUrl: string) {
+  writeJson(demoAvatarKey, dataUrl);
+}
+
+export function clearDemoAvatar() {
+  if (typeof window !== "undefined") {
+    window.localStorage.removeItem(demoAvatarKey);
+  }
 }

@@ -295,7 +295,7 @@
   }
 
   .content {
-    padding: 1.25rem 1rem 6.5rem;
+    padding: 1.25rem 1rem calc(4.75rem + env(safe-area-inset-bottom));
   }
 
   .bottomNavigation {
