@@ -277,12 +277,6 @@ function ClerkProfileSummaryCard() {
             <CheckCircle2 aria-hidden="true" size={15} /> 登録済み
           </b>
         </div>
-        {user?.id ? (
-          <div className={styles.verificationItem}>
-            <span>開発者ID</span>
-            <b className={styles.developerIdValue}>{user.id}</b>
-          </div>
-        ) : null}
       </div>
     </section>
   );

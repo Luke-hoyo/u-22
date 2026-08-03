@@ -14,7 +14,6 @@ const productPaths = [
   "/matching",
   "/simulation",
   "/points",
-  "/security",
   "/admin",
   "/farmer/dashboard",
   "/profile"

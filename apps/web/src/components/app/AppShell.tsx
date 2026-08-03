@@ -11,7 +11,6 @@ import {
   Handshake,
   Home,
   Search,
-  ShieldCheck,
   UserRound
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -57,13 +56,6 @@ const navigation = [
     allowedRoles: ["young_user", "operator"]
   },
   {
-    href: "/security",
-    label: "セキュリティ",
-    mobileLabel: "安全",
-    icon: ShieldCheck,
-    allowedRoles: ["young_user", "farmer", "municipality", "operator"]
-  },
-  {
     href: "/farmer/dashboard",
     label: "農家ダッシュボード",
     mobileLabel: "農家",
@@ -86,7 +78,6 @@ const pageTitles: Record<string, string> = {
   "/matching": "マッチング",
   "/simulation": "返済支援シミュレーション",
   "/points": "地域ポイント",
-  "/security": "セキュリティ",
   "/admin": "農家向けダッシュボード",
   "/farmer": "農家向けダッシュボード",
   "/profile": "マイページ"
@@ -116,7 +107,6 @@ export function AppShell({
   const mobileNavigation = visibleNavigation.filter(
     (item) =>
       item.href !== "/matching" &&
-      item.href !== "/security" &&
       (userRole !== "operator" || item.href !== "/simulation")
   );
   const homeHref = isAdminUser ? "/farmer/dashboard" : "/dashboard";

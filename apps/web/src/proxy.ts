@@ -24,7 +24,6 @@ const protectedPrefixes = [
   "/points",
   "/profile",
   "/role-router",
-  "/security",
   "/simulation",
   "/api/account",
   "/api/appwrite/jobs"

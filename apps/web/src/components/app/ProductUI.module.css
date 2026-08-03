@@ -1456,12 +1456,6 @@
   color: var(--color-primary);
 }
 
-.developerIdValue {
-  max-width: 100%;
-  overflow-wrap: anywhere;
-  text-align: right;
-}
-
 .preferenceList {
   display: grid;
   gap: 1rem;
@@ -1487,205 +1481,6 @@
 
 .preferenceRow strong {
   color: var(--color-primary-dark);
-}
-
-.securityHero {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 1.5rem;
-  align-items: center;
-  padding: 1.5rem;
-  overflow: hidden;
-  border: 1px solid #cce6df;
-  border-radius: 0.9rem;
-  background: var(--color-primary-dark);
-  color: #ffffff;
-}
-
-.securityHero span {
-  color: var(--color-secondary-container);
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
-.securityHero h3 {
-  max-width: 46rem;
-  margin: 0.45rem 0 0;
-  color: #ffffff;
-  font-size: clamp(1.45rem, 4vw, 2.45rem);
-  line-height: 1.2;
-}
-
-.securityHero p {
-  max-width: 48rem;
-  margin: 0.9rem 0 0;
-  color: rgb(255 255 255 / 86%);
-  line-height: 1.75;
-}
-
-.securityHero svg {
-  color: var(--color-accent);
-}
-
-.securityGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.9rem;
-}
-
-.securityCard {
-  min-width: 0;
-  padding: 1.1rem;
-  border: 1px solid #dbe3df;
-  border-radius: 0.85rem;
-  background: #ffffff;
-}
-
-.securityCardHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.securityCard svg {
-  color: var(--color-secondary);
-}
-
-.securityCard h3 {
-  margin: 1rem 0 0;
-  color: var(--color-primary-dark);
-  font-size: 1.05rem;
-}
-
-.securityCard strong {
-  display: block;
-  margin-top: 0.35rem;
-  color: var(--color-primary);
-  font-size: 0.9rem;
-}
-
-.securityCard p {
-  margin: 0.7rem 0 0;
-  color: var(--color-text-sub);
-  font-size: 0.82rem;
-  line-height: 1.6;
-}
-
-.securityBadge {
-  display: inline-flex;
-  width: fit-content;
-  align-items: center;
-  min-height: 1.65rem;
-  padding: 0.28rem 0.55rem;
-  border-radius: 9999px;
-  font-size: 0.7rem;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.securitySafe {
-  background: #e4f4ef;
-  color: var(--color-primary);
-}
-
-.securityWatch {
-  background: #fff2d7;
-  color: #7d4600;
-}
-
-.securityBlocked {
-  background: #ffebe7;
-  color: #a43c32;
-}
-
-.auditSummary {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-
-.auditSummary div {
-  padding: 0.9rem;
-  border: 1px solid #e1e7e4;
-  border-radius: 0.75rem;
-  background: #f7faf8;
-}
-
-.auditSummary span {
-  color: var(--color-text-sub);
-  font-size: 0.72rem;
-  font-weight: 800;
-}
-
-.auditSummary strong {
-  display: block;
-  margin-top: 0.35rem;
-  color: var(--color-primary-dark);
-  font-size: 1.3rem;
-}
-
-.securityToggle {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  margin-top: 1rem;
-  padding: 0.85rem;
-  border: 1px solid #d7e1dc;
-  border-radius: 0.7rem;
-  background: #ffffff;
-  color: var(--color-primary-dark);
-  cursor: pointer;
-  font-size: 0.84rem;
-  font-weight: 800;
-  line-height: 1.45;
-}
-
-.securityToggle input {
-  width: 1.05rem;
-  height: 1.05rem;
-  accent-color: var(--color-primary);
-}
-
-.auditList {
-  display: grid;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.auditItem {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 1rem;
-  align-items: center;
-  padding: 0.9rem;
-  border: 1px solid #e1e7e4;
-  border-radius: 0.75rem;
-  background: #ffffff;
-}
-
-.auditItem h4 {
-  margin: 0.5rem 0 0;
-  color: var(--color-primary-dark);
-  font-size: 0.98rem;
-}
-
-.auditItem p {
-  margin: 0.3rem 0 0;
-  color: var(--color-text-sub);
-  font-size: 0.78rem;
-}
-
-.auditItem small {
-  display: block;
-  margin-top: 0.35rem;
-  color: #61706a;
-  font-size: 0.74rem;
-  line-height: 1.45;
-}
-
-.auditItem svg {
-  color: var(--color-secondary);
 }
 
 .permissionList {
@@ -2109,10 +1904,6 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .securityGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .toolbar {
     grid-template-columns: 1fr;
   }
@@ -2204,8 +1995,7 @@
   .accessDeniedPanel,
   .invitePanel,
   .pointsHero,
-  .securityHero,
-  .auditItem {
+  .permissionItem {
     grid-template-columns: 1fr;
   }
 
@@ -2243,15 +2033,6 @@
 
   .formFooter button {
     width: 100%;
-  }
-
-  .securityGrid,
-  .auditSummary {
-    grid-template-columns: 1fr;
-  }
-
-  .securityHero svg {
-    display: none;
   }
 
   .applicationAmount {

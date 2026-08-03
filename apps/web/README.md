@@ -196,7 +196,6 @@ npm run appwrite:setup:users
 
 接続確認:
 
-- `/security`: Appwrite DBの接続状態を表示
 - `/jobs`: 接続済みならAppwrite TablesDBから求人を取得
 - 未設定や接続失敗時は、コンテスト用のモック求人に自動で戻ります
 
