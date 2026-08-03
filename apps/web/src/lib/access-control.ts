@@ -48,5 +48,13 @@ export function canManagePlatformJobs(role: UserRole) {
 }
 
 export function getAdminHomePath(role: UserRole) {
-  return "/farmer/dashboard";
+  switch (role) {
+    case "operator":
+      return "/operator/dashboard";
+    case "municipality":
+      return "/municipality/dashboard";
+    case "farmer":
+    default:
+      return "/farmer/dashboard";
+  }
 }

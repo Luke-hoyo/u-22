@@ -1,6 +1,6 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { canAccessAdmin } from "@/lib/access-control";
+import { canAccessAdmin, getAdminHomePath } from "@/lib/access-control";
 import { getDemoUserRole, isDemoAuthEnabled } from "@/lib/demo-auth";
 import { resolveRoleInvite } from "@/lib/role-invites";
 
@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       label: "確認モード",
       role,
-      redirectTo: canAccessAdmin(role) ? "/farmer/dashboard" : "/dashboard"
+      redirectTo: canAccessAdmin(role) ? getAdminHomePath(role) : "/dashboard"
     });
   }
 
@@ -45,6 +45,6 @@ export async function POST(request: Request) {
   return NextResponse.json({
     label: invite.label,
     role: invite.role,
-    redirectTo: canAccessAdmin(invite.role) ? "/farmer/dashboard" : "/dashboard"
+    redirectTo: canAccessAdmin(invite.role) ? getAdminHomePath(invite.role) : "/dashboard"
   });
 }

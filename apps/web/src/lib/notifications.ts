@@ -36,14 +36,7 @@ export function getNotificationsForRole(role: UserRole): AppNotification[] {
           id: "farmer-new-applicant",
           title: "新着応募が1件あります",
           body: "マッチ度89%の応募者が確認待ちです。",
-          href: "/farmer/dashboard#applicants",
-          tone: "default"
-        },
-        {
-          id: "farmer-housing",
-          title: "住まい支援の確認が必要です",
-          body: "受け入れ開始前に、寮や住居の手配を確認してください。",
-          href: "/farmer/dashboard",
+          href: "/farmer/applicants",
           tone: "default"
         }
       ];
@@ -53,21 +46,21 @@ export function getNotificationsForRole(role: UserRole): AppNotification[] {
           id: "municipality-farmer-pending",
           title: "承認待ちの農家申請があります",
           body: "西条みのりファームの受け入れ申請を確認してください。",
-          href: "/farmer/dashboard",
+          href: "/municipality/review",
           tone: "action"
         },
         {
           id: "municipality-points",
           title: "地域ポイントの承認待ちが3件あります",
           body: "夏の棚田メンテナンス参加の付与申請を確認できます。",
-          href: "/farmer/dashboard",
+          href: "/municipality/dashboard",
           tone: "default"
         },
         {
           id: "municipality-placement",
           title: "今月の受け入れ枠が残りわずかです",
           body: "地域全体で5／7人の受け入れが確定しています。",
-          href: "/farmer/dashboard",
+          href: "/municipality/dashboard",
           tone: "success"
         }
       ];
@@ -77,21 +70,21 @@ export function getNotificationsForRole(role: UserRole): AppNotification[] {
           id: "operator-farmer-pending",
           title: "承認待ちの農家申請が2件あります",
           body: "承認後に招待コードを発行し、農家ダッシュボードへ案内してください。",
-          href: "/farmer/dashboard",
+          href: "/operator/invites",
           tone: "action"
         },
         {
           id: "operator-invite",
           title: "招待コードの発行が必要です",
           body: "承認済みの東広島みのりファームに案内を送れます。",
-          href: "/farmer/dashboard",
+          href: "/operator/invites",
           tone: "default"
         },
         {
           id: "operator-points",
           title: "ポイント申請が4件あります",
           body: "重複参加の有無を確認しながら、付与申請を処理できます。",
-          href: "/farmer/dashboard",
+          href: "/operator/dashboard",
           tone: "default"
         }
       ];

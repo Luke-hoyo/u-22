@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   adminApplicants,
   adminManagedJobs,
@@ -16,14 +16,22 @@ import {
   writeDemoFarmerApplications
 } from "@/lib/farmer-application-demo";
 import type { UserRole } from "@/lib/access-control";
+import { readOperatorFocus, writeOperatorFocus, type OperatorFocus } from "@/lib/operator-focus";
 import { FarmerHomeDashboard } from "./dashboard/FarmerHomeDashboard";
 import { MunicipalityDashboard } from "./dashboard/MunicipalityDashboard";
 import { OperatorDashboard } from "./dashboard/OperatorDashboard";
+import { OperatorInvitesPanel } from "./dashboard/OperatorInvitesPanel";
 import type { DashboardSharedState } from "./dashboard/types";
 
 const managedJobsStorageKey = "hatarukun:managed-jobs";
 
-export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
+export function FarmerDashboard({
+  userRole,
+  view = "home"
+}: {
+  userRole: UserRole;
+  view?: "home" | "invites" | "review" | "applicants";
+}) {
   const [managedJobs, setManagedJobs] = useState(adminManagedJobs);
   const [applicants, setApplicants] = useState(adminApplicants);
   const [pointRequests, setPointRequests] = useState(adminPointRequests);
@@ -33,6 +41,7 @@ export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
   const [jobMessage, setJobMessage] = useState("");
   const [inviteCodes, setInviteCodes] = useState<Record<string, string>>({});
   const [inviteMessage, setInviteMessage] = useState("");
+  const [operatorFocus, setOperatorFocus] = useState<OperatorFocus>("agriculture");
 
   const publishedJobs = managedJobs.filter((job) => job.status === "published").length;
   const activeApplicants = applicants.filter((applicant) => applicant.status !== "accepted").length;
@@ -41,12 +50,9 @@ export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
   const pendingFarmerApplications = farmerApplicationList.filter(
     (application) => application.status === "pending"
   ).length;
-  const expectedSupport = useMemo(
-    () => applicants.reduce((total, applicant) => total + applicant.supportMonths * 15000, 0),
-    [applicants]
-  );
 
   useEffect(() => {
+    setOperatorFocus(readOperatorFocus());
     async function loadFarmerApplications() {
       try {
         const response = await fetch("/api/farmer/applications", { cache: "no-store" });
@@ -119,6 +125,18 @@ export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
     setEditorOpen(false);
     setEditingJob(undefined);
     setJobMessage(exists ? "募集内容を更新しました。" : "新しい募集を作成しました。");
+  }
+
+  function setJobReviewStatus(jobId: string, status: AdminJobStatus) {
+    const nextJobs = managedJobs.map((job) => (job.id === jobId ? { ...job, status } : job));
+    persistManagedJobs(nextJobs);
+    setJobMessage("募集の審査状態を更新しました。");
+  }
+
+  function handleSetOperatorFocus(focus: OperatorFocus) {
+    setOperatorFocus(focus);
+    writeOperatorFocus(focus);
+    setJobMessage("");
   }
 
   function moveApplicant(applicantId: string, status: AdminApplicantStatus) {
@@ -220,12 +238,14 @@ export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
     acceptedApplicants,
     pendingPoints,
     pendingFarmerApplications,
-    expectedSupport,
+    operatorFocus,
     onOpenNewJob: openNewJob,
     onOpenJobEditor: openJobEditor,
     onCloseEditor: () => setEditorOpen(false),
     onSaveManagedJob: saveManagedJob,
     onToggleJobStatus: toggleJobStatus,
+    onSetJobReviewStatus: setJobReviewStatus,
+    onSetOperatorFocus: handleSetOperatorFocus,
     onMoveApplicant: moveApplicant,
     onDecidePointRequest: decidePointRequest,
     onDecideFarmerApplication: decideFarmerApplication,
@@ -234,12 +254,28 @@ export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
   };
 
   if (userRole === "farmer") {
+    if (view === "applicants") {
+      return <FarmerHomeDashboard state={sharedState} section="applicants" />;
+    }
+
     return <FarmerHomeDashboard state={sharedState} />;
   }
 
   if (userRole === "municipality") {
+    if (view === "review") {
+      return <MunicipalityDashboard state={sharedState} section="review" />;
+    }
+
     return <MunicipalityDashboard state={sharedState} />;
   }
 
-  return <OperatorDashboard state={sharedState} />;
+  if (userRole === "operator") {
+    if (view === "invites") {
+      return <OperatorInvitesPanel state={sharedState} />;
+    }
+
+    return <OperatorDashboard state={sharedState} />;
+  }
+
+  return null;
 }

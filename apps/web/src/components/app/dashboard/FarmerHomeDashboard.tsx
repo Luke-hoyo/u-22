@@ -6,16 +6,50 @@ import {
   Clock3,
   FilePlus2,
   Handshake,
-  Home,
   UsersRound
 } from "lucide-react";
 import { ManagedJobEditor } from "../ManagedJobEditor";
 import { ApplicantTable } from "./ApplicantTable";
-import { jobStatusLabels, todaySchedule, type DashboardSharedState } from "./types";
+import { farmerTodaySchedule, jobStatusLabels, type DashboardSharedState } from "./types";
 import styles from "../ProductUI.module.css";
 
-export function FarmerHomeDashboard({ state }: { state: DashboardSharedState }) {
+export function FarmerHomeDashboard({
+  state,
+  section = "home"
+}: {
+  state: DashboardSharedState;
+  section?: "home" | "applicants";
+}) {
   const newApplicants = state.applicants.filter((applicant) => applicant.status === "new");
+
+  if (section === "applicants") {
+    return (
+      <div className={styles.dashboardFarmer}>
+        <section className={`${styles.adminHero} ${styles.dashboardHeroFarmer}`}>
+          <div>
+            <span className={styles.sectionEyebrow}>応募者一覧</span>
+            <h3>自分の募集への応募</h3>
+            <p>応募者の確認と面談・受け入れの進行管理を行います。</p>
+          </div>
+        </section>
+
+        <section className={styles.panel} id="applicants">
+          <div className={styles.panelHeader}>
+            <div>
+              <h3>応募者</h3>
+              <p className={styles.panelLead}>自分の募集に届いた応募のみを表示します。</p>
+            </div>
+            <span className={styles.industryChip}>農家向け</span>
+          </div>
+          <ApplicantTable
+            applicants={state.applicants}
+            onMoveApplicant={state.onMoveApplicant}
+            compact
+          />
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.dashboardFarmer}>
@@ -85,12 +119,12 @@ export function FarmerHomeDashboard({ state }: { state: DashboardSharedState }) 
           <div className={styles.panelHeader}>
             <div>
               <h3>今日の予定</h3>
-              <p className={styles.panelLead}>面談と住まい支援の準備を時間順に確認します。</p>
+              <p className={styles.panelLead}>面談と受け入れ準備を時間順に確認します。</p>
             </div>
             <CalendarDays aria-hidden="true" size={22} />
           </div>
           <div className={styles.scheduleList}>
-            {todaySchedule.map((item) => (
+            {farmerTodaySchedule.map((item) => (
               <div className={styles.scheduleItem} key={`${item.time}-${item.title}`}>
                 <time>{item.time}</time>
                 <div>
@@ -101,13 +135,6 @@ export function FarmerHomeDashboard({ state }: { state: DashboardSharedState }) 
               </div>
             ))}
           </div>
-        </article>
-
-        <article className={`${styles.panel} ${styles.farmerNote}`}>
-          <Home aria-hidden="true" size={22} />
-          <span>住まい支援チェック</span>
-          <strong>寮の空きと移動手段を確認</strong>
-          <p>受け入れ確定前に、住居と生活動線を応募者へ共有できるよう確認してください。</p>
         </article>
       </section>
 

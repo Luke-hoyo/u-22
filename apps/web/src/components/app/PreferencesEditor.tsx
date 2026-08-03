@@ -66,6 +66,39 @@ export function PreferencesEditor() {
       {editing ? (
         <form className={styles.preferencesForm} onSubmit={save}>
           <div className={styles.formGroup}>
+            <label htmlFor="preference-birth-date">生年月日</label>
+            <input
+              className={styles.input}
+              id="preference-birth-date"
+              type="date"
+              value={draft.birthDate}
+              onChange={(event) => setDraft({ ...draft, birthDate: event.target.value })}
+              required
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="preference-address">住所</label>
+            <input
+              className={styles.input}
+              id="preference-address"
+              value={draft.address}
+              onChange={(event) => setDraft({ ...draft, address: event.target.value })}
+              placeholder="例）広島県東広島市..."
+              required
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="preference-work-style">希望する働き方</label>
+            <input
+              className={styles.input}
+              id="preference-work-style"
+              value={draft.workStyle}
+              onChange={(event) => setDraft({ ...draft, workStyle: event.target.value })}
+              placeholder="例）住み込み、週5日フルタイム、副業併用など"
+              required
+            />
+          </div>
+          <div className={styles.formGroup}>
             <label htmlFor="preference-industries">興味のある仕事</label>
             <input
               className={styles.input}
@@ -133,6 +166,18 @@ export function PreferencesEditor() {
         </form>
       ) : (
         <div className={styles.preferenceList}>
+          <div className={styles.preferenceRow}>
+            <span>生年月日</span>
+            <strong>{preferences.birthDate || "未設定"}</strong>
+          </div>
+          <div className={styles.preferenceRow}>
+            <span>住所</span>
+            <strong>{preferences.address || "未設定"}</strong>
+          </div>
+          <div className={styles.preferenceRow}>
+            <span>希望する働き方</span>
+            <strong>{preferences.workStyle || "未設定"}</strong>
+          </div>
           <div className={styles.preferenceRow}>
             <span>興味のある仕事</span>
             <strong>{preferences.industries}</strong>

@@ -4,7 +4,13 @@ import { ChangeEvent, useRef, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Camera, CheckCircle2, LoaderCircle, UserRound } from "lucide-react";
 import { getDemoDisplayName, isDemoAuthEnabled } from "@/lib/demo-auth";
-import { clearDemoAvatar, readDemoAvatar, writeDemoAvatar } from "@/lib/demo-user-state";
+import {
+  clearDemoAvatar,
+  formatAgeGroupFromBirthDate,
+  readDemoAvatar,
+  readDemoPreferences,
+  writeDemoAvatar
+} from "@/lib/demo-user-state";
 import styles from "./ProductUI.module.css";
 
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
@@ -19,9 +25,13 @@ function getDisplayName(user: ReturnType<typeof useUser>["user"]) {
 }
 
 function getRegionLabel(user: ReturnType<typeof useUser>["user"]) {
-  const region = typeof user?.unsafeMetadata.region === "string" ? user.unsafeMetadata.region : "広島県";
+  const region = typeof user?.unsafeMetadata.region === "string" ? user.unsafeMetadata.region : "未設定";
+  const birthDate =
+    typeof user?.unsafeMetadata.birthDate === "string" ? user.unsafeMetadata.birthDate : "";
   const ageGroup =
-    typeof user?.unsafeMetadata.ageGroup === "string" ? user.unsafeMetadata.ageGroup : "20代";
+    typeof user?.unsafeMetadata.ageGroup === "string"
+      ? user.unsafeMetadata.ageGroup
+      : formatAgeGroupFromBirthDate(birthDate);
 
   return `${region} / ${ageGroup}`;
 }
@@ -31,6 +41,11 @@ function DemoProfileSummaryCard({ variant = "young" }: { variant?: "young" | "ad
   const [avatarUrl, setAvatarUrl] = useState(readDemoAvatar);
   const [statusMessage, setStatusMessage] = useState("PNG / JPG / WebP / GIF、5MBまで");
   const [errorMessage, setErrorMessage] = useState("");
+  const preferences = readDemoPreferences();
+  const profileSubtitle =
+    variant === "admin"
+      ? "受け入れ管理"
+      : `${preferences.regions.split("、")[0] ?? "未設定"} / ${formatAgeGroupFromBirthDate(preferences.birthDate)}`;
 
   function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -83,7 +98,7 @@ function DemoProfileSummaryCard({ variant = "young" }: { variant?: "young" | "ad
       </div>
 
       <h3>{getDemoDisplayName()}</h3>
-      <p>{variant === "admin" ? "受け入れ管理" : "広島県 / 利用者"}</p>
+      <p>{profileSubtitle}</p>
 
       <div className={styles.avatarControls}>
         <button

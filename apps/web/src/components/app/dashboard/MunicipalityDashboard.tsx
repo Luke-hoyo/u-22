@@ -7,10 +7,9 @@ import {
   Copy,
   Handshake,
   KeyRound,
-  MapPinned,
   UserRoundPlus
 } from "lucide-react";
-import { industryLabels, formatCurrency } from "@/lib/app-data";
+import { industryLabels } from "@/lib/app-data";
 import {
   farmerApplicationStatusLabels,
   pointStatusLabels,
@@ -18,7 +17,115 @@ import {
 } from "./types";
 import styles from "../ProductUI.module.css";
 
-export function MunicipalityDashboard({ state }: { state: DashboardSharedState }) {
+export function MunicipalityDashboard({
+  state,
+  section = "home"
+}: {
+  state: DashboardSharedState;
+  section?: "home" | "review";
+}) {
+  const reviewPanel = (
+    <section className={styles.panel}>
+      <div className={styles.panelHeader}>
+        <div>
+          <h3>受け入れ先の申請審査</h3>
+          <p className={styles.panelLead}>
+            地域の受け入れ先申請を確認し、承認後は運営が招待コードを発行します。
+          </p>
+        </div>
+        <Link className={styles.secondaryLink} href="/farmer/apply">
+          申請フォーム
+        </Link>
+      </div>
+      <div className={styles.farmerApplicationList}>
+        {state.farmerApplicationList.map((application) => (
+          <article className={styles.farmerApplicationCard} key={application.id}>
+            <div>
+              <span className={styles.adminStatus} data-status={application.status}>
+                {farmerApplicationStatusLabels[application.status]}
+              </span>
+              <h4>{application.farmName}</h4>
+              <p>
+                {application.representativeName} / {application.region} {application.area} /{" "}
+                {industryLabels[application.industry]}
+              </p>
+              <small>{application.note}</small>
+              {state.inviteCodes[application.id] ? (
+                <div className={styles.inviteCodeBox}>
+                  <KeyRound aria-hidden="true" size={16} />
+                  <code>{state.inviteCodes[application.id]}</code>
+                  <button
+                    type="button"
+                    onClick={() => state.onCopyInviteCode(state.inviteCodes[application.id])}
+                    aria-label="招待コードをコピー"
+                  >
+                    <Copy aria-hidden="true" size={15} />
+                  </button>
+                </div>
+              ) : null}
+            </div>
+            <div className={styles.farmerApplicationFacts}>
+              <span>
+                受け入れ
+                <b>{application.capacity}人</b>
+              </span>
+              <span>
+                開始希望
+                <b>{application.desiredStartMonth}</b>
+              </span>
+              <span>
+                住まい支援
+                <b>{application.housingSupport ? "あり" : "未定"}</b>
+              </span>
+              <span>
+                申請
+                <b>{application.submittedAt}</b>
+              </span>
+            </div>
+            <div className={styles.adminActions}>
+              <button
+                className={styles.secondaryButton}
+                type="button"
+                onClick={() => state.onDecideFarmerApplication(application.id, "rejected")}
+                disabled={application.status === "rejected"}
+              >
+                差し戻し
+              </button>
+              <button
+                className={styles.primaryButton}
+                type="button"
+                onClick={() => state.onDecideFarmerApplication(application.id, "approved")}
+                disabled={application.status === "approved"}
+              >
+                承認
+              </button>
+            </div>
+          </article>
+        ))}
+      </div>
+      {state.inviteMessage ? (
+        <div className={styles.feedback} role="status">
+          {state.inviteMessage}
+        </div>
+      ) : null}
+    </section>
+  );
+
+  if (section === "review") {
+    return (
+      <div className={styles.dashboardMunicipality}>
+        <section className={`${styles.adminHero} ${styles.dashboardHeroMunicipality}`}>
+          <div>
+            <span className={styles.sectionEyebrow}>申請審査</span>
+            <h3>受け入れ先の申請審査</h3>
+            <p>地域の農家・事業者から届いた参加申請を確認し、承認または差し戻しを行います。</p>
+          </div>
+        </section>
+        {reviewPanel}
+      </div>
+    );
+  }
+
   return (
     <div className={styles.dashboardMunicipality}>
       <section className={`${styles.adminHero} ${styles.dashboardHeroMunicipality}`}>
@@ -53,106 +160,15 @@ export function MunicipalityDashboard({ state }: { state: DashboardSharedState }
         </article>
         <article className={styles.metricCard}>
           <div>
-            <span>受け入れ確定</span>
+            <span>対応中の応募</span>
             <Handshake aria-hidden="true" size={20} />
           </div>
-          <strong>{state.acceptedApplicants}人</strong>
-          <small>今月の地域受け入れ枠 7人中</small>
-        </article>
-        <article className={styles.metricCard}>
-          <div>
-            <span>返済支援見込み</span>
-            <MapPinned aria-hidden="true" size={20} />
-          </div>
-          <strong>{formatCurrency(state.expectedSupport)}</strong>
-          <small>地域内の返済支援試算</small>
+          <strong>{state.activeApplicants}人</strong>
+          <small>面談・選考中の応募者</small>
         </article>
       </section>
 
-      <section className={styles.panel}>
-        <div className={styles.panelHeader}>
-          <div>
-            <h3>受け入れ先の申請審査</h3>
-            <p className={styles.panelLead}>
-              地域の受け入れ先申請を確認し、承認後は運営が招待コードを発行します。
-            </p>
-          </div>
-          <Link className={styles.secondaryLink} href="/farmer/apply">
-            申請フォーム
-          </Link>
-        </div>
-        <div className={styles.farmerApplicationList}>
-          {state.farmerApplicationList.map((application) => (
-            <article className={styles.farmerApplicationCard} key={application.id}>
-              <div>
-                <span className={styles.adminStatus} data-status={application.status}>
-                  {farmerApplicationStatusLabels[application.status]}
-                </span>
-                <h4>{application.farmName}</h4>
-                <p>
-                  {application.representativeName} / {application.region} {application.area} /{" "}
-                  {industryLabels[application.industry]}
-                </p>
-                <small>{application.note}</small>
-                {state.inviteCodes[application.id] ? (
-                  <div className={styles.inviteCodeBox}>
-                    <KeyRound aria-hidden="true" size={16} />
-                    <code>{state.inviteCodes[application.id]}</code>
-                    <button
-                      type="button"
-                      onClick={() => state.onCopyInviteCode(state.inviteCodes[application.id])}
-                      aria-label="招待コードをコピー"
-                    >
-                      <Copy aria-hidden="true" size={15} />
-                    </button>
-                  </div>
-                ) : null}
-              </div>
-              <div className={styles.farmerApplicationFacts}>
-                <span>
-                  受け入れ
-                  <b>{application.capacity}人</b>
-                </span>
-                <span>
-                  開始希望
-                  <b>{application.desiredStartMonth}</b>
-                </span>
-                <span>
-                  住まい支援
-                  <b>{application.housingSupport ? "あり" : "未定"}</b>
-                </span>
-                <span>
-                  申請
-                  <b>{application.submittedAt}</b>
-                </span>
-              </div>
-              <div className={styles.adminActions}>
-                <button
-                  className={styles.secondaryButton}
-                  type="button"
-                  onClick={() => state.onDecideFarmerApplication(application.id, "rejected")}
-                  disabled={application.status === "rejected"}
-                >
-                  差し戻し
-                </button>
-                <button
-                  className={styles.primaryButton}
-                  type="button"
-                  onClick={() => state.onDecideFarmerApplication(application.id, "approved")}
-                  disabled={application.status === "approved"}
-                >
-                  承認
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
-        {state.inviteMessage ? (
-          <div className={styles.feedback} role="status">
-            {state.inviteMessage}
-          </div>
-        ) : null}
-      </section>
+      {reviewPanel}
 
       <div className={styles.adminGrid}>
         <section className={styles.panel}>

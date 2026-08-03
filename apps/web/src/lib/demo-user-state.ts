@@ -10,6 +10,9 @@ const pointLedgerKey = "hatarukun:point-ledger";
 const demoAvatarKey = "hatarukun:demo-avatar";
 
 export type DemoPreferences = {
+  birthDate: string;
+  address: string;
+  workStyle: string;
   industries: string;
   regions: string;
   period: string;
@@ -41,6 +44,9 @@ export type DemoPointLedgerItem = {
 };
 
 export const defaultDemoPreferences: DemoPreferences = {
+  birthDate: "",
+  address: "",
+  workStyle: "",
   industries: "農業、水産業",
   regions: "中国・四国地方、九州地方",
   period: "6か月〜12か月",
@@ -194,6 +200,40 @@ export function readDemoPreferences() {
 
 export function writeDemoPreferences(preferences: DemoPreferences) {
   writeJson(preferencesKey, preferences);
+}
+
+export function formatAgeGroupFromBirthDate(birthDate: string) {
+  if (!birthDate) {
+    return "未設定";
+  }
+
+  const birth = new Date(birthDate);
+
+  if (Number.isNaN(birth.getTime())) {
+    return "未設定";
+  }
+
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age -= 1;
+  }
+
+  if (age < 20) {
+    return "10代";
+  }
+
+  if (age < 30) {
+    return "20代";
+  }
+
+  if (age < 40) {
+    return "30代";
+  }
+
+  return "40代以上";
 }
 
 export function readDemoAvatar() {

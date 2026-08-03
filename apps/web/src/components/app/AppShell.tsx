@@ -75,35 +75,35 @@ const navigation = [
     allowedRoles: ["farmer"]
   },
   {
-    href: "/farmer/dashboard#applicants",
+    href: "/farmer/applicants",
     label: "応募者一覧",
     mobileLabel: "応募",
     icon: Handshake,
     allowedRoles: ["farmer"]
   },
   {
-    href: "/farmer/dashboard",
+    href: "/municipality/dashboard",
     label: "ホーム",
     mobileLabel: "ホーム",
     icon: Building2,
     allowedRoles: ["municipality"]
   },
   {
-    href: "/farmer/dashboard",
+    href: "/municipality/review",
     label: "申請審査",
     mobileLabel: "審査",
     icon: ClipboardList,
     allowedRoles: ["municipality"]
   },
   {
-    href: "/farmer/dashboard",
+    href: "/operator/dashboard",
     label: "ホーム",
     mobileLabel: "ホーム",
     icon: ShieldCheck,
     allowedRoles: ["operator"]
   },
   {
-    href: "/farmer/dashboard",
+    href: "/operator/invites",
     label: "招待管理",
     mobileLabel: "招待",
     icon: ClipboardList,
@@ -127,17 +127,30 @@ const pageTitles: Record<string, string> = {
   "/points": "地域ポイント",
   "/admin": "管理ダッシュボード",
   "/farmer": "管理ダッシュボード",
+  "/operator": "運営ダッシュボード",
+  "/municipality": "自治体ダッシュボード",
   "/profile": "マイページ"
 };
 
 function isActivePath(pathname: string, href: string) {
   const normalizedHref = href.split("#")[0];
-  return pathname === normalizedHref || pathname.startsWith(`${normalizedHref}/`);
+  return pathname === normalizedHref;
 }
 
 function getRolePageTitle(role: UserRole, rootPath: string) {
   if (rootPath === "/farmer") {
     if (isFarmerRole(role)) return "農家ダッシュボード";
+  }
+
+  if (rootPath === "/municipality") {
+    if (isMunicipalityRole(role)) return "自治体ダッシュボード";
+  }
+
+  if (rootPath === "/operator") {
+    if (isOperatorRole(role)) return "運営ダッシュボード";
+  }
+
+  if (rootPath === "/farmer") {
     if (isMunicipalityRole(role)) return "自治体ダッシュボード";
     if (isOperatorRole(role)) return "運営ダッシュボード";
   }

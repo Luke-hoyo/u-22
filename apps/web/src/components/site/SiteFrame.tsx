@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
-import { canAccessAdmin, getUserRole } from "@/lib/access-control";
+import { canAccessAdmin, getAdminHomePath, getUserRole } from "@/lib/access-control";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
 
 const productPaths = [
@@ -16,6 +16,11 @@ const productPaths = [
   "/points",
   "/admin",
   "/farmer/dashboard",
+  "/farmer/applicants",
+  "/operator/dashboard",
+  "/operator/invites",
+  "/municipality/dashboard",
+  "/municipality/review",
   "/profile"
 ];
 
@@ -61,7 +66,7 @@ function ClerkSiteFrame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isSignedIn, user } = useUser();
   const role = getUserRole(user?.publicMetadata);
-  const signedInHomeHref = canAccessAdmin(role) ? "/farmer/dashboard" : "/dashboard";
+  const signedInHomeHref = canAccessAdmin(role) ? getAdminHomePath(role) : "/dashboard";
   const isProductPage = productPaths.some(
     (path) => pathname === path || pathname.startsWith(`${path}/`)
   );

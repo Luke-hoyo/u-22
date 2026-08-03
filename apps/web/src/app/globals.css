@@ -230,15 +230,18 @@ button {
 
 .auth-layout {
   display: grid;
-  min-height: calc(100vh - 7rem);
+  min-height: 100svh;
   place-items: center;
+  padding: clamp(0.85rem, 3vw, 1.5rem);
+  box-sizing: border-box;
 }
 
 .auth-experience {
   display: grid;
-  grid-template-columns: minmax(18rem, 0.9fr) minmax(20rem, 0.78fr);
-  width: min(100%, 58rem);
-  min-height: 38rem;
+  grid-template-columns: minmax(16rem, 0.92fr) minmax(18rem, 0.82fr);
+  width: min(100%, 54rem);
+  max-height: calc(100svh - 2rem);
+  min-height: min(38rem, calc(100svh - 2rem));
   overflow: hidden;
   border: 1px solid rgb(191 201 196 / 70%);
   border-radius: 1.5rem;
@@ -302,7 +305,9 @@ button {
 
 .auth-panel {
   display: grid;
-  align-content: center;
+  align-content: start;
+  min-height: 0;
+  overflow-y: auto;
   padding: clamp(1.35rem, 4vw, 2.35rem);
 }
 

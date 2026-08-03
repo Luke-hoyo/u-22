@@ -6,8 +6,10 @@ import type {
   AdminPointRequest,
   AdminPointRequestStatus,
   FarmerApplication,
-  FarmerApplicationStatus
+  FarmerApplicationStatus,
+  Industry
 } from "@/lib/app-data";
+import type { OperatorFocus } from "@/lib/operator-focus";
 
 export type DashboardSharedState = {
   managedJobs: AdminManagedJob[];
@@ -24,12 +26,14 @@ export type DashboardSharedState = {
   acceptedApplicants: number;
   pendingPoints: number;
   pendingFarmerApplications: number;
-  expectedSupport: number;
+  operatorFocus: OperatorFocus;
   onOpenNewJob: () => void;
   onOpenJobEditor: (job: AdminManagedJob) => void;
   onCloseEditor: () => void;
   onSaveManagedJob: (job: AdminManagedJob) => void;
   onToggleJobStatus: (jobId: string) => void;
+  onSetJobReviewStatus: (jobId: string, status: AdminJobStatus) => void;
+  onSetOperatorFocus: (focus: OperatorFocus) => void;
   onMoveApplicant: (applicantId: string, status: AdminApplicantStatus) => void;
   onDecidePointRequest: (requestId: string, status: AdminPointRequestStatus) => void;
   onDecideFarmerApplication: (applicationId: string, status: FarmerApplicationStatus) => void;
@@ -40,7 +44,9 @@ export type DashboardSharedState = {
 export const jobStatusLabels: Record<AdminJobStatus, string> = {
   draft: "下書き",
   review: "審査中",
+  approved: "審査完了",
   published: "公開中",
+  rejected: "差し戻し",
   paused: "停止中"
 };
 
@@ -56,18 +62,12 @@ export const pointStatusLabels: Record<AdminPointRequestStatus, string> = {
   hold: "保留"
 };
 
-export const todaySchedule = [
+export const farmerTodaySchedule = [
   {
     time: "09:00",
     title: "受け入れ枠の確認",
     target: "ぶどう畑の栽培・収穫サポート",
     status: "準備"
-  },
-  {
-    time: "13:30",
-    title: "住まい支援の確認",
-    target: "東広島みのりファーム",
-    status: "確認"
   },
   {
     time: "18:00",
@@ -76,3 +76,35 @@ export const todaySchedule = [
     status: "面談"
   }
 ] as const;
+
+export function jobMatchesFocus(job: AdminManagedJob, focus: OperatorFocus) {
+  if (focus === "community") {
+    return false;
+  }
+
+  return job.industry === focus;
+}
+
+export function applicantMatchesFocus(applicant: AdminApplicant, jobs: AdminManagedJob[], focus: OperatorFocus) {
+  if (focus === "community") {
+    return false;
+  }
+
+  const job = jobs.find((item) => item.title === applicant.jobTitle);
+  return job?.industry === focus;
+}
+
+export function farmerApplicationMatchesFocus(
+  application: FarmerApplication,
+  focus: OperatorFocus
+) {
+  if (focus === "community") {
+    return false;
+  }
+
+  return application.industry === focus;
+}
+
+export function pointRequestMatchesFocus(focus: OperatorFocus) {
+  return focus === "community";
+}

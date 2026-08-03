@@ -228,7 +228,7 @@ export const rewards = [
   { id: "RWD-003", name: "移住体験ツアー参加券", cost: 5000 }
 ];
 
-export type AdminJobStatus = "draft" | "review" | "published" | "paused";
+export type AdminJobStatus = "draft" | "review" | "approved" | "published" | "rejected" | "paused";
 
 export type AdminManagedJob = {
   id: string;
@@ -248,6 +248,9 @@ export type AdminApplicant = {
   id: string;
   name: string;
   ageGroup: string;
+  birthDate: string;
+  address: string;
+  myNumberStatus: string;
   region: string;
   jobTitle: string;
   status: AdminApplicantStatus;
@@ -316,7 +319,7 @@ export const adminManagedJobs: AdminManagedJob[] = [
     organization: "宇和島ブルーファーム",
     area: "愛媛県 宇和島市",
     industry: "fishery",
-    status: "draft",
+    status: "approved",
     applicants: 0,
     capacity: 2,
     updatedAt: "7月25日 13:40"
@@ -328,6 +331,9 @@ export const adminApplicants: AdminApplicant[] = [
     id: "USR-1042",
     name: "佐藤 みなみ",
     ageGroup: "24歳",
+    birthDate: "2002年4月12日",
+    address: "広島県東広島市西条町下見906-2",
+    myNumberStatus: "登録済み",
     region: "広島県",
     jobTitle: "ぶどう畑の栽培・収穫サポート",
     status: "interview",
@@ -339,6 +345,9 @@ export const adminApplicants: AdminApplicant[] = [
     id: "USR-1188",
     name: "山本 蓮",
     ageGroup: "27歳",
+    birthDate: "1999年11月3日",
+    address: "大分県日田市天瀬町桜竹635",
+    myNumberStatus: "登録済み",
     region: "大分県",
     jobTitle: "森を育てる林業アシスタント",
     status: "screening",
@@ -350,6 +359,9 @@ export const adminApplicants: AdminApplicant[] = [
     id: "USR-1219",
     name: "高橋 葵",
     ageGroup: "23歳",
+    birthDate: "2003年7月28日",
+    address: "愛媛県宇和島市坂下津甲588",
+    myNumberStatus: "確認中",
     region: "愛媛県",
     jobTitle: "港の朝市と水産加工サポート",
     status: "new",
