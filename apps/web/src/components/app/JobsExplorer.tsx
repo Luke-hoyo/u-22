@@ -9,6 +9,7 @@ import {
   type Job
 } from "@/lib/app-data";
 import { JobCard } from "./JobCard";
+import { JobCardSkeleton } from "./JobCardSkeleton";
 import styles from "./ProductUI.module.css";
 
 type IndustryFilter = "all" | Industry;
@@ -26,6 +27,7 @@ export function JobsExplorer() {
   const [region, setRegion] = useState("all");
   const [jobs, setJobs] = useState<Job[]>(mockJobs);
   const [sourceMessage, setSourceMessage] = useState("公開中の仕事を表示しています。");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
@@ -61,6 +63,10 @@ export function JobsExplorer() {
 
         setJobs(mockJobs);
         setSourceMessage("公開サンプルの仕事を表示しています。");
+      } finally {
+        if (active) {
+          setIsLoading(false);
+        }
       }
     }
 
@@ -138,7 +144,9 @@ export function JobsExplorer() {
       </div>
 
       <div className={styles.jobsGrid}>
-        {filteredJobs.length > 0 ? (
+        {isLoading ? (
+          Array.from({ length: 6 }, (_, index) => <JobCardSkeleton key={`skeleton-${index}`} />)
+        ) : filteredJobs.length > 0 ? (
           filteredJobs.map((job) => <JobCard job={job} key={job.id} />)
         ) : (
           <div className={styles.emptyState}>

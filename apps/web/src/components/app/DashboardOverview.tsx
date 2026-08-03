@@ -6,11 +6,12 @@ import {
   CalendarCheck2,
   ChevronRight,
   Coins,
+  Search,
   Sprout,
   WalletCards
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -20,50 +21,66 @@ import {
   XAxis,
   YAxis
 } from "recharts";
-import {
-  applications,
-  type Application,
-  formatCurrency,
-  getJobById
-} from "@/lib/app-data";
+import { formatCurrency, getJobById } from "@/lib/app-data";
+import { useApplications } from "@/hooks/useApplications";
+import { usePoints } from "@/hooks/usePoints";
 import {
   defaultDemoPreferences,
-  readDemoPoints,
-  readDemoPreferences,
-  readSavedApplications
+  readDemoPreferences
 } from "@/lib/demo-user-state";
 import styles from "./DashboardOverview.module.css";
 
-const scholarshipChartData = [
-  { month: "現在", balance: 240 },
-  { month: "2か月", balance: 222 },
-  { month: "4か月", balance: 204 },
-  { month: "6か月", balance: 186 },
-  { month: "8か月", balance: 168 },
-  { month: "10か月", balance: 150 },
-  { month: "12か月", balance: 132 }
-];
-
-const supportChartData = [
-  { month: "現在", support: 0 },
-  { month: "2か月", support: 3 },
-  { month: "4か月", support: 6 },
-  { month: "6か月", support: 9 },
-  { month: "8か月", support: 12 },
-  { month: "10か月", support: 15 },
-  { month: "12か月", support: 18 }
-];
-
 export function DashboardOverview() {
   const prefersReducedMotion = useReducedMotion();
-  const [dashboardApplications, setDashboardApplications] = useState<Application[]>(applications);
-  const currentApplication = dashboardApplications[0];
-  const currentJob = getJobById(currentApplication.jobId);
-  const [points, setPoints] = useState(3200);
+  const { applications, primaryApplication, isLoading: applicationsLoading } = useApplications();
+  const { balance: points, isLoading: pointsLoading } = usePoints();
+  const currentJob = primaryApplication ? getJobById(primaryApplication.jobId) : null;
   const [scholarshipBalance, setScholarshipBalance] = useState(
     defaultDemoPreferences.scholarshipBalance
   );
-  const annualSupport = 180000;
+
+  const annualSupport = useMemo(() => {
+    const fromApplications = applications.reduce(
+      (total, application) => total + application.expectedSupport,
+      0
+    );
+
+    if (fromApplications > 0) {
+      return fromApplications;
+    }
+
+    return currentJob ? currentJob.monthlySupport * 12 : 180000;
+  }, [applications, currentJob]);
+
+  const scholarshipChartData = useMemo(() => {
+    const startBalance = scholarshipBalance / 10000;
+    const monthlyReduction = annualSupport / 10000 / 12;
+
+    return [
+      { month: "現在", balance: Math.round(startBalance) },
+      { month: "2か月", balance: Math.max(0, Math.round(startBalance - monthlyReduction * 2)) },
+      { month: "4か月", balance: Math.max(0, Math.round(startBalance - monthlyReduction * 4)) },
+      { month: "6か月", balance: Math.max(0, Math.round(startBalance - monthlyReduction * 6)) },
+      { month: "8か月", balance: Math.max(0, Math.round(startBalance - monthlyReduction * 8)) },
+      { month: "10か月", balance: Math.max(0, Math.round(startBalance - monthlyReduction * 10)) },
+      { month: "12か月", balance: Math.max(0, Math.round(startBalance - monthlyReduction * 12)) }
+    ];
+  }, [annualSupport, scholarshipBalance]);
+
+  const supportChartData = useMemo(() => {
+    const monthlySupport = annualSupport / 12 / 10000;
+
+    return [
+      { month: "現在", support: 0 },
+      { month: "2か月", support: Number((monthlySupport * 2).toFixed(1)) },
+      { month: "4か月", support: Number((monthlySupport * 4).toFixed(1)) },
+      { month: "6か月", support: Number((monthlySupport * 6).toFixed(1)) },
+      { month: "8か月", support: Number((monthlySupport * 8).toFixed(1)) },
+      { month: "10か月", support: Number((monthlySupport * 10).toFixed(1)) },
+      { month: "12か月", support: Number((monthlySupport * 12).toFixed(1)) }
+    ];
+  }, [annualSupport]);
+
   const metrics = [
     {
       label: "奨学金残高",
@@ -75,29 +92,31 @@ export function DashboardOverview() {
     },
     {
       label: "地域ポイント",
-      value: `${points.toLocaleString("ja-JP")} pt`,
+      value: pointsLoading ? "..." : `${points.toLocaleString("ja-JP")} pt`,
       note: points < 5000 ? `あと${(5000 - points).toLocaleString("ja-JP")} ptで体験ツアー` : "体験ツアーに交換できます",
       href: "/points",
       icon: Coins,
       tone: "points"
     }
   ] as const;
+
   const reveal = {
     hidden: { opacity: 0, y: prefersReducedMotion ? 0 : 16 },
     visible: { opacity: 1, y: 0 }
   };
 
   useEffect(() => {
-    const merged = new Map(applications.map((application) => [application.id, application]));
-
-    for (const application of readSavedApplications()) {
-      merged.set(application.id, application);
-    }
-
-    setDashboardApplications(Array.from(merged.values()));
-    setPoints(readDemoPoints(3200));
     setScholarshipBalance(readDemoPreferences().scholarshipBalance);
   }, []);
+
+  const nextActionTitle =
+    primaryApplication?.status === "interview"
+      ? "オンライン面談に参加する"
+      : primaryApplication?.status === "matched"
+        ? "受け入れ手続きを進める"
+        : primaryApplication?.status === "working"
+          ? "就業開始の準備を確認する"
+          : "応募内容の確認を待つ";
 
   return (
     <motion.div
@@ -127,25 +146,50 @@ export function DashboardOverview() {
           </Link>
         </motion.section>
 
-        {currentJob && (
+        {applicationsLoading ? (
+          <motion.section className={styles.nextAction} variants={reveal}>
+            <div className={styles.actionCopy}>
+              <span>次にやること</span>
+              <h3>応募状況を読み込み中です</h3>
+              <p>最新の進捗を確認しています。</p>
+            </div>
+          </motion.section>
+        ) : currentJob && primaryApplication ? (
           <motion.section className={styles.nextAction} variants={reveal}>
             <div className={styles.actionIcon}>
               <CalendarCheck2 aria-hidden="true" size={25} />
             </div>
             <div className={styles.actionCopy}>
               <span>次にやること</span>
-              <h3>オンライン面談に参加する</h3>
+              <h3>{nextActionTitle}</h3>
               <p>
-                7月31日 18:00 ・ {currentJob.organization}
+                {primaryApplication.nextAction} ・ {currentJob.organization}
               </p>
             </div>
             <div className={styles.actionButtons}>
               <Link className={styles.primaryAction} href="/matching">
-                面談の準備を確認
+                応募状況を確認
                 <ArrowRight aria-hidden="true" size={17} />
               </Link>
               <Link className={styles.secondaryAction} href={`/jobs/${currentJob.id}`}>
                 求人詳細
+              </Link>
+            </div>
+          </motion.section>
+        ) : (
+          <motion.section className={styles.nextAction} variants={reveal}>
+            <div className={styles.actionIcon}>
+              <Search aria-hidden="true" size={25} />
+            </div>
+            <div className={styles.actionCopy}>
+              <span>次にやること</span>
+              <h3>気になる仕事を探す</h3>
+              <p>地域と職種から、返済支援の見込みも確認しながら応募できます。</p>
+            </div>
+            <div className={styles.actionButtons}>
+              <Link className={styles.primaryAction} href="/jobs">
+                求人を探す
+                <ArrowRight aria-hidden="true" size={17} />
               </Link>
             </div>
           </motion.section>
@@ -192,7 +236,10 @@ export function DashboardOverview() {
           <div className={styles.chartBlock}>
             <div className={styles.chartTitle}>
               <span>奨学金残高</span>
-              <strong>240万円 → 132万円</strong>
+              <strong>
+                {Math.round(scholarshipBalance / 10000)}万円 →{" "}
+                {scholarshipChartData[scholarshipChartData.length - 1]?.balance ?? 0}万円
+              </strong>
             </div>
             <div className={styles.chartCanvas}>
               <ResponsiveContainer width="100%" height="100%">
@@ -214,7 +261,7 @@ export function DashboardOverview() {
           <div className={styles.chartBlock}>
             <div className={styles.chartTitle}>
               <span>返済支援見込み</span>
-              <strong>年間18万円</strong>
+              <strong>年間{formatCurrency(annualSupport)}</strong>
             </div>
             <div className={styles.chartCanvas}>
               <ResponsiveContainer width="100%" height="100%">

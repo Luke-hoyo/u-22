@@ -179,7 +179,27 @@ export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
   );
 
   useEffect(() => {
-    setFarmerApplicationList(readDemoFarmerApplications());
+    async function loadFarmerApplications() {
+      try {
+        const response = await fetch("/api/farmer/applications", { cache: "no-store" });
+
+        if (response.ok) {
+          const data = (await response.json()) as { applications?: typeof farmerApplications };
+          if (Array.isArray(data.applications)) {
+            setFarmerApplicationList(data.applications);
+            writeDemoFarmerApplications(data.applications);
+            return;
+          }
+        }
+      } catch {
+        // fall through to local cache
+      }
+
+      setFarmerApplicationList(readDemoFarmerApplications());
+    }
+
+    void loadFarmerApplications();
+
     try {
       const storedJobs = window.localStorage.getItem(managedJobsStorageKey);
 
@@ -257,6 +277,14 @@ export function FarmerDashboard({ userRole }: { userRole: UserRole }) {
 
       writeDemoFarmerApplications(nextApplications);
       return nextApplications;
+    });
+
+    void fetch("/api/farmer/applications", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ applicationId, status })
     });
   }
 

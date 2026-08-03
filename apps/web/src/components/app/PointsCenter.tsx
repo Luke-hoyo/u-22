@@ -1,109 +1,51 @@
 "use client";
 
-import { CalendarDays, CheckCircle2, Gift, TicketCheck } from "lucide-react";
-import { useEffect, useState } from "react";
-import {
-  communityEvents,
-  pointTransactions,
-  rewards
-} from "@/lib/app-data";
-import {
-  readDemoEventParticipations,
-  readDemoPointLedger,
-  readDemoPoints,
-  readDemoRewardExchanges,
-  saveDemoEventParticipation,
-  saveDemoRewardExchange,
-  writeDemoPoints
-} from "@/lib/demo-user-state";
+import { CalendarDays, CheckCircle2, Gift, Sparkles, TicketCheck } from "lucide-react";
+import { communityEvents, rewards } from "@/lib/app-data";
+import { usePoints } from "@/hooks/usePoints";
 import styles from "./ProductUI.module.css";
-
-const initialPoints = 3200;
 
 function getEventDay(date: string) {
   return date.match(/月(\d+)日/)?.[1] ?? date.match(/\d+/)?.[0] ?? "--";
 }
 
 export function PointsCenter() {
-  const [points, setPoints] = useState(initialPoints);
-  const [message, setMessage] = useState("");
-  const [exchangedRewardIds, setExchangedRewardIds] = useState<string[]>([]);
-  const [participatedEventIds, setParticipatedEventIds] = useState<string[]>([]);
-  const [ledger, setLedger] = useState(pointTransactions);
-
-  useEffect(() => {
-    setPoints(readDemoPoints(initialPoints));
-    setExchangedRewardIds(readDemoRewardExchanges().map((exchange) => exchange.rewardId));
-    setParticipatedEventIds(
-      readDemoEventParticipations().map((participation) => participation.eventId)
-    );
-    setLedger([...readDemoPointLedger(), ...pointTransactions]);
-  }, []);
-
-  function participateEvent(event: (typeof communityEvents)[number]) {
-    if (participatedEventIds.includes(event.id)) {
-      setMessage("このイベントはすでに参加済みです。");
-      return;
-    }
-
-    const participatedAt = new Intl.DateTimeFormat("ja-JP", {
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    }).format(new Date());
-    const nextPoints = points + event.points;
-    const nextParticipations = saveDemoEventParticipation({
-      id: `EVENT-${Date.now()}`,
-      eventId: event.id,
-      eventTitle: event.title,
-      pointsEarned: event.points,
-      participatedAt
-    });
-
-    setPoints(nextPoints);
-    writeDemoPoints(nextPoints);
-    setParticipatedEventIds(nextParticipations.map((participation) => participation.eventId));
-    setLedger([...readDemoPointLedger(), ...pointTransactions]);
-    setMessage(`「${event.title}」の参加を記録し、${event.points} ptを付与しました。`);
-  }
-
-  function exchangeReward(reward: (typeof rewards)[number]) {
-    if (points < reward.cost) {
-      setMessage("交換に必要なポイントが足りません。");
-      return;
-    }
-
-    const nextPoints = points - reward.cost;
-    setPoints(nextPoints);
-    writeDemoPoints(nextPoints);
-    saveDemoRewardExchange({
-      id: `EXCHANGE-${Date.now()}`,
-      rewardId: reward.id,
-      rewardName: reward.name,
-      pointsUsed: reward.cost,
-      exchangedAt: new Intl.DateTimeFormat("ja-JP", {
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      }).format(new Date())
-    });
-    setExchangedRewardIds((current) => [reward.id, ...current]);
-    setLedger([...readDemoPointLedger(), ...pointTransactions]);
-    setMessage(`「${reward.name}」に交換しました。`);
-  }
+  const {
+    balance,
+    transactions,
+    participatedEventIds,
+    exchangedRewardIds,
+    rewardProgress,
+    isLoading,
+    message,
+    setMessage,
+    participateEvent,
+    exchangeReward
+  } = usePoints();
 
   return (
     <>
-      <section className={styles.pointsHero}>
+      <section className={`${styles.pointsHero} ${message.includes("付与") ? styles.pointsHeroCelebrate : ""}`}>
         <div>
           <span>現在の保有ポイント</span>
-          <strong>{points.toLocaleString("ja-JP")} pt</strong>
-          <p>あと800 ptで、次の地域特典がアンロックされます。</p>
+          <strong>{isLoading ? "..." : `${balance.toLocaleString("ja-JP")} pt`}</strong>
+          <p>
+            {isLoading
+              ? "ポイント残高を読み込み中です。"
+              : rewardProgress.remaining > 0
+                ? `あと${rewardProgress.remaining.toLocaleString("ja-JP")} ptで「${rewardProgress.nextReward.name}」`
+                : `「${rewardProgress.nextReward.name}」に交換できます`}
+          </p>
+          <div className={styles.pointsProgress} aria-hidden={isLoading}>
+            <span style={{ width: `${rewardProgress.progress}%` }} />
+          </div>
         </div>
         <div className={styles.pointsIcon}>
-          <TicketCheck aria-hidden="true" size={34} />
+          {message.includes("付与") ? (
+            <Sparkles aria-hidden="true" size={34} />
+          ) : (
+            <TicketCheck aria-hidden="true" size={34} />
+          )}
         </div>
       </section>
 
@@ -131,7 +73,10 @@ export function PointsCenter() {
                   className={styles.secondaryButton}
                   type="button"
                   disabled={participatedEventIds.includes(event.id)}
-                  onClick={() => participateEvent(event)}
+                  onClick={() => {
+                    setMessage("");
+                    void participateEvent(event.id, event.title, event.points);
+                  }}
                 >
                   {participatedEventIds.includes(event.id) ? (
                     <>
@@ -152,18 +97,26 @@ export function PointsCenter() {
             <h3>ポイント履歴</h3>
           </div>
           <div className={styles.transactionList}>
-            {ledger.map((transaction) => (
-              <div className={styles.transaction} key={transaction.id}>
-                <span>
-                  {transaction.label}
-                  <small>{transaction.date}</small>
-                </span>
-                <b className={transaction.amount < 0 ? styles.negativePoints : undefined}>
-                  {transaction.amount > 0 ? "+" : ""}
-                  {transaction.amount.toLocaleString("ja-JP")} pt
-                </b>
+            {isLoading ? (
+              <div className={styles.emptyStateInline}>履歴を読み込み中です。</div>
+            ) : transactions.length > 0 ? (
+              transactions.map((transaction) => (
+                <div className={styles.transaction} key={transaction.id}>
+                  <span>
+                    {transaction.label}
+                    <small>{transaction.date}</small>
+                  </span>
+                  <b className={transaction.amount < 0 ? styles.negativePoints : styles.positivePoints}>
+                    {transaction.amount > 0 ? "+" : ""}
+                    {transaction.amount.toLocaleString("ja-JP")} pt
+                  </b>
+                </div>
+              ))
+            ) : (
+              <div className={styles.emptyStateInline}>
+                まだポイント履歴がありません。地域イベントに参加してみましょう。
               </div>
-            ))}
+            )}
           </div>
         </section>
       </div>
@@ -181,8 +134,11 @@ export function PointsCenter() {
               <button
                 className={styles.secondaryButton}
                 type="button"
-                disabled={points < reward.cost}
-                onClick={() => exchangeReward(reward)}
+                disabled={balance < reward.cost}
+                onClick={() => {
+                  setMessage("");
+                  void exchangeReward(reward);
+                }}
               >
                 {exchangedRewardIds.includes(reward.id) ? "もう一度交換" : "交換する"}
               </button>

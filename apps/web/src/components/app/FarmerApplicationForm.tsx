@@ -104,9 +104,26 @@ export function FarmerApplicationForm() {
       note: form.note.trim() || "受け入れ条件の詳細は面談時に確認します。"
     };
 
-    addDemoFarmerApplication(application);
-    setSubmittedApplication(application);
-    setForm(initialFormState);
+    void (async () => {
+      try {
+        const response = await fetch("/api/farmer/applications", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(application)
+        });
+
+        if (!response.ok) {
+          addDemoFarmerApplication(application);
+        }
+      } catch {
+        addDemoFarmerApplication(application);
+      }
+
+      setSubmittedApplication(application);
+      setForm(initialFormState);
+    })();
   }
 
   return (

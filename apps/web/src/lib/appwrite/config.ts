@@ -10,6 +10,7 @@ export type AppwriteConfig = {
     events?: string;
     pointTransactions?: string;
     rewardExchanges?: string;
+    farmerApplications?: string;
   };
   bucketId?: string;
 };
@@ -56,6 +57,10 @@ export function getAppwriteConfig(): AppwriteConfig {
       rewardExchanges: readTableId(
         "APPWRITE_TABLE_ID_REWARD_EXCHANGES",
         "APPWRITE_COLLECTION_ID_REWARD_EXCHANGES"
+      ),
+      farmerApplications: readTableId(
+        "APPWRITE_TABLE_ID_FARMER_APPLICATIONS",
+        "APPWRITE_COLLECTION_ID_FARMER_APPLICATIONS"
       )
     }
   };

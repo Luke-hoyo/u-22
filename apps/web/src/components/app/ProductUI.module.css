@@ -2352,3 +2352,146 @@
     gap: 0.35rem;
   }
 }
+
+.skeletonCard {
+  pointer-events: none;
+}
+
+.skeletonImage,
+.skeletonLineShort,
+.skeletonLineTitle,
+.skeletonLineMedium,
+.skeletonChipRow span,
+.skeletonFacts span {
+  background: linear-gradient(90deg, #edf2ef 0%, #f8fbf9 45%, #edf2ef 100%);
+  background-size: 200% 100%;
+  animation: skeletonPulse 1.4s ease-in-out infinite;
+  border-radius: 0.65rem;
+}
+
+.skeletonImage {
+  aspect-ratio: 2 / 1;
+  width: 100%;
+}
+
+.skeletonLineShort {
+  width: 38%;
+  height: 1.1rem;
+}
+
+.skeletonLineTitle {
+  width: 82%;
+  height: 1.35rem;
+  margin-top: 0.8rem;
+}
+
+.skeletonLineMedium {
+  width: 56%;
+  height: 0.95rem;
+  margin-top: 0.55rem;
+}
+
+.skeletonChipRow {
+  display: flex;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+}
+
+.skeletonChipRow span {
+  width: 4.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+}
+
+.skeletonFacts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.skeletonFacts span {
+  height: 2.6rem;
+}
+
+.emptyStatePanel {
+  display: grid;
+  gap: 0.85rem;
+  justify-items: start;
+  padding: 2.5rem 1.5rem;
+  border: 1px dashed #b9c7c1;
+  border-radius: 1rem;
+  background: #ffffff;
+  color: var(--color-text-sub);
+}
+
+.emptyStatePanel h3 {
+  margin: 0;
+  color: var(--color-primary-dark);
+  font-size: 1.35rem;
+}
+
+.emptyStatePanel p {
+  margin: 0;
+  max-width: 34rem;
+  line-height: 1.7;
+}
+
+.emptyStateInline {
+  padding: 1rem 0.25rem;
+  color: var(--color-text-sub);
+  font-size: 0.92rem;
+}
+
+.pointsProgress {
+  overflow: hidden;
+  width: min(100%, 22rem);
+  height: 0.55rem;
+  margin-top: 0.85rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 55%);
+}
+
+.pointsProgress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffab40, #ffd084);
+  transition: width 320ms ease;
+}
+
+.pointsHeroCelebrate {
+  animation: pointsCelebrate 520ms ease;
+}
+
+.positivePoints {
+  color: #0d6b4f;
+}
+
+.negativePoints {
+  color: #a33a2d;
+}
+
+@keyframes skeletonPulse {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes pointsCelebrate {
+  0% {
+    transform: scale(1);
+  }
+
+  40% {
+    transform: scale(1.01);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}

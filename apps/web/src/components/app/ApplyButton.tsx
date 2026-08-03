@@ -19,9 +19,24 @@ export function ApplyButton({
     setApplied(hasSavedApplication(jobId));
   }, [jobId]);
 
-  function apply() {
-    saveJobApplication(jobId, expectedSupport);
+  async function apply() {
+    const localApplication = saveJobApplication(jobId, expectedSupport);
     setApplied(true);
+
+    try {
+      await fetch("/api/applications", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          jobId,
+          expectedSupport: localApplication.expectedSupport
+        })
+      });
+    } catch {
+      // Appwriteが未設定でも、コンテスト用デモの応募体験は継続させます。
+    }
   }
 
   return (

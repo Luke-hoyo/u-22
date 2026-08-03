@@ -173,7 +173,9 @@ SDKは役割で分けています。
 2. Database
 3. `jobs` テーブル
 4. `users` テーブル
-5. API Key（読み取りだけなら `databases.read` / `tables.read` / `rows.read` 相当。プロフィール保存やシード投入には `rows.write` も追加）
+5. `applications` テーブル
+6. `point_transactions` テーブル
+7. API Key（読み取りだけなら `databases.read` / `tables.read` / `rows.read` 相当。プロフィール保存、応募保存、ポイント履歴保存には `rows.write` も追加）
 
 `apps/web/.env.local` に次を追加します。
 
@@ -184,6 +186,8 @@ APPWRITE_API_KEY=
 APPWRITE_DATABASE_ID=
 APPWRITE_TABLE_ID_USERS=
 APPWRITE_TABLE_ID_JOBS=
+APPWRITE_TABLE_ID_APPLICATIONS=
+APPWRITE_TABLE_ID_POINT_TRANSACTIONS=
 ```
 
 利用者テーブルを作成:
@@ -228,5 +232,30 @@ npm run appwrite:seed:jobs
 | `description` | string | 詳細ページの説明 |
 | `duties` | string | 栽培管理,収穫,出荷 |
 | `schedule` | string | 8:00〜17:00 |
+
+`applications` テーブルの主な列:
+
+| key | type | 例 |
+| --- | --- | --- |
+| `userId` | string | ClerkのユーザーID |
+| `jobId` | string | higashihiroshima-grape |
+| `status` | string | applied |
+| `appliedAt` | string | 2026年8月3日 |
+| `nextAction` | string | 地域担当者が応募内容を確認中 |
+| `expectedSupport` | integer | 90000 |
+| `source` | string | web |
+| `updatedAt` | datetime/string | 2026-08-03T00:00:00.000Z |
+
+`point_transactions` テーブルの主な列:
+
+| key | type | 例 |
+| --- | --- | --- |
+| `userId` | string | ClerkのユーザーID |
+| `kind` | string | event_participation |
+| `entityId` | string | EVT-001 |
+| `label` | string | 夏の棚田メンテナンスに参加 |
+| `amount` | integer | 600 |
+| `occurredAt` | datetime/string | 2026-08-03T00:00:00.000Z |
+| `source` | string | web |
 | `image` | string | /higashihiroshima.jpg |
 | `kintoneRecordId` | string | JOB-001 |
