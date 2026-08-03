@@ -250,6 +250,7 @@ export function PRLandingPage() {
         <nav className={styles.footerLinks} aria-label="補助リンク">
           <Link href="/farmer/apply">まだ申請していない方</Link>
           <Link href="/farmer/dashboard">申請済みの方（ログイン）</Link>
+          <Link href="/join">招待コードを入力</Link>
         </nav>
         <small>© 2026 u.r.ki</small>
       </footer>
