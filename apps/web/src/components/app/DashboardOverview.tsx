@@ -12,6 +12,15 @@ import {
 import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
 import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from "recharts";
+import {
   applications,
   type Application,
   formatCurrency,
@@ -25,23 +34,25 @@ import {
 } from "@/lib/demo-user-state";
 import styles from "./DashboardOverview.module.css";
 
-const supportTrend = [240, 222, 204, 186, 168, 150, 132];
-const supportForecast = [0, 3, 6, 9, 12, 15, 18];
-const chartMonths = ["現在", "2か月", "4か月", "6か月", "8か月", "10か月", "12か月"];
+const scholarshipChartData = [
+  { month: "現在", balance: 240 },
+  { month: "2か月", balance: 222 },
+  { month: "4か月", balance: 204 },
+  { month: "6か月", balance: 186 },
+  { month: "8か月", balance: 168 },
+  { month: "10か月", balance: 150 },
+  { month: "12か月", balance: 132 }
+];
 
-function linePoints(values: number[], height = 130) {
-  const max = Math.max(...values);
-  const min = Math.min(...values);
-  const range = max - min || 1;
-
-  return values
-    .map((value, index) => {
-      const x = (index / (values.length - 1 || 1)) * 100;
-      const y = height - 18 - ((value - min) / range) * (height - 42);
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(" ");
-}
+const supportChartData = [
+  { month: "現在", support: 0 },
+  { month: "2か月", support: 3 },
+  { month: "4か月", support: 6 },
+  { month: "6か月", support: 9 },
+  { month: "8か月", support: 12 },
+  { month: "10か月", support: 15 },
+  { month: "12か月", support: 18 }
+];
 
 export function DashboardOverview() {
   const prefersReducedMotion = useReducedMotion();
@@ -183,13 +194,20 @@ export function DashboardOverview() {
               <span>奨学金残高</span>
               <strong>240万円 → 132万円</strong>
             </div>
-            <svg className={styles.lineChart} viewBox="0 0 100 130" preserveAspectRatio="none">
-              <path d="M0 112H100" />
-              <polyline points={linePoints(supportTrend)} />
-            </svg>
-            <div className={styles.chartLabels}>
-              <span>現在</span>
-              <span>12か月後</span>
+            <div className={styles.chartCanvas}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={scholarshipChartData} margin={{ top: 8, right: 10, bottom: 0, left: -18 }}>
+                  <CartesianGrid stroke="#e3eae6" vertical={false} />
+                  <XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#64736d" }} />
+                  <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#64736d" }} unit="万" />
+                  <Tooltip
+                    cursor={{ fill: "rgba(0, 77, 64, 0.06)" }}
+                    formatter={(value) => [`${value}万円`, "残高"]}
+                    labelStyle={{ color: "#18352d", fontWeight: 800 }}
+                  />
+                  <Bar dataKey="balance" fill="#7ba99a" radius={[7, 7, 2, 2]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
@@ -198,13 +216,20 @@ export function DashboardOverview() {
               <span>返済支援見込み</span>
               <strong>年間18万円</strong>
             </div>
-            <div className={styles.columnChart}>
-              {supportForecast.map((value, index) => (
-                <div key={chartMonths[index]}>
-                  <span style={{ height: `${Math.max(6, (value / 18) * 100)}%` }} />
-                  <small>{chartMonths[index]}</small>
-                </div>
-              ))}
+            <div className={styles.chartCanvas}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={supportChartData} margin={{ top: 8, right: 10, bottom: 0, left: -18 }}>
+                  <CartesianGrid stroke="#e3eae6" vertical={false} />
+                  <XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#64736d" }} />
+                  <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#64736d" }} unit="万" />
+                  <Tooltip
+                    cursor={{ fill: "rgba(202, 117, 10, 0.07)" }}
+                    formatter={(value) => [`${value}万円`, "支援見込み"]}
+                    labelStyle={{ color: "#18352d", fontWeight: 800 }}
+                  />
+                  <Bar dataKey="support" fill="#ca750a" radius={[7, 7, 2, 2]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>

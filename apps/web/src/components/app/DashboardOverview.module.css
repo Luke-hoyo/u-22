@@ -306,66 +306,10 @@
   font-size: 0.9rem;
 }
 
-.lineChart {
-  display: block;
+.chartCanvas {
   width: 100%;
-  height: 9.5rem;
-  overflow: visible;
-}
-
-.lineChart path {
-  fill: none;
-  stroke: #dfe7e3;
-  stroke-width: 1;
-}
-
-.lineChart polyline {
-  fill: none;
-  stroke: var(--color-secondary);
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 4;
-}
-
-.chartLabels {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 0.45rem;
-  color: #64736d;
-  font-size: 0.72rem;
-}
-
-.columnChart {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 0.45rem;
-  align-items: end;
-  height: 11.2rem;
-  padding-top: 0.25rem;
-}
-
-.columnChart div {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  height: 100%;
-  gap: 0.55rem;
-  min-width: 0;
-}
-
-.columnChart div > span {
-  align-self: end;
-  width: 100%;
-  border-radius: 9999px 9999px 0.2rem 0.2rem;
-  background: var(--color-primary);
-}
-
-.columnChart small {
-  overflow: hidden;
-  color: #64736d;
-  font-size: 0.64rem;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  height: 12rem;
+  min-height: 12rem;
 }
 
 @media (max-width: 1060px) {
