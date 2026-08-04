@@ -332,3 +332,16 @@ curl https://hatarukun.jp/api/appwrite/status
 
 `events` の `source` が `appwrite` であること、`appwrite/status` が `ok: true` であることを確認してください。
 
+## Sentry（任意）
+
+エラー監視を有効にする場合は `.env.production` に DSN を設定します。未設定のときは Sentry は無効のままビルド・起動できます。
+
+```env
+SENTRY_DSN=
+NEXT_PUBLIC_SENTRY_DSN=
+SENTRY_ORG=
+SENTRY_PROJECT=
+```
+
+Sentry for Education のプロジェクトを作成し、同じ DSN をサーバー用・公開用の両方に設定してください。個人情報は送らない設定（`sendDefaultPii: false`）にしています。
+
