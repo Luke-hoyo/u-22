@@ -29,6 +29,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _api = HatarukunApiService();
+  late DemoAccount account = widget.account;
   int currentIndex = 0;
   String searchQuery = '';
   String selectedIndustry = 'すべて';
@@ -105,6 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _api.fetchPoints(sessionToken: token),
         _api.fetchEvents(),
         _api.fetchProfilePreferences(sessionToken: token),
+        _api.fetchMyNumberStatus(sessionToken: token),
       ]);
 
       final loadedJobs = results[0] as List<Job>;
@@ -112,6 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final loadedPoints = results[2] as ApiPointsSnapshot;
       final loadedEvents = results[3] as List<ApiCommunityEvent>;
       final loadedProfile = results[4] as ApiProfilePreferences?;
+      final loadedMyNumberStatus = results[5] as String;
 
       if (!mounted) return;
 
@@ -169,6 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
             scholarshipBalance: loadedProfile.scholarshipBalance,
           );
         }
+        account = account.copyWith(myNumberStatus: loadedMyNumberStatus);
         isLoadingRemoteData = false;
       });
     } catch (error) {
@@ -503,8 +507,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () {
                   Navigator.of(context).pop();
                   Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) =>
-                          MyNumberDemoScreen(account: widget.account)));
+                      builder: (_) => MyNumberDemoScreen(
+                            account: account,
+                            sessionTokenProvider: widget.sessionTokenProvider,
+                            onStatusChanged: (status) {
+                              setState(
+                                () => account = account.copyWith(
+                                  myNumberStatus: status,
+                                ),
+                              );
+                            },
+                          )));
                 },
               ),
               _SheetTile(
@@ -515,7 +528,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () {
                   Navigator.of(context).pop();
                   Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => LogoutScreen(account: widget.account)));
+                      builder: (_) => LogoutScreen(account: account)));
                 },
               ),
             ],
@@ -538,7 +551,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final pages = [
       _HomeTab(
-        account: widget.account,
+        account: account,
         currentJob: currentJob,
         applications: applications,
         points: points,
@@ -585,7 +598,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onQrCheckIn: openQrCheckIn,
       ),
       _ProfileTab(
-        account: widget.account,
+        account: account,
         preferences: preferences,
         favorites: favorites.length,
         applications: applications.length,

@@ -18,4 +18,26 @@ class DemoAccount {
   final String verificationStatus;
   final String myNumberStatus;
   final String taxStatus;
+
+  DemoAccount copyWith({
+    String? id,
+    String? name,
+    String? email,
+    String? profile,
+    int? scholarshipBalance,
+    String? verificationStatus,
+    String? myNumberStatus,
+    String? taxStatus,
+  }) {
+    return DemoAccount(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      profile: profile ?? this.profile,
+      scholarshipBalance: scholarshipBalance ?? this.scholarshipBalance,
+      verificationStatus: verificationStatus ?? this.verificationStatus,
+      myNumberStatus: myNumberStatus ?? this.myNumberStatus,
+      taxStatus: taxStatus ?? this.taxStatus,
+    );
+  }
 }

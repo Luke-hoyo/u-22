@@ -1,32 +1,86 @@
 import 'package:flutter/material.dart';
 
 import '../models/demo_account.dart';
+import '../services/hatarukun_api_service.dart';
 
 class MyNumberDemoScreen extends StatefulWidget {
-  const MyNumberDemoScreen({required this.account, super.key});
+  const MyNumberDemoScreen({
+    required this.account,
+    this.sessionTokenProvider,
+    this.onStatusChanged,
+    super.key,
+  });
 
   final DemoAccount account;
+  final Future<String> Function()? sessionTokenProvider;
+  final ValueChanged<String>? onStatusChanged;
 
   @override
   State<MyNumberDemoScreen> createState() => _MyNumberDemoScreenState();
 }
 
 class _MyNumberDemoScreenState extends State<MyNumberDemoScreen> {
+  final _api = HatarukunApiService();
   bool consentChecked = false;
   bool imageUploaded = true;
   bool statusSubmitted = false;
+  bool isSaving = false;
+  late String currentStatus = widget.account.myNumberStatus;
 
-  void submit() {
+  bool get completed => currentStatus == '登録済み';
+
+  Future<void> submit() async {
     if (!consentChecked) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('利用同意にチェックしてください')),
       );
       return;
     }
-    setState(() => statusSubmitted = true);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('マイナンバー登録デモを完了しました')),
-    );
+
+    if (!imageUploaded) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('個人番号カードの確認を完了してください')),
+      );
+      return;
+    }
+
+    final tokenProvider = widget.sessionTokenProvider;
+
+    setState(() => isSaving = true);
+
+    try {
+      if (tokenProvider != null) {
+        final token = await tokenProvider();
+        final nextStatus =
+            await _api.completeMyNumberRegistration(sessionToken: token);
+        if (!mounted) return;
+        setState(() {
+          currentStatus = nextStatus;
+          statusSubmitted = true;
+        });
+        widget.onStatusChanged?.call(nextStatus);
+      } else {
+        setState(() {
+          currentStatus = '登録済み';
+          statusSubmitted = true;
+        });
+        widget.onStatusChanged?.call('登録済み');
+      }
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('マイナンバー登録デモを完了しました')),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.toString())),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => isSaving = false);
+      }
+    }
   }
 
   @override
@@ -36,7 +90,7 @@ class _MyNumberDemoScreenState extends State<MyNumberDemoScreen> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          _NoticeCard(account: widget.account),
+          _NoticeCard(status: currentStatus),
           const SizedBox(height: 16),
           _StepCard(
             icon: Icons.badge_outlined,
@@ -50,30 +104,43 @@ class _MyNumberDemoScreenState extends State<MyNumberDemoScreen> {
             title: '2. 個人番号カード',
             body: imageUploaded ? 'カード画像アップロード済み（デモ）' : '未アップロード',
             done: imageUploaded,
-            trailing: Switch(
-              value: imageUploaded,
-              onChanged: (value) => setState(() => imageUploaded = value),
-            ),
+            trailing: completed
+                ? null
+                : Switch(
+                    value: imageUploaded,
+                    onChanged: (value) => setState(() => imageUploaded = value),
+                  ),
           ),
           const SizedBox(height: 12),
-          CheckboxListTile(
-            value: consentChecked,
-            onChanged: (value) {
-              setState(() => consentChecked = value ?? false);
-            },
-            title: const Text('奨学金免除判定と自治体確認に利用することに同意する'),
-            subtitle: const Text('コンテスト段階では実データ送信を行わないモックです。'),
-            controlAffinity: ListTileControlAffinity.leading,
-            tileColor: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: submit,
-            icon: const Icon(Icons.verified_outlined),
-            label: Text(statusSubmitted ? '登録デモ完了' : '登録デモを完了する'),
-          ),
+          if (!completed) ...[
+            CheckboxListTile(
+              value: consentChecked,
+              onChanged: isSaving
+                  ? null
+                  : (value) {
+                      setState(() => consentChecked = value ?? false);
+                    },
+              title: const Text('奨学金免除判定と自治体確認に利用することに同意する'),
+              subtitle: const Text('個人番号そのものは保存しません。'),
+              controlAffinity: ListTileControlAffinity.leading,
+              tileColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: isSaving ? null : submit,
+              icon: const Icon(Icons.verified_outlined),
+              label: Text(
+                isSaving
+                    ? '保存中...'
+                    : statusSubmitted
+                        ? '登録デモ完了'
+                        : '登録デモを完了する',
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -81,9 +148,9 @@ class _MyNumberDemoScreenState extends State<MyNumberDemoScreen> {
 }
 
 class _NoticeCard extends StatelessWidget {
-  const _NoticeCard({required this.account});
+  const _NoticeCard({required this.status});
 
-  final DemoAccount account;
+  final String status;
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +173,7 @@ class _NoticeCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text('現在の状態: ${account.myNumberStatus}'),
+            Text('現在の状態: $status'),
             const SizedBox(height: 6),
             const Text('この画面は審査員に連携イメージを見せるためのデモです。'),
           ],

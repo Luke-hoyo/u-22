@@ -2,6 +2,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/require-user";
 import {
+  getMyNumberStatusFromRow,
   getUserProfileRow,
   preferencesFromRow,
   saveUserPreferences
@@ -74,7 +75,8 @@ export async function GET(request: Request) {
     return NextResponse.json({
       ok: true,
       source: result.row ? "appwrite" : "unset",
-      preferences: result.row ? preferencesFromRow(result.row) : null
+      preferences: result.row ? preferencesFromRow(result.row) : null,
+      myNumberStatus: getMyNumberStatusFromRow(result.row)
     });
   } catch (error) {
     console.error("Appwrite profile fetch failed", error);

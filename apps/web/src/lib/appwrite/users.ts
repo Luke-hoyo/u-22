@@ -32,9 +32,23 @@ export type UserProfileRow = Models.Row & {
   updatedAt?: string;
   favoriteJobIds?: string;
   operatorFocus?: string;
+  myNumberStatus?: string;
+  myNumberRegisteredAt?: string;
 };
 
 export type UserProfileSource = "appwrite" | "unset";
+
+export type MyNumberStatus = "未登録" | "確認中" | "登録済み";
+
+export function getMyNumberStatusFromRow(row: UserProfileRow | null): MyNumberStatus {
+  const value = row?.myNumberStatus;
+
+  if (value === "登録済み" || value === "確認中" || value === "未登録") {
+    return value;
+  }
+
+  return "未登録";
+}
 
 function parseWorkPeriodMonths(period: string) {
   if (period.includes("24")) return 24;
@@ -254,4 +268,28 @@ export async function saveOperatorFocus(userId: string, focus: OperatorFocus) {
   });
 
   return { savedToAppwrite: true as const, focus };
+}
+
+export async function saveMyNumberStatus(userId: string, status: MyNumberStatus) {
+  const appwrite = getUsersTableConfig();
+
+  if (!appwrite) {
+    return { savedToAppwrite: false as const, myNumberStatus: status };
+  }
+
+  const now = new Date().toISOString();
+  const { tablesDB } = createAppwriteServerClient();
+
+  await tablesDB.upsertRow({
+    databaseId: appwrite.config.databaseId,
+    tableId: appwrite.tableId,
+    rowId: userId,
+    data: {
+      myNumberStatus: status,
+      myNumberRegisteredAt: status === "登録済み" ? now : undefined,
+      updatedAt: now
+    }
+  });
+
+  return { savedToAppwrite: true as const, myNumberStatus: status };
 }

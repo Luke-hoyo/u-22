@@ -1,5 +1,6 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { ProfileSummaryCard } from "@/components/app/ProfileSummaryCard";
+import { MyNumberRegistrationCard } from "@/components/app/MyNumberRegistrationCard";
 import { PreferencesEditor } from "@/components/app/PreferencesEditor";
 import { PageHeader } from "@/components/app/PageHeader";
 import { canAccessAdmin, getUserRole, roleLabels, type UserRole } from "@/lib/access-control";
@@ -77,6 +78,7 @@ export default async function ProfilePage() {
 
       <div className={styles.profileGrid}>
         <ProfileSummaryCard />
+        <MyNumberRegistrationCard />
         <PreferencesEditor />
       </div>
     </div>

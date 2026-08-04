@@ -8,7 +8,7 @@ import {
 import { formatAgeGroupFromBirthDate } from "@/lib/demo-user-state";
 import { getAppwriteConfig } from "./config";
 import { createAppwriteServerClient } from "./server";
-import { type UserProfileRow } from "./users";
+import { type UserProfileRow, getMyNumberStatusFromRow } from "./users";
 
 type ApplicationRow = Models.Row & {
   userId?: string;
@@ -185,7 +185,11 @@ function mapToAdminApplicant(
     ageGroup: formatAgeLabel(user?.birthDate),
     birthDate: formatBirthDateLabel(user?.birthDate),
     address: user?.address?.trim() || "未設定",
-    myNumberStatus: user?.profileCompleted ? "登録済み" : "確認中",
+    myNumberStatus: user?.myNumberStatus?.trim() === "登録済み"
+      ? "登録済み"
+      : user?.profileCompleted
+        ? "確認中"
+        : getMyNumberStatusFromRow(user ?? null),
     region: user?.prefecture?.trim() || user?.regions?.split("、")[0]?.trim() || job?.region || "未設定",
     jobTitle: job?.title?.trim() || "求人未設定",
     status: reviewStatus,

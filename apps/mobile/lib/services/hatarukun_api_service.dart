@@ -328,6 +328,33 @@ class HatarukunApiService {
     return ApiProfilePreferences.fromJson(preferences);
   }
 
+  Future<String> fetchMyNumberStatus({
+    required String sessionToken,
+  }) async {
+    final json = await _get('/api/profile/my-number', sessionToken: sessionToken);
+
+    return json['myNumberStatus'] is String
+        ? json['myNumberStatus'] as String
+        : '未登録';
+  }
+
+  Future<String> completeMyNumberRegistration({
+    required String sessionToken,
+  }) async {
+    final json = await _post(
+      '/api/profile/my-number',
+      sessionToken: sessionToken,
+      body: const {
+        'consent': true,
+        'cardUploaded': true,
+      },
+    );
+
+    return json['myNumberStatus'] is String
+        ? json['myNumberStatus'] as String
+        : '登録済み';
+  }
+
   Future<ApiProfilePreferences> saveProfilePreferences({
     required String sessionToken,
     required ApiProfilePreferences preferences,
