@@ -9,16 +9,31 @@
 5. 左メニュー **Settings → Organization Settings** で **Organization Slug** を確認
 6. **Settings → Projects → hatarukun-web** で **Project Slug** を確認
 
-## 2. Auth Token（ソースマップ用・任意）
+## 2. Auth Token しかない場合
 
-スタックトレースを読みやすくする場合のみ。
+Sentry の **セキュリティトークン（Auth Token）** は DSN ではありません。
 
-1. https://sentry.io/settings/account/api/auth-tokens/
-2. **Create New Token**
-3. Scopes: `project:releases`（Organization Auth Token でも可）
-4. トークンを控える（再表示不可）
+| 種類 | 形式 | 用途 |
+| --- | --- | --- |
+| **DSN** | `https://...@....ingest.sentry.io/...` | アプリからエラー送信（必須） |
+| **Auth Token** | `sntrys_...` | API・ソースマップアップロード（任意） |
 
-## 3. サーバーの `.env.production` に追記
+Auth Token だけ持っている場合、まず `.env.production` に org / project / token を入れて DSN を API で取得できます。
+
+```env
+SENTRY_AUTH_TOKEN=sntrys_...
+SENTRY_ORG=your-org-slug
+SENTRY_PROJECT=hatarukun-web
+```
+
+```powershell
+cd C:\hatarukun\u-22\apps\web
+npm run sentry:fetch-dsn:production
+```
+
+表示された `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` を同じ `.env.production` に追記してからデプロイします。
+
+## 3. サーバーの `.env.production` に追記（DSN がある場合）
 
 `C:\hatarukun\u-22\apps\web\.env.production` を開き、末尾に追加:
 

@@ -10,6 +10,8 @@
     "typecheck": "tsc --noEmit",
     "sentry:check": "node scripts/check-sentry-env.mjs",
     "sentry:check:production": "node scripts/check-sentry-env.mjs --production",
+    "sentry:fetch-dsn": "node scripts/fetch-sentry-dsn.mjs",
+    "sentry:fetch-dsn:production": "node scripts/fetch-sentry-dsn.mjs --production",
     "deploy:server": "powershell.exe -ExecutionPolicy Bypass -File ./scripts/deploy-windows-server.ps1",
     "appwrite:setup:users": "node scripts/setup-appwrite-users.mjs",
     "appwrite:setup:applications": "node scripts/setup-appwrite-applications.mjs",
