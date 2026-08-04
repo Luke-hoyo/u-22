@@ -58,7 +58,7 @@ class _JobListScreenState extends State<JobListScreen> {
           selectedJob = jobs.first;
         }
       });
-    } catch {
+    } on Object catch (_) {
       if (!mounted) return;
       setState(() => jobs = []);
     } finally {

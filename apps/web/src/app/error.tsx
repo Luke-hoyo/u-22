@@ -18,7 +18,7 @@ export default function ErrorPage({
 
   return (
     <StatusScreen
-      code="SOMETHING WENT WRONG"
+      code="読み込みエラー"
       title="うまく読み込めませんでした。"
       description="一時的な問題が発生しました。入力内容はそのままに、もう一度読み込みをお試しください。"
       icon={TriangleAlert}

@@ -5,7 +5,7 @@ import { StatusScreen, statusStyles } from "@/components/system/StatusScreen";
 export default function NotFound() {
   return (
     <StatusScreen
-      code="404 NOT FOUND"
+      code="404"
       title="このページは、見つかりませんでした。"
       description="URLが変わったか、ページが移動した可能性があります。ホームまたは求人検索から、目的の情報を探せます。"
       icon={SearchX}

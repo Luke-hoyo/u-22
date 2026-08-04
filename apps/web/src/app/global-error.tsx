@@ -20,7 +20,7 @@ export default function GlobalError({
     <html lang="ja">
       <body>
         <StatusScreen
-          code="CRITICAL ERROR"
+          code="重大なエラー"
           title="サービスを開始できませんでした。"
           description="安全のため処理を停止しました。時間をおいても直らない場合は、運営担当者へお知らせください。"
           icon={ShieldAlert}

@@ -2,12 +2,7 @@
 
 import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import {
-  industryLabels,
-  jobs as mockJobs,
-  type Industry,
-  type Job
-} from "@/lib/app-data";
+import { industryLabels, type Industry, type Job } from "@/lib/app-data";
 import { useFavoriteJobs } from "@/hooks/useFavoriteJobs";
 import { JobCard } from "./JobCard";
 import { JobCardSkeleton } from "./JobCardSkeleton";

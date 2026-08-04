@@ -30,17 +30,18 @@ U-22/
 
 | 領域 | 方針 | 状態 |
 | --- | --- | --- |
-| Web | Next.js / React / TypeScript / Clerk | Clerk初期設定済み |
-| Mobile | Flutter / Dart / clerk_flutter | Clerk入口と既存デモログインを併用 |
-| 共通ロジック | TypeScriptまたは仕様ドキュメントで管理 | これから整理 |
-| 認証 | Clerk Pro | Web/Mobileに反映中 |
-| データベース | Appwrite Databases | 採用候補 |
-| 画像保存 | Appwrite Storage | 採用候補 |
-| 通知 | Appwrite Messaging | 将来候補 |
-| 業務管理 | Next.js農家向けダッシュボード + Appwrite | 農家・自治体向け画面を実装中 |
-| デプロイ | Windows Server 2025 / Node.js / IIS | 開発者限定公開の準備中 |
+| Web | Next.js / React / TypeScript / Clerk | 本番デプロイ済み、Appwrite API 接続済み |
+| Mobile | Flutter / Dart / clerk_flutter | Clerk 認証・Sentry・農家向け求人編集 UI 実装済み |
+| 共通ロジック | TypeScript または仕様ドキュメントで管理 | `packages/shared` と `docs/` で管理 |
+| 認証 | Clerk Pro | Web / Mobile 本番利用中 |
+| データベース | Appwrite TablesDB | 求人・応募・ポイント・通知テーブル運用中 |
+| 画像保存 | Appwrite Storage | 未接続（コンテスト段階はデモデータ） |
+| 通知 | Appwrite + アプリ内通知 | アプリ内通知は実装済み、FCM プッシュは未設定 |
+| 業務管理 | Next.js 農家向けダッシュボード + Appwrite | 募集・応募・ポイント管理を実装済み |
+| デプロイ | Windows Server 2025 / Node.js / IIS | 本番公開中（ヘルスチェック付き） |
+| 監視 | Sentry Education | Web / Mobile 本番送信確認済み |
 | セキュリティ | GitHub Secret scanning / Dependabot / CodeQL / 1Password | 採用候補 |
-| UIデザイン | Kinetic Clarity | Stitchで作成した基準を採用 |
+| UIデザイン | Kinetic Clarity | Stitch で作成した基準を採用 |
 
 Windows版は今回は含めません。必要になった場合に別プロジェクトとして追加します。
 
