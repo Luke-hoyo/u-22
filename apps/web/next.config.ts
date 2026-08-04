@@ -9,9 +9,13 @@ export default sentryDsn
   ? withSentryConfig(nextConfig, {
       org: process.env.SENTRY_ORG,
       project: process.env.SENTRY_PROJECT,
-      silent: true,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      silent: !process.env.CI,
       widenClientFileUpload: true,
       disableLogger: true,
-      telemetry: false
+      telemetry: false,
+      sourcemaps: {
+        disable: !process.env.SENTRY_AUTH_TOKEN?.trim()
+      }
     })
   : nextConfig;

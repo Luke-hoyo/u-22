@@ -96,6 +96,13 @@ try {
     }
   }
 
+  try {
+    $env:SENTRY_RELEASE = (git rev-parse --short HEAD).Trim()
+    Write-Host "SENTRY_RELEASE set to $($env:SENTRY_RELEASE)"
+  } catch {
+    Write-Host "SENTRY_RELEASE was not set from git."
+  }
+
   npm.cmd run build
   if ($LASTEXITCODE -ne 0) {
     throw "npm run build failed with exit code $LASTEXITCODE."

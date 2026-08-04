@@ -14,6 +14,7 @@ import {
 import { ManagedJobEditor } from "../ManagedJobEditor";
 import { ApplicantProfileList } from "./ApplicantProfileList";
 import { OperatorFocusSelector } from "./OperatorFocusSelector";
+import { SentryConnectivityCard } from "./SentryConnectivityCard";
 import {
   applicantMatchesFocus,
   jobMatchesFocus,
@@ -297,6 +298,8 @@ export function OperatorDashboard({ state }: { state: DashboardSharedState }) {
               </div>
             )}
           </section>
+
+          <SentryConnectivityCard />
         </>
       )}
     </div>

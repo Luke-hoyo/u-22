@@ -334,14 +334,53 @@ curl https://hatarukun.jp/api/appwrite/status
 
 ## Sentry（任意）
 
-エラー監視を有効にする場合は `.env.production` に DSN を設定します。未設定のときは Sentry は無効のままビルド・起動できます。
+エラー監視を有効にする手順です。未設定のときは Sentry は無効のままビルド・起動できます。
+
+### 1. Sentry プロジェクトを作る
+
+1. [Sentry for Education](https://sentry.io/for/education/) から組織を作成
+2. プロジェクト種別は **Next.js** を選択
+3. 表示された DSN を控える
+
+### 2. `.env.production` に設定
 
 ```env
-SENTRY_DSN=
-NEXT_PUBLIC_SENTRY_DSN=
-SENTRY_ORG=
-SENTRY_PROJECT=
+SENTRY_DSN=https://examplePublicKey@o0.ingest.sentry.io/0
+NEXT_PUBLIC_SENTRY_DSN=https://examplePublicKey@o0.ingest.sentry.io/0
+SENTRY_ORG=your-org-slug
+SENTRY_PROJECT=hatarukun-web
+SENTRY_ENVIRONMENT=production
+NEXT_PUBLIC_SENTRY_ENVIRONMENT=production
 ```
 
-Sentry for Education のプロジェクトを作成し、同じ DSN をサーバー用・公開用の両方に設定してください。個人情報は送らない設定（`sendDefaultPii: false`）にしています。
+ソースマップをビルド時にアップロードする場合は、Sentry の Auth Token も追加します。
+
+```env
+SENTRY_AUTH_TOKEN=
+```
+
+### 3. デプロイと確認
+
+```powershell
+cd C:\hatarukun\u-22\apps\web
+npm run deploy:server
+```
+
+確認:
+
+```powershell
+curl https://hatarukun.jp/api/health/sentry
+```
+
+`enabled: true` になればサーバー側の設定は有効です。運営ダッシュボードの「エラー監視（Sentry）」から接続テストも送れます。
+
+### 4. ローカル CLI（任意）
+
+```bash
+curl https://cli.sentry.dev/install -fsS | bash
+sentry auth login
+sentry issue list --period 24h
+```
+
+個人情報は `sendDefaultPii: false` と送信前スクラブで除外しています。
 

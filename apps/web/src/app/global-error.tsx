@@ -1,9 +1,21 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { RefreshCw, ShieldAlert } from "lucide-react";
+import { useEffect } from "react";
 import { StatusScreen, statusStyles } from "@/components/system/StatusScreen";
 
-export default function GlobalError({ reset }: { reset: () => void }) {
+export default function GlobalError({
+  error,
+  reset
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
+
   return (
     <html lang="ja">
       <body>
