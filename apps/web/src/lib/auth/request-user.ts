@@ -1,4 +1,7 @@
 import { auth, verifyToken } from "@clerk/nextjs/server";
+import { isDemoAuthEnabled } from "@/lib/demo-auth";
+
+export const demoUserId = "demo-user";
 
 export type RequestUser =
   | {
@@ -26,6 +29,13 @@ function readBearerToken(request?: Request) {
 }
 
 export async function getRequestUser(request?: Request): Promise<RequestUser> {
+  if (isDemoAuthEnabled()) {
+    return {
+      isAuthenticated: true,
+      userId: demoUserId
+    };
+  }
+
   const cookieAuth = await auth();
 
   if (cookieAuth.isAuthenticated && cookieAuth.userId) {
