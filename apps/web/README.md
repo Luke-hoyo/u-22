@@ -325,6 +325,24 @@ npm run deploy:server
 
 `npm ci` で `package-lock.json` の不整合エラーが出る場合は、最新版を `git pull` してください。Sentry 追加後は lock ファイルの更新が必要でした。
 
+### `git pull failed with exit code 1`
+
+サーバー上で追跡ファイル（`package-lock.json` や `next-env.d.ts` など）が書き換わっていると pull が失敗します。まず状態を確認します。
+
+```powershell
+cd C:\hatarukun\u-22
+git status
+```
+
+ローカル変更を退避してから pull する場合:
+
+```powershell
+git stash push -m "server-local-before-deploy"
+git pull --ff-only origin main
+```
+
+その後、再度 `npm run deploy:server` を実行してください。最新の deploy スクリプトは、pull 前に追跡ファイルの変更を自動で stash します。
+
 デプロイ後の確認:
 
 ```powershell

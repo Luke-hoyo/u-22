@@ -1,8 +1,10 @@
 param(
   [string]$TaskName = "HatarukunWeb",
+  [string]$GitBranch = "main",
   [switch]$SkipGitPull,
   [switch]$SkipInstall,
-  [switch]$SkipRestart
+  [switch]$SkipRestart,
+  [switch]$NoAutoStash
 )
 
 $ErrorActionPreference = "Stop"
@@ -56,6 +58,73 @@ if ($missingEnvKeys.Count -gt 0) {
   exit 1
 }
 
+function Get-GitRepositoryRoot {
+  $repoRoot = git -C $webDir rev-parse --show-toplevel 2>$null
+
+  if (-not $repoRoot) {
+    throw "Git repository root was not found from $webDir."
+  }
+
+  return $repoRoot.Trim()
+}
+
+function Sync-GitRepository {
+  param(
+    [string]$Branch
+  )
+
+  $repoRoot = Get-GitRepositoryRoot
+  Write-Host "Syncing git repository at $repoRoot"
+
+  Set-Location $repoRoot
+
+  $status = git status --porcelain
+
+  if ($status) {
+    Write-Host "Local changes detected before git pull:"
+    git status --short
+
+    if ($NoAutoStash) {
+      throw @"
+git pull aborted because the working tree is dirty.
+Run this manually on the server, then deploy again:
+
+  cd $repoRoot
+  git status
+  git stash push -m "server-local-before-deploy"
+  git pull --ff-only origin $Branch
+"@
+    }
+
+    Write-Host "Stashing tracked local changes before pull..."
+    git stash push -m "deploy-windows-server autostash"
+    if ($LASTEXITCODE -ne 0) {
+      throw "git stash failed with exit code $LASTEXITCODE."
+    }
+  }
+
+  git fetch origin $Branch
+  if ($LASTEXITCODE -ne 0) {
+    throw "git fetch failed with exit code $LASTEXITCODE."
+  }
+
+  git pull --ff-only origin $Branch
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "git status after failed pull:"
+    git status --short
+    throw @"
+git pull failed with exit code $LASTEXITCODE.
+If the branch has diverged, reset to origin/$Branch on the server:
+
+  cd $repoRoot
+  git fetch origin
+  git reset --hard origin/$Branch
+"@
+  }
+
+  Set-Location $webDir
+}
+
 $task = $null
 $manageTask = -not $SkipRestart
 
@@ -83,11 +152,10 @@ $deploySucceeded = $false
 
 try {
   if (-not $SkipGitPull) {
-    git pull
-    if ($LASTEXITCODE -ne 0) {
-      throw "git pull failed with exit code $LASTEXITCODE."
-    }
+    Sync-GitRepository -Branch $GitBranch
   }
+
+  Set-Location $webDir
 
   if (-not $SkipInstall) {
     npm.cmd ci
@@ -97,7 +165,7 @@ try {
   }
 
   try {
-    $env:SENTRY_RELEASE = (git rev-parse --short HEAD).Trim()
+    $env:SENTRY_RELEASE = (git -C $webDir rev-parse --short HEAD).Trim()
     Write-Host "SENTRY_RELEASE set to $($env:SENTRY_RELEASE)"
   } catch {
     Write-Host "SENTRY_RELEASE was not set from git."
