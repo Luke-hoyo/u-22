@@ -5,9 +5,11 @@ import 'package:flutter/services.dart';
 
 import '../models/demo_account.dart';
 import '../models/onboarding_profile.dart';
+import '../models/user_role.dart';
 import '../services/profile_service.dart';
 import '../utils/auth_identifier.dart';
 import '../widgets/auth_status_notice.dart';
+import 'admin/admin_app_screen.dart';
 import 'home_screen.dart';
 import 'onboarding_screen.dart';
 
@@ -51,16 +53,16 @@ class SignedInProfileGate extends StatefulWidget {
 }
 
 class _SignedInProfileGateState extends State<SignedInProfileGate> {
-  late final Future<SavedProfile?> _profileFuture = _loadProfile();
+  late final Future<ClerkSession> _sessionFuture = _loadSession();
 
   Future<String> _sessionToken() async {
     final token = await widget.authState.sessionToken();
     return token.jwt;
   }
 
-  Future<SavedProfile?> _loadProfile() async {
+  Future<ClerkSession> _loadSession() async {
     final token = await _sessionToken();
-    return ApiProfileRepository().fetchCurrent(sessionToken: token);
+    return ApiProfileRepository().fetchSession(sessionToken: token);
   }
 
   void _openOnboarding() {
@@ -70,6 +72,18 @@ class _SignedInProfileGateState extends State<SignedInProfileGate> {
         builder: (_) => OnboardingScreen(
           initialName: user?.name ?? '',
           email: user?.email ?? '',
+          sessionTokenProvider: _sessionToken,
+        ),
+      ),
+    );
+  }
+
+  void _openAdminDashboard(ClerkSession session) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => AdminAppScreen(
+          role: session.clerkRole,
+          account: _accountFromSession(session),
           sessionTokenProvider: _sessionToken,
         ),
       ),
@@ -99,6 +113,33 @@ class _SignedInProfileGateState extends State<SignedInProfileGate> {
     );
   }
 
+  DemoAccount _accountFromSession(ClerkSession session) {
+    final profile = session.profile;
+    final profileText = profile == null
+        ? '${session.clerkRole.label} / Clerkログイン'
+        : [
+            if (profile.desiredIndustry.isNotEmpty)
+              '${profile.desiredIndustry}希望',
+            if (profile.prefecture.isNotEmpty || profile.city.isNotEmpty)
+              '${profile.prefecture}${profile.city}で就業検討',
+            if (profile.workPeriodMonths > 0)
+              '${profile.workPeriodMonths}か月希望',
+          ].join(' / ');
+
+    return DemoAccount(
+      id: 'clerk-user',
+      name: session.displayName.isNotEmpty
+          ? session.displayName
+          : profile?.displayName ?? 'Clerkユーザー',
+      email: session.email.isNotEmpty ? session.email : profile?.email ?? '',
+      profile: profileText.isEmpty ? 'プロフィール登録済み' : profileText,
+      scholarshipBalance: profile?.scholarshipBalance ?? 0,
+      verificationStatus: '本人確認前',
+      myNumberStatus: '未登録',
+      taxStatus: '申請前',
+    );
+  }
+
   DemoAccount _accountFromProfile(SavedProfile profile) {
     final profileText = [
       if (profile.desiredIndustry.isNotEmpty) '${profile.desiredIndustry}希望',
@@ -121,18 +162,28 @@ class _SignedInProfileGateState extends State<SignedInProfileGate> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<SavedProfile?>(
-      future: _profileFuture,
+    return FutureBuilder<ClerkSession>(
+      future: _sessionFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return const _SignedInLoading();
         }
 
-        if (snapshot.hasData && snapshot.data != null) {
+        if (snapshot.hasData) {
+          final session = snapshot.data!;
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) _openSavedProfile(snapshot.data!);
+            if (!mounted) return;
+            if (session.canAccessAdmin) {
+              _openAdminDashboard(session);
+              return;
+            }
+            if (session.profile != null) {
+              _openSavedProfile(session.profile!);
+            }
           });
-          return const _SignedInLoading();
+          if (session.canAccessAdmin || session.profile != null) {
+            return const _SignedInLoading();
+          }
         }
 
         return ListView(

@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hatarukun_mobile/models/onboarding_profile.dart';
+import 'package:hatarukun_mobile/models/user_role.dart';
 import 'package:hatarukun_mobile/screens/onboarding_screen.dart';
 import 'package:hatarukun_mobile/services/profile_service.dart';
 
 class _FakeProfileRepository implements ProfileRepository {
   OnboardingProfile? savedProfile;
+
+  @override
+  Future<ClerkSession> fetchSession({required String sessionToken}) async {
+    expect(sessionToken, 'test-session-token');
+    return const ClerkSession(
+      clerkRole: AppUserRole.youngUser,
+      canAccessAdmin: false,
+      displayName: '佐藤 みのり',
+      email: 'minori@example.com',
+    );
+  }
 
   @override
   Future<SavedProfile?> fetchCurrent({required String sessionToken}) async {

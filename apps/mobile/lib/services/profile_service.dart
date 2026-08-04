@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import '../models/onboarding_profile.dart';
+import '../models/user_role.dart';
 
 const _defaultApiBaseUrl = 'https://hatarukun.jp';
 
@@ -82,7 +83,48 @@ class SavedProfile {
   }
 }
 
+class ClerkSession {
+  const ClerkSession({
+    required this.clerkRole,
+    required this.canAccessAdmin,
+    required this.displayName,
+    required this.email,
+    this.profile,
+  });
+
+  final AppUserRole clerkRole;
+  final bool canAccessAdmin;
+  final String displayName;
+  final String email;
+  final SavedProfile? profile;
+
+  factory ClerkSession.fromJson(Map<String, dynamic> json) {
+    final session = json['session'];
+    if (session is! Map<String, dynamic>) {
+      throw ProfileSaveException('セッション情報を取得できませんでした。');
+    }
+
+    final profileJson = session['profile'];
+
+    return ClerkSession(
+      clerkRole: AppUserRole.fromApiValue(
+        session['clerkRole'] is String ? session['clerkRole'] as String : null,
+      ),
+      canAccessAdmin: session['canAccessAdmin'] == true,
+      displayName: session['displayName'] is String
+          ? session['displayName'] as String
+          : '',
+      email: session['email'] is String ? session['email'] as String : '',
+      profile: profileJson is Map<String, dynamic>
+          ? SavedProfile.fromJson(profileJson)
+          : null,
+    );
+  }
+}
+
 abstract interface class ProfileRepository {
+  Future<ClerkSession> fetchSession({required String sessionToken});
+
   Future<SavedProfile?> fetchCurrent({required String sessionToken});
 
   Future<ProfileSaveResult> save({
@@ -103,6 +145,32 @@ class ApiProfileRepository implements ProfileRepository {
 
   final String _baseUrl;
   final HttpClient _client;
+
+  @override
+  Future<ClerkSession> fetchSession({required String sessionToken}) async {
+    final request = await _client.getUrl(
+      Uri.parse('$_baseUrl/api/mobile/session'),
+    );
+    request.headers.set(
+      HttpHeaders.authorizationHeader,
+      'Bearer $sessionToken',
+    );
+
+    final response = await request.close();
+    final body = await response.transform(utf8.decoder).join();
+    final json = body.isEmpty
+        ? const <String, dynamic>{}
+        : jsonDecode(body) as Map<String, dynamic>;
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      final message = json['message'];
+      throw ProfileSaveException(
+        message is String ? message : 'セッション情報を取得できませんでした。',
+      );
+    }
+
+    return ClerkSession.fromJson(json);
+  }
 
   @override
   Future<SavedProfile?> fetchCurrent({required String sessionToken}) async {

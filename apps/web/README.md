@@ -311,3 +311,24 @@ Web版のマイページは `GET/PATCH /api/profile` 経由で `users` テーブ
 | `points` | integer | 600 |
 | `category` | string | 地域活動 |
 | `updatedAt` | datetime/string | 2026-08-03T00:00:00.000Z |
+
+## 本番デプロイ（Windows サーバー）
+
+ローカルで `npm run build` が通ることを確認したうえで、サーバーで次を実行します。
+
+```powershell
+cd C:\hatarukun\u-22\apps\web
+npm run deploy:server
+```
+
+`deploy:server` は `git pull` → `npm ci` → `npm run build` → スケジュールタスク `HatarukunWeb` の再起動を行います。`.env.production` が揃っている必要があります。
+
+デプロイ後の確認:
+
+```powershell
+curl https://hatarukun.jp/api/events
+curl https://hatarukun.jp/api/appwrite/status
+```
+
+`events` の `source` が `appwrite` であること、`appwrite/status` が `ok: true` であることを確認してください。
+
