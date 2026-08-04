@@ -163,7 +163,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
 
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => HomeScreen(account: account)),
+      MaterialPageRoute(
+        builder: (_) => HomeScreen(
+          account: account,
+          sessionTokenProvider: widget.sessionTokenProvider,
+        ),
+      ),
       (route) => false,
     );
   }

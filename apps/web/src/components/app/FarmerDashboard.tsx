@@ -16,14 +16,12 @@ import {
   writeDemoFarmerApplications
 } from "@/lib/farmer-application-demo";
 import type { UserRole } from "@/lib/access-control";
-import { readOperatorFocus, writeOperatorFocus, type OperatorFocus } from "@/lib/operator-focus";
+import { readOperatorFocus, type OperatorFocus } from "@/lib/operator-focus";
 import { FarmerHomeDashboard } from "./dashboard/FarmerHomeDashboard";
 import { MunicipalityDashboard } from "./dashboard/MunicipalityDashboard";
 import { OperatorDashboard } from "./dashboard/OperatorDashboard";
 import { OperatorInvitesPanel } from "./dashboard/OperatorInvitesPanel";
 import type { DashboardSharedState } from "./dashboard/types";
-
-const managedJobsStorageKey = "hatarukun:managed-jobs";
 
 export function FarmerDashboard({
   userRole,
@@ -52,7 +50,40 @@ export function FarmerDashboard({
   ).length;
 
   useEffect(() => {
-    setOperatorFocus(readOperatorFocus());
+    async function loadOperatorFocus() {
+      try {
+        const response = await fetch("/api/profile/operator-focus", { cache: "no-store" });
+
+        if (response.ok) {
+          const data = (await response.json()) as { focus?: OperatorFocus };
+          if (data.focus) {
+            setOperatorFocus(data.focus);
+            return;
+          }
+        }
+      } catch {
+        // fall through
+      }
+
+      setOperatorFocus(readOperatorFocus());
+    }
+
+    async function loadManagedJobs() {
+      try {
+        const response = await fetch("/api/admin/jobs", { cache: "no-store" });
+
+        if (response.ok) {
+          const data = (await response.json()) as { jobs?: typeof adminManagedJobs };
+          if (Array.isArray(data.jobs) && data.jobs.length > 0) {
+            setManagedJobs(data.jobs);
+            return;
+          }
+        }
+      } catch {
+        // fall through
+      }
+    }
+
     async function loadFarmerApplications() {
       try {
         const response = await fetch("/api/farmer/applications", { cache: "no-store" });
@@ -72,35 +103,96 @@ export function FarmerDashboard({
       setFarmerApplicationList(readDemoFarmerApplications());
     }
 
+    void loadOperatorFocus();
+    void loadManagedJobs();
     void loadFarmerApplications();
-
-    try {
-      const storedJobs = window.localStorage.getItem(managedJobsStorageKey);
-
-      if (storedJobs) {
-        setManagedJobs(JSON.parse(storedJobs) as typeof adminManagedJobs);
-      }
-    } catch {
-      setManagedJobs(adminManagedJobs);
-    }
+    void loadApplicants();
+    void loadPointRequests();
   }, []);
 
-  function persistManagedJobs(nextJobs: typeof adminManagedJobs) {
-    setManagedJobs(nextJobs);
-    window.localStorage.setItem(managedJobsStorageKey, JSON.stringify(nextJobs));
+  async function loadApplicants() {
+    try {
+      const response = await fetch("/api/admin/applicants", { cache: "no-store" });
+
+      if (response.ok) {
+        const data = (await response.json()) as { applicants?: typeof adminApplicants };
+        if (Array.isArray(data.applicants)) {
+          setApplicants(data.applicants);
+        }
+      }
+    } catch {
+      // keep seed data
+    }
+  }
+
+  async function loadPointRequests() {
+    try {
+      const response = await fetch("/api/admin/point-requests", { cache: "no-store" });
+
+      if (response.ok) {
+        const data = (await response.json()) as { pointRequests?: typeof adminPointRequests };
+        if (Array.isArray(data.pointRequests)) {
+          setPointRequests(data.pointRequests);
+        }
+      }
+    } catch {
+      // keep seed data
+    }
+  }
+
+  async function persistManagedJob(job: (typeof adminManagedJobs)[number]) {
+    const response = await fetch("/api/admin/jobs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(job)
+    });
+
+    if (!response.ok) {
+      throw new Error("募集を保存できませんでした。");
+    }
+
+    const reloadResponse = await fetch("/api/admin/jobs", { cache: "no-store" });
+
+    if (reloadResponse.ok) {
+      const data = (await reloadResponse.json()) as { jobs?: typeof adminManagedJobs };
+      if (Array.isArray(data.jobs)) {
+        setManagedJobs(data.jobs);
+      }
+    }
+  }
+
+  async function persistJobStatus(jobId: string, status: AdminJobStatus) {
+    const response = await fetch("/api/admin/jobs", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jobId, status })
+    });
+
+    if (!response.ok) {
+      throw new Error("募集状態を更新できませんでした。");
+    }
+
+    setManagedJobs((currentJobs) =>
+      currentJobs.map((job) => (job.id === jobId ? { ...job, status } : job))
+    );
   }
 
   function toggleJobStatus(jobId: string) {
-    const nextJobs = managedJobs.map((job) => {
-      if (job.id !== jobId) {
-        return job;
-      }
+    const currentJob = managedJobs.find((job) => job.id === jobId);
 
-      const status: AdminJobStatus = job.status === "published" ? "paused" : "published";
-      return { ...job, status };
-    });
-    persistManagedJobs(nextJobs);
-    setJobMessage("募集の公開状態を更新しました。");
+    if (!currentJob) {
+      return;
+    }
+
+    const status: AdminJobStatus = currentJob.status === "published" ? "paused" : "published";
+
+    void persistJobStatus(jobId, status)
+      .then(() => {
+        setJobMessage("募集の公開状態を更新しました。");
+      })
+      .catch(() => {
+        setJobMessage("募集の公開状態を更新できませんでした。");
+      });
   }
 
   function openNewJob() {
@@ -117,26 +209,37 @@ export function FarmerDashboard({
 
   function saveManagedJob(job: (typeof adminManagedJobs)[number]) {
     const exists = managedJobs.some((currentJob) => currentJob.id === job.id);
-    const nextJobs = exists
-      ? managedJobs.map((currentJob) => (currentJob.id === job.id ? job : currentJob))
-      : [job, ...managedJobs];
 
-    persistManagedJobs(nextJobs);
-    setEditorOpen(false);
-    setEditingJob(undefined);
-    setJobMessage(exists ? "募集内容を更新しました。" : "新しい募集を作成しました。");
+    void persistManagedJob(job)
+      .then(() => {
+        setEditorOpen(false);
+        setEditingJob(undefined);
+        setJobMessage(exists ? "募集内容を更新しました。" : "新しい募集を作成しました。");
+      })
+      .catch(() => {
+        setJobMessage("募集を保存できませんでした。");
+      });
   }
 
   function setJobReviewStatus(jobId: string, status: AdminJobStatus) {
-    const nextJobs = managedJobs.map((job) => (job.id === jobId ? { ...job, status } : job));
-    persistManagedJobs(nextJobs);
-    setJobMessage("募集の審査状態を更新しました。");
+    void persistJobStatus(jobId, status)
+      .then(() => {
+        setJobMessage("募集の審査状態を更新しました。");
+      })
+      .catch(() => {
+        setJobMessage("募集の審査状態を更新できませんでした。");
+      });
   }
 
   function handleSetOperatorFocus(focus: OperatorFocus) {
     setOperatorFocus(focus);
-    writeOperatorFocus(focus);
     setJobMessage("");
+
+    void fetch("/api/profile/operator-focus", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ focus })
+    });
   }
 
   function moveApplicant(applicantId: string, status: AdminApplicantStatus) {
@@ -145,6 +248,12 @@ export function FarmerDashboard({
         applicant.id === applicantId ? { ...applicant, status } : applicant
       )
     );
+
+    void fetch("/api/admin/applicants", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ applicationId: applicantId, status })
+    });
   }
 
   function decidePointRequest(requestId: string, status: AdminPointRequestStatus) {
@@ -153,6 +262,12 @@ export function FarmerDashboard({
         request.id === requestId ? { ...request, status } : request
       )
     );
+
+    void fetch("/api/admin/point-requests", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ requestId, status })
+    });
   }
 
   function decideFarmerApplication(applicationId: string, status: FarmerApplicationStatus) {

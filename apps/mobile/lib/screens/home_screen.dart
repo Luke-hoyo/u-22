@@ -5,6 +5,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 import '../data/mock_data.dart';
 import '../models/demo_account.dart';
 import '../models/job.dart';
+import '../services/hatarukun_api_service.dart';
 import '../utils/auth_identifier.dart';
 import '../widgets/simulation_panel.dart';
 import 'access_guide_screen.dart';
@@ -13,51 +14,187 @@ import 'logout_screen.dart';
 import 'my_number_demo_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({required this.account, super.key});
+  const HomeScreen({
+    required this.account,
+    this.sessionTokenProvider,
+    super.key,
+  });
 
   final DemoAccount account;
+  final Future<String> Function()? sessionTokenProvider;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final _api = HatarukunApiService();
   int currentIndex = 0;
   String searchQuery = '';
   String selectedIndustry = 'すべて';
   String selectedRegion = 'すべて';
   final favorites = <String>{};
   final participatedEventIds = <String>{};
-  final applications = <_DemoApplication>[
-    const _DemoApplication(
-      id: 'APP-001',
-      jobId: 'higashihiroshima-grape',
-      status: _ApplicationStatus.interview,
-      appliedAt: '2026年7月18日',
-      nextAction: '7月31日 18:00 オンライン面談',
-      expectedSupport: 90000,
-    ),
-    const _DemoApplication(
-      id: 'APP-002',
-      jobId: 'hita-forestry',
-      status: _ApplicationStatus.applied,
-      appliedAt: '2026年7月21日',
-      nextAction: '地域担当者が応募内容を確認中',
-      expectedSupport: 102000,
-    ),
-  ];
-  final transactions = <_PointTransaction>[
-    const _PointTransaction('地域説明会への参加', '7月20日', 300),
-    const _PointTransaction('プロフィール登録完了', '7月16日', 500),
-    const _PointTransaction('地域商品券に交換', '7月8日', -1000),
-    const _PointTransaction('オンライン農業体験', '7月2日', 800),
-  ];
+  List<Job> jobs = mockJobs;
+  List<_CommunityEvent> communityEvents = _events;
+  bool isLoadingRemoteData = false;
+  bool useRemoteData = false;
+  List<_DemoApplication> applications = [];
+  List<_PointTransaction> transactions = [];
   var preferences = _DemoPreferences.defaults();
   int points = 3200;
 
+  @override
+  void initState() {
+    super.initState();
+    final defaults = _DemoPreferences.defaults();
+    preferences = _DemoPreferences(
+      birthDate: defaults.birthDate,
+      address: defaults.address,
+      workStyle: defaults.workStyle,
+      industries: defaults.industries,
+      regions: defaults.regions,
+      period: defaults.period,
+      housingSupport: defaults.housingSupport,
+      scholarshipBalance: widget.account.scholarshipBalance,
+    );
+
+    if (widget.sessionTokenProvider != null) {
+      _loadRemoteData();
+      return;
+    }
+
+    applications = [
+      const _DemoApplication(
+        id: 'APP-001',
+        jobId: 'higashihiroshima-grape',
+        status: _ApplicationStatus.interview,
+        appliedAt: '2026年7月18日',
+        nextAction: '7月31日 18:00 オンライン面談',
+        expectedSupport: 90000,
+      ),
+      const _DemoApplication(
+        id: 'APP-002',
+        jobId: 'hita-forestry',
+        status: _ApplicationStatus.applied,
+        appliedAt: '2026年7月21日',
+        nextAction: '地域担当者が応募内容を確認中',
+        expectedSupport: 102000,
+      ),
+    ];
+    transactions = const [
+      _PointTransaction('地域説明会への参加', '7月20日', 300),
+      _PointTransaction('プロフィール登録完了', '7月16日', 500),
+      _PointTransaction('地域商品券に交換', '7月8日', -1000),
+      _PointTransaction('オンライン農業体験', '7月2日', 800),
+    ];
+    points = 3200;
+  }
+
+  Future<void> _loadRemoteData() async {
+    final tokenProvider = widget.sessionTokenProvider;
+    if (tokenProvider == null) return;
+
+    setState(() => isLoadingRemoteData = true);
+
+    try {
+      final token = await tokenProvider();
+      final results = await Future.wait([
+        _api.fetchJobs(sessionToken: token),
+        _api.fetchApplications(sessionToken: token),
+        _api.fetchPoints(sessionToken: token),
+        _api.fetchEvents(),
+        _api.fetchProfilePreferences(sessionToken: token),
+      ]);
+
+      final loadedJobs = results[0] as List<Job>;
+      final loadedApplications = results[1] as List<ApiApplication>;
+      final loadedPoints = results[2] as ApiPointsSnapshot;
+      final loadedEvents = results[3] as List<ApiCommunityEvent>;
+      final loadedProfile = results[4] as ApiProfilePreferences?;
+
+      if (!mounted) return;
+
+      setState(() {
+        useRemoteData = true;
+        jobs = loadedJobs.isNotEmpty ? loadedJobs : mockJobs;
+        applications = loadedApplications
+            .map(
+              (application) => _DemoApplication(
+                id: application.id,
+                jobId: application.jobId,
+                status: _statusFromApi(application.status),
+                appliedAt: application.appliedAt,
+                nextAction: application.nextAction,
+                expectedSupport: application.expectedSupport,
+              ),
+            )
+            .toList();
+        points = loadedPoints.balance;
+        transactions = loadedPoints.transactions
+            .map(
+              (transaction) => _PointTransaction(
+                transaction.label,
+                transaction.date,
+                transaction.amount,
+              ),
+            )
+            .toList();
+        participatedEventIds
+          ..clear()
+          ..addAll(loadedPoints.participatedEventIds);
+        communityEvents = loadedEvents.isNotEmpty
+            ? loadedEvents
+                .map(
+                  (event) => _CommunityEvent(
+                    id: event.id,
+                    title: event.title,
+                    region: event.region,
+                    date: event.date,
+                    day: _eventDay(event.date),
+                    points: event.points,
+                  ),
+                )
+                .toList()
+            : _events;
+        if (loadedProfile != null) {
+          preferences = _DemoPreferences(
+            birthDate: loadedProfile.birthDate,
+            address: loadedProfile.address,
+            workStyle: loadedProfile.workStyle,
+            industries: loadedProfile.industries,
+            regions: loadedProfile.regions,
+            period: loadedProfile.period,
+            housingSupport: loadedProfile.housingSupport,
+            scholarshipBalance: loadedProfile.scholarshipBalance,
+          );
+        }
+        isLoadingRemoteData = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => isLoadingRemoteData = false);
+      _showSnack('サーバーデータを読み込めなかったため、デモデータを表示します。');
+    }
+  }
+
+  String _eventDay(String date) {
+    final match = RegExp(r'(\d+)日').firstMatch(date);
+    return match?.group(1) ?? '--';
+  }
+
+  _ApplicationStatus _statusFromApi(String status) {
+    return switch (status) {
+      'interview' => _ApplicationStatus.interview,
+      'matched' => _ApplicationStatus.matched,
+      'working' => _ApplicationStatus.working,
+      _ => _ApplicationStatus.applied,
+    };
+  }
+
   List<Job> get filteredJobs {
     final query = searchQuery.trim().toLowerCase();
-    return mockJobs.where((job) {
+    return jobs.where((job) {
       final matchesIndustry =
           selectedIndustry == 'すべて' || job.industry == selectedIndustry;
       final matchesRegion =
@@ -81,9 +218,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Job get currentJob {
     final firstApplication =
         applications.isNotEmpty ? applications.first : null;
-    return mockJobs.firstWhere(
+    return jobs.firstWhere(
       (job) => job.id == firstApplication?.jobId,
-      orElse: () => mockJobs.first,
+      orElse: () => jobs.first,
     );
   }
 
@@ -114,12 +251,45 @@ class _HomeScreenState extends State<HomeScreen> {
     _showSnack(favorites.contains(job.id) ? 'お気に入りに保存しました' : 'お気に入りを解除しました');
   }
 
-  void applyForJob(Job job) {
+  Future<void> applyForJob(Job job) async {
     final existing = applicationFor(job.id);
     if (existing != null) {
       setState(() => currentIndex = 2);
       _showSnack('応募済みです。マッチング状況を表示します');
       return;
+    }
+
+    if (useRemoteData && widget.sessionTokenProvider != null) {
+      try {
+        final token = await widget.sessionTokenProvider!();
+        final application = await _api.createApplication(
+          sessionToken: token,
+          jobId: job.id,
+          expectedSupport: job.monthlySupport * job.workPeriodMonths,
+        );
+
+        if (!mounted) return;
+
+        setState(() {
+          applications.insert(
+            0,
+            _DemoApplication(
+              id: application.id,
+              jobId: application.jobId,
+              status: _statusFromApi(application.status),
+              appliedAt: application.appliedAt,
+              nextAction: application.nextAction,
+              expectedSupport: application.expectedSupport,
+            ),
+          );
+          currentIndex = 2;
+        });
+        _showSnack('${job.title} に応募しました');
+        return;
+      } catch (error) {
+        _showSnack('応募を保存できませんでした。');
+        return;
+      }
     }
 
     setState(() {
@@ -139,8 +309,46 @@ class _HomeScreenState extends State<HomeScreen> {
     _showSnack('${job.title} に応募しました');
   }
 
-  void participateEvent(String eventId, String title, int eventPoints) {
+  Future<void> participateEvent(
+    String eventId,
+    String title,
+    int eventPoints,
+  ) async {
     if (participatedEventIds.contains(eventId)) return;
+
+    if (useRemoteData && widget.sessionTokenProvider != null) {
+      try {
+        final token = await widget.sessionTokenProvider!();
+        await _api.participateInEvent(
+          sessionToken: token,
+          eventId: eventId,
+        );
+        final snapshot = await _api.fetchPoints(sessionToken: token);
+        if (!mounted) return;
+        setState(() {
+          participatedEventIds
+            ..clear()
+            ..addAll(snapshot.participatedEventIds);
+          points = snapshot.balance;
+          transactions = snapshot.transactions
+              .map(
+                (transaction) => _PointTransaction(
+                  transaction.label,
+                  transaction.date,
+                  transaction.amount,
+                ),
+              )
+              .toList();
+          currentIndex = 4;
+        });
+        _showSnack('$title に参加を記録しました。+$eventPoints pt');
+        return;
+      } catch (error) {
+        _showSnack('ポイント履歴を保存できませんでした。');
+        return;
+      }
+    }
+
     setState(() {
       participatedEventIds.add(eventId);
       points += eventPoints;
@@ -165,11 +373,41 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void exchangeReward(_Reward reward) {
+  Future<void> exchangeReward(_Reward reward) async {
     if (points < reward.cost) {
       _showSnack('交換に必要なポイントが足りません');
       return;
     }
+
+    if (useRemoteData && widget.sessionTokenProvider != null) {
+      try {
+        final token = await widget.sessionTokenProvider!();
+        final nextBalance = await _api.exchangeReward(
+          sessionToken: token,
+          rewardId: reward.id,
+        );
+        final snapshot = await _api.fetchPoints(sessionToken: token);
+        if (!mounted) return;
+        setState(() {
+          points = nextBalance > 0 ? nextBalance : snapshot.balance;
+          transactions = snapshot.transactions
+              .map(
+                (transaction) => _PointTransaction(
+                  transaction.label,
+                  transaction.date,
+                  transaction.amount,
+                ),
+              )
+              .toList();
+        });
+        _showSnack('${reward.name}に交換しました');
+        return;
+      } catch (error) {
+        _showSnack('特典交換を保存できませんでした。');
+        return;
+      }
+    }
+
     setState(() {
       points -= reward.cost;
       transactions.insert(
@@ -191,7 +429,44 @@ class _HomeScreenState extends State<HomeScreen> {
     _showSnack('チェックイン完了。600ptを付与しました');
   }
 
-  void savePreferences(_DemoPreferences next) {
+  Future<void> savePreferences(_DemoPreferences next) async {
+    if (useRemoteData && widget.sessionTokenProvider != null) {
+      try {
+        final token = await widget.sessionTokenProvider!();
+        final saved = await _api.saveProfilePreferences(
+          sessionToken: token,
+          preferences: ApiProfilePreferences(
+            birthDate: next.birthDate,
+            address: next.address,
+            workStyle: next.workStyle,
+            industries: next.industries,
+            regions: next.regions,
+            period: next.period,
+            housingSupport: next.housingSupport,
+            scholarshipBalance: next.scholarshipBalance,
+          ),
+        );
+        if (!mounted) return;
+        setState(
+          () => preferences = _DemoPreferences(
+            birthDate: saved.birthDate,
+            address: saved.address,
+            workStyle: saved.workStyle,
+            industries: saved.industries,
+            regions: saved.regions,
+            period: saved.period,
+            housingSupport: saved.housingSupport,
+            scholarshipBalance: saved.scholarshipBalance,
+          ),
+        );
+        _showSnack('希望条件を保存しました');
+        return;
+      } catch (error) {
+        _showSnack('希望条件を保存できませんでした。');
+        return;
+      }
+    }
+
     setState(() => preferences = next);
     _showSnack('希望条件を保存しました');
   }
@@ -281,7 +556,7 @@ class _HomeScreenState extends State<HomeScreen> {
         favorites: favorites,
         selectedIndustry: selectedIndustry,
         selectedRegion: selectedRegion,
-        regions: mockJobs.map((job) => job.region).toSet().toList()..sort(),
+        regions: jobs.map((job) => job.region).toSet().toList()..sort(),
         searchQuery: searchQuery,
         hasApplication: hasApplication,
         onSearchChanged: (value) => setState(() => searchQuery = value),
@@ -293,6 +568,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       _MatchingTab(
         applications: applications,
+        jobs: jobs,
         onJobsTap: () => setState(() => currentIndex = 1),
         onOpenJob: openJobDetail,
       ),
@@ -302,6 +578,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _PointsTab(
         points: points,
         transactions: transactions,
+        events: communityEvents,
         participatedEventIds: participatedEventIds,
         onExchange: exchangeReward,
         onParticipate: participateEvent,
@@ -606,11 +883,13 @@ class _JobsTab extends StatelessWidget {
 class _MatchingTab extends StatelessWidget {
   const _MatchingTab({
     required this.applications,
+    required this.jobs,
     required this.onJobsTap,
     required this.onOpenJob,
   });
 
   final List<_DemoApplication> applications;
+  final List<Job> jobs;
   final VoidCallback onJobsTap;
   final ValueChanged<Job> onOpenJob;
 
@@ -637,6 +916,7 @@ class _MatchingTab extends StatelessWidget {
           for (final application in applications) ...[
             _ApplicationCard(
               application: application,
+              jobs: jobs,
               onOpenJob: onOpenJob,
             ),
             const SizedBox(height: 12),
@@ -681,6 +961,7 @@ class _PointsTab extends StatelessWidget {
   const _PointsTab(
       {required this.points,
       required this.transactions,
+      required this.events,
       required this.participatedEventIds,
       required this.onExchange,
       required this.onParticipate,
@@ -688,6 +969,7 @@ class _PointsTab extends StatelessWidget {
 
   final int points;
   final List<_PointTransaction> transactions;
+  final List<_CommunityEvent> events;
   final Set<String> participatedEventIds;
   final ValueChanged<_Reward> onExchange;
   final void Function(String eventId, String title, int eventPoints) onParticipate;
@@ -705,12 +987,12 @@ class _PointsTab extends StatelessWidget {
         const SizedBox(height: 16),
         const _SectionHeader('参加できる地域イベント'),
         const SizedBox(height: 10),
-        for (final event in _events) ...[
+        for (final event in events) ...[
           _EventCard(
             event: event,
-            participated: participatedEventIds.contains(event.title),
+            participated: participatedEventIds.contains(event.id),
             onParticipate: () =>
-                onParticipate(event.title, event.title, event.points),
+                onParticipate(event.id, event.title, event.points),
           ),
           const SizedBox(height: 10),
         ],
@@ -1600,16 +1882,18 @@ class _JobCard extends StatelessWidget {
 class _ApplicationCard extends StatelessWidget {
   const _ApplicationCard({
     required this.application,
+    required this.jobs,
     required this.onOpenJob,
   });
 
   final _DemoApplication application;
+  final List<Job> jobs;
   final ValueChanged<Job> onOpenJob;
 
   @override
   Widget build(BuildContext context) {
-    final job = mockJobs.firstWhere((item) => item.id == application.jobId,
-        orElse: () => mockJobs.first);
+    final job = jobs.firstWhere((item) => item.id == application.jobId,
+        orElse: () => jobs.first);
     return _Panel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2446,16 +2730,24 @@ class _PointTransaction {
 }
 
 class _Reward {
-  const _Reward(this.name, this.cost);
+  const _Reward(this.id, this.name, this.cost);
 
+  final String id;
   final String name;
   final int cost;
 }
 
 class _CommunityEvent {
-  const _CommunityEvent(
-      this.title, this.region, this.date, this.day, this.points);
+  const _CommunityEvent({
+    required this.id,
+    required this.title,
+    required this.region,
+    required this.date,
+    required this.day,
+    required this.points,
+  });
 
+  final String id;
   final String title;
   final String region;
   final String date;
@@ -2464,15 +2756,36 @@ class _CommunityEvent {
 }
 
 const _events = [
-  _CommunityEvent('夏の棚田メンテナンス', '広島県 東広島市', '8月3日（日）9:00', '3', 600),
-  _CommunityEvent('港の朝市サポーター', '愛媛県 宇和島市', '8月9日（土）6:30', '9', 800),
-  _CommunityEvent('森の学び場づくり', '大分県 日田市', '8月17日（日）10:00', '17', 500),
+  _CommunityEvent(
+    id: 'EVT-001',
+    title: '夏の棚田メンテナンス',
+    region: '広島県 東広島市',
+    date: '8月3日（日）9:00',
+    day: '3',
+    points: 600,
+  ),
+  _CommunityEvent(
+    id: 'EVT-002',
+    title: '港の朝市サポーター',
+    region: '愛媛県 宇和島市',
+    date: '8月9日（土）6:30',
+    day: '9',
+    points: 800,
+  ),
+  _CommunityEvent(
+    id: 'EVT-003',
+    title: '森の学び場づくり',
+    region: '大分県 日田市',
+    date: '8月17日（日）10:00',
+    day: '17',
+    points: 500,
+  ),
 ];
 
 const _rewards = [
-  _Reward('地域のお店で使える500円券', 1000),
-  _Reward('地域の特産品セット', 2500),
-  _Reward('移住体験ツアー参加券', 5000),
+  _Reward('RWD-001', '地域のお店で使える500円券', 1000),
+  _Reward('RWD-002', '地域の特産品セット', 2500),
+  _Reward('RWD-003', '移住体験ツアー参加券', 5000),
 ];
 
 String _stepLabel(_ApplicationStatus status) {

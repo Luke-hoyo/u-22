@@ -91,7 +91,10 @@ class _SignedInProfileGateState extends State<SignedInProfileGate> {
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => HomeScreen(account: _accountFromProfile(profile)),
+        builder: (_) => HomeScreen(
+          account: _accountFromProfile(profile),
+          sessionTokenProvider: _sessionToken,
+        ),
       ),
     );
   }

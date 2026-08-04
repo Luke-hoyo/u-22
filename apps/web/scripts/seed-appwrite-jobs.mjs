@@ -72,7 +72,9 @@ function toRowData(job) {
     description: job.description,
     duties: job.duties.join(","),
     schedule: job.schedule,
-    image: job.image ?? ""
+    image: job.image ?? "",
+    status: "published",
+    capacity: 3
   };
 }
 

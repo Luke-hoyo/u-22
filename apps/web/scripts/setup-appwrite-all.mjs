@@ -6,6 +6,10 @@ const scriptsDir = path.dirname(fileURLToPath(import.meta.url));
 const scripts = [
   "setup-appwrite-users.mjs",
   "migrate-appwrite-users-profile.mjs",
+  "migrate-appwrite-users-extras.mjs",
+  "migrate-appwrite-jobs-admin.mjs",
+  "migrate-appwrite-applications-admin.mjs",
+  "migrate-appwrite-point-transactions-admin.mjs",
   "setup-appwrite-applications.mjs",
   "setup-appwrite-point-transactions.mjs",
   "setup-appwrite-farmer-applications.mjs",

@@ -1,10 +1,10 @@
-import { auth } from "@clerk/nextjs/server";
 import { createHash } from "crypto";
 import { Query, type Models } from "node-appwrite";
 import { NextResponse } from "next/server";
 import { getCommunityEventById } from "@/lib/appwrite/events";
 import { getAppwriteConfig } from "@/lib/appwrite/config";
 import { createAppwriteServerClient } from "@/lib/appwrite/server";
+import { requireUser } from "@/lib/auth/require-user";
 
 type EventPointRequest = {
   eventId?: unknown;
@@ -21,11 +21,13 @@ function transactionRowId(userId: string, eventId: string) {
 }
 
 export async function POST(request: Request) {
-  const { isAuthenticated, userId } = await auth();
+  const authResult = await requireUser(request);
 
-  if (!isAuthenticated || !userId) {
-    return NextResponse.json({ message: "ログインが必要です。" }, { status: 401 });
+  if (!authResult.ok) {
+    return authResult.response;
   }
+
+  const userId = authResult.userId;
 
   const config = getAppwriteConfig();
   const tableId = config.tables.pointTransactions;
@@ -82,7 +84,8 @@ export async function POST(request: Request) {
         label: `${event.title}に参加`,
         amount: event.points,
         occurredAt: now,
-        source: "web"
+        source: "web",
+        reviewStatus: "pending"
       }
     });
 

@@ -1,15 +1,15 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { getNextRewardProgress, getUserPointsSnapshot } from "@/lib/appwrite/points";
+import { requireUser } from "@/lib/auth/require-user";
 
-export async function GET() {
-  const { isAuthenticated, userId } = await auth();
+export async function GET(request: Request) {
+  const authResult = await requireUser(request);
 
-  if (!isAuthenticated || !userId) {
-    return NextResponse.json({ message: "ログインが必要です。" }, { status: 401 });
+  if (!authResult.ok) {
+    return authResult.response;
   }
 
-  const snapshot = await getUserPointsSnapshot(userId);
+  const snapshot = await getUserPointsSnapshot(authResult.userId);
   const rewardProgress = getNextRewardProgress(snapshot.balance);
 
   return NextResponse.json({

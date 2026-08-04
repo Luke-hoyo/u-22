@@ -1,10 +1,10 @@
-import { auth } from "@clerk/nextjs/server";
 import { createHash } from "crypto";
 import { NextResponse } from "next/server";
 import { rewards } from "@/lib/app-data";
 import { getNextRewardProgress, getUserPointsSnapshot } from "@/lib/appwrite/points";
 import { getAppwriteConfig } from "@/lib/appwrite/config";
 import { createAppwriteServerClient } from "@/lib/appwrite/server";
+import { requireUser } from "@/lib/auth/require-user";
 
 type RewardExchangeRequest = {
   rewardId?: unknown;
@@ -15,11 +15,13 @@ function transactionRowId(userId: string, rewardId: string) {
 }
 
 export async function POST(request: Request) {
-  const { isAuthenticated, userId } = await auth();
+  const authResult = await requireUser(request);
 
-  if (!isAuthenticated || !userId) {
-    return NextResponse.json({ message: "ログインが必要です。" }, { status: 401 });
+  if (!authResult.ok) {
+    return authResult.response;
   }
+
+  const userId = authResult.userId;
 
   const body = (await request.json().catch(() => null)) as RewardExchangeRequest | null;
   const rewardId = typeof body?.rewardId === "string" ? body.rewardId : "";

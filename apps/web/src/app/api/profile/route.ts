@@ -1,5 +1,6 @@
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth/require-user";
 import {
   getUserProfileRow,
   preferencesFromRow,
@@ -51,12 +52,14 @@ function normalizePreferences(body: ProfilePatchRequest | null): DemoPreferences
   };
 }
 
-export async function GET() {
-  const { isAuthenticated, userId } = await auth();
+export async function GET(request: Request) {
+  const authResult = await requireUser(request);
 
-  if (!isAuthenticated || !userId) {
-    return NextResponse.json({ message: "ログインが必要です。" }, { status: 401 });
+  if (!authResult.ok) {
+    return authResult.response;
   }
+
+  const userId = authResult.userId;
 
   try {
     const result = await getUserProfileRow(userId);
@@ -83,11 +86,13 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
-  const { isAuthenticated, userId } = await auth();
+  const authResult = await requireUser(request);
 
-  if (!isAuthenticated || !userId) {
-    return NextResponse.json({ message: "ログインが必要です。" }, { status: 401 });
+  if (!authResult.ok) {
+    return authResult.response;
   }
+
+  const userId = authResult.userId;
 
   const body = (await request.json().catch(() => null)) as ProfilePatchRequest | null;
   const preferences = normalizePreferences(body);

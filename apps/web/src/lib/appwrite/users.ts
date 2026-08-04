@@ -3,6 +3,7 @@ import {
   defaultDemoPreferences,
   type DemoPreferences
 } from "@/lib/demo-user-state";
+import type { OperatorFocus } from "@/lib/operator-focus";
 import { getAppwriteConfig } from "./config";
 import { createAppwriteServerClient } from "./server";
 
@@ -29,6 +30,8 @@ export type UserProfileRow = Models.Row & {
   housingSupport?: boolean;
   consentedAt?: string;
   updatedAt?: string;
+  favoriteJobIds?: string;
+  operatorFocus?: string;
 };
 
 export type UserProfileSource = "appwrite" | "unset";
@@ -177,4 +180,78 @@ export async function saveUserPreferences(
   });
 
   return { savedToAppwrite: true as const };
+}
+
+export function parseFavoriteJobIds(value: string | undefined) {
+  if (!value?.trim()) {
+    return [];
+  }
+
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 100);
+}
+
+export function serializeFavoriteJobIds(jobIds: string[]) {
+  return Array.from(new Set(jobIds.map((id) => id.trim()).filter(Boolean))).slice(0, 100).join(",");
+}
+
+export function favoriteJobIdsFromRow(row: UserProfileRow | null) {
+  return parseFavoriteJobIds(row?.favoriteJobIds);
+}
+
+export function operatorFocusFromRow(row: UserProfileRow | null): OperatorFocus {
+  const value = row?.operatorFocus;
+
+  if (value === "community" || value === "agriculture" || value === "forestry" || value === "fishery") {
+    return value;
+  }
+
+  return "agriculture";
+}
+
+export async function saveFavoriteJobIds(userId: string, jobIds: string[]) {
+  const appwrite = getUsersTableConfig();
+
+  if (!appwrite) {
+    return { savedToAppwrite: false as const };
+  }
+
+  const { tablesDB } = createAppwriteServerClient();
+
+  await tablesDB.upsertRow({
+    databaseId: appwrite.config.databaseId,
+    tableId: appwrite.tableId,
+    rowId: userId,
+    data: {
+      favoriteJobIds: serializeFavoriteJobIds(jobIds),
+      updatedAt: new Date().toISOString()
+    }
+  });
+
+  return { savedToAppwrite: true as const, jobIds: serializeFavoriteJobIds(jobIds).split(",").filter(Boolean) };
+}
+
+export async function saveOperatorFocus(userId: string, focus: OperatorFocus) {
+  const appwrite = getUsersTableConfig();
+
+  if (!appwrite) {
+    return { savedToAppwrite: false as const };
+  }
+
+  const { tablesDB } = createAppwriteServerClient();
+
+  await tablesDB.upsertRow({
+    databaseId: appwrite.config.databaseId,
+    tableId: appwrite.tableId,
+    rowId: userId,
+    data: {
+      operatorFocus: focus,
+      updatedAt: new Date().toISOString()
+    }
+  });
+
+  return { savedToAppwrite: true as const, focus };
 }

@@ -1,8 +1,8 @@
-import { auth } from "@clerk/nextjs/server";
 import { createHash } from "crypto";
 import { Query, type Models } from "node-appwrite";
 import { NextResponse } from "next/server";
 import type { Application, ApplicationStatus } from "@/lib/app-data";
+import { requireUser } from "@/lib/auth/require-user";
 import { getAppwriteConfig } from "@/lib/appwrite/config";
 import { createAppwriteServerClient } from "@/lib/appwrite/server";
 
@@ -59,12 +59,14 @@ function getApplicationsTable() {
   return { config, tableId };
 }
 
-export async function GET() {
-  const { isAuthenticated, userId } = await auth();
+export async function GET(request: Request) {
+  const authResult = await requireUser(request);
 
-  if (!isAuthenticated || !userId) {
-    return NextResponse.json({ message: "ログインが必要です。" }, { status: 401 });
+  if (!authResult.ok) {
+    return authResult.response;
   }
+
+  const userId = authResult.userId;
 
   const appwrite = getApplicationsTable();
 
@@ -97,11 +99,13 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const { isAuthenticated, userId } = await auth();
+  const authResult = await requireUser(request);
 
-  if (!isAuthenticated || !userId) {
-    return NextResponse.json({ message: "ログインが必要です。" }, { status: 401 });
+  if (!authResult.ok) {
+    return authResult.response;
   }
+
+  const userId = authResult.userId;
 
   const body = (await request.json().catch(() => null)) as ApplicationRequest | null;
   const jobId = typeof body?.jobId === "string" ? body.jobId.trim().slice(0, 120) : "";

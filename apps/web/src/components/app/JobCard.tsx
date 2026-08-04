@@ -3,9 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Fish, Heart, MapPin, Sprout, Trees } from "lucide-react";
-import { useEffect, useState } from "react";
 import { formatCurrency, industryLabels, type Job } from "@/lib/app-data";
-import { readFavoriteJobIds, toggleFavoriteJob } from "@/lib/demo-user-state";
 import styles from "./ProductUI.module.css";
 
 const industryIcons = {
@@ -14,16 +12,19 @@ const industryIcons = {
   fishery: Fish
 };
 
-export function JobCard({ job }: { job: Job }) {
-  const [favorite, setFavorite] = useState(false);
+export function JobCard({
+  job,
+  favorite = false,
+  onToggleFavorite
+}: {
+  job: Job;
+  favorite?: boolean;
+  onToggleFavorite?: (jobId: string) => void | Promise<void | boolean>;
+}) {
   const IndustryIcon = industryIcons[job.industry];
 
-  useEffect(() => {
-    setFavorite(readFavoriteJobIds().includes(job.id));
-  }, [job.id]);
-
   function toggleFavorite() {
-    setFavorite(toggleFavoriteJob(job.id).includes(job.id));
+    void onToggleFavorite?.(job.id);
   }
 
   return (

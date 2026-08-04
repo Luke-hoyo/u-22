@@ -1,10 +1,13 @@
 import { Query, type Models } from "node-appwrite";
 import {
+  adminManagedJobs,
   jobs as mockJobs,
+  type AdminJobStatus,
+  type AdminManagedJob,
   type Industry,
   type Job
 } from "@/lib/app-data";
-import { getAppwriteConfigStatus } from "./config";
+import { getAppwriteConfig, getAppwriteConfigStatus } from "./config";
 import { createAppwriteServerClient } from "./server";
 
 type AppwriteJobRow = Models.Row & {
@@ -25,6 +28,9 @@ type AppwriteJobRow = Models.Row & {
   duties?: string[] | string;
   schedule?: string;
   image?: string;
+  status?: AdminJobStatus | string;
+  capacity?: number;
+  ownerClerkUserId?: string;
 };
 
 export type JobsDataSource = "appwrite" | "mock";
@@ -158,4 +164,211 @@ export async function getJobsData(): Promise<JobsDataResult> {
       checkedAt
     };
   }
+}
+
+function normalizeAdminJobStatus(value: string | undefined): AdminJobStatus {
+  if (
+    value === "draft" ||
+    value === "review" ||
+    value === "approved" ||
+    value === "published" ||
+    value === "rejected" ||
+    value === "paused"
+  ) {
+    return value;
+  }
+
+  return "draft";
+}
+
+function formatManagedUpdatedAt(value: string | undefined) {
+  const date = value ? new Date(value) : new Date();
+
+  if (Number.isNaN(date.getTime())) {
+    return "未更新";
+  }
+
+  return new Intl.DateTimeFormat("ja-JP", {
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(date);
+}
+
+function getJobsTableConfig() {
+  const config = getAppwriteConfig();
+  const tableId = config.tables.jobs;
+
+  if (!config.endpoint || !config.projectId || !config.apiKey || !config.databaseId || !tableId) {
+    return null;
+  }
+
+  return { config, tableId };
+}
+
+function getApplicationsTableConfig() {
+  const config = getAppwriteConfig();
+  const tableId = config.tables.applications;
+
+  if (!config.endpoint || !config.projectId || !config.apiKey || !config.databaseId || !tableId) {
+    return null;
+  }
+
+  return { config, tableId };
+}
+
+type ApplicationCountRow = Models.Row & {
+  jobId?: string;
+};
+
+async function countApplicantsByJobId() {
+  const appwrite = getApplicationsTableConfig();
+
+  if (!appwrite) {
+    return new Map<string, number>();
+  }
+
+  const { tablesDB } = createAppwriteServerClient();
+  const response = await tablesDB.listRows<ApplicationCountRow>({
+    databaseId: appwrite.config.databaseId,
+    tableId: appwrite.tableId,
+    queries: [Query.limit(500)]
+  });
+
+  const counts = new Map<string, number>();
+
+  for (const row of response.rows) {
+    if (!row.jobId) {
+      continue;
+    }
+
+    counts.set(row.jobId, (counts.get(row.jobId) ?? 0) + 1);
+  }
+
+  return counts;
+}
+
+function mapRowToManagedJob(row: AppwriteJobRow, applicantCount: number): AdminManagedJob {
+  return {
+    id: row.$id,
+    title: row.title ?? "地域のしごと",
+    organization: row.organization ?? "地域事業者",
+    area: row.area ?? "未設定",
+    industry: normalizeIndustry(row.industry),
+    status: normalizeAdminJobStatus(row.status),
+    applicants: applicantCount,
+    capacity:
+      typeof row.capacity === "number" && Number.isFinite(row.capacity)
+        ? Math.max(1, Math.min(30, Math.round(row.capacity)))
+        : 2,
+    updatedAt: formatManagedUpdatedAt(row.$updatedAt)
+  };
+}
+
+function managedJobToRowData(job: AdminManagedJob, ownerClerkUserId?: string) {
+  const region = job.area.split(/\s+/)[0] ?? "未設定";
+
+  return {
+    title: job.title.trim().slice(0, 120),
+    organization: job.organization.trim().slice(0, 120),
+    industry: job.industry,
+    region: region.slice(0, 80),
+    area: job.area.trim().slice(0, 120),
+    monthlySalary: 220000,
+    monthlySupport: 50000,
+    matchRate: 75,
+    periodMonths: "6,12",
+    housingSupport: true,
+    training: true,
+    tags: "地域連携",
+    summary: `${job.title.trim()}の募集です。`,
+    description: "詳細説明は地域側のダッシュボードから登録します。",
+    duties: "仕事内容を確認,地域担当者と面談",
+    schedule: "勤務時間は地域担当者と確認",
+    image: "",
+    status: job.status,
+    capacity: Math.max(1, Math.min(30, job.capacity)),
+    ownerClerkUserId: ownerClerkUserId ?? "",
+    updatedAt: new Date().toISOString()
+  };
+}
+
+export type ManagedJobsResult = {
+  source: "appwrite" | "mock";
+  jobs: AdminManagedJob[];
+};
+
+export async function listManagedJobs(): Promise<ManagedJobsResult> {
+  const appwrite = getJobsTableConfig();
+
+  if (!appwrite) {
+    return { source: "mock", jobs: adminManagedJobs };
+  }
+
+  try {
+    const { tablesDB } = createAppwriteServerClient();
+    const [response, applicantCounts] = await Promise.all([
+      tablesDB.listRows<AppwriteJobRow>({
+        databaseId: appwrite.config.databaseId,
+        tableId: appwrite.tableId,
+        queries: [Query.limit(100), Query.orderDesc("$updatedAt")]
+      }),
+      countApplicantsByJobId()
+    ]);
+
+    if (response.rows.length === 0) {
+      return { source: "mock", jobs: adminManagedJobs };
+    }
+
+    return {
+      source: "appwrite",
+      jobs: response.rows.map((row) =>
+        mapRowToManagedJob(row, applicantCounts.get(row.$id) ?? 0)
+      )
+    };
+  } catch {
+    return { source: "mock", jobs: adminManagedJobs };
+  }
+}
+
+export async function saveManagedJob(job: AdminManagedJob, ownerClerkUserId?: string) {
+  const appwrite = getJobsTableConfig();
+
+  if (!appwrite) {
+    return { savedToAppwrite: false as const };
+  }
+
+  const { tablesDB } = createAppwriteServerClient();
+
+  await tablesDB.upsertRow({
+    databaseId: appwrite.config.databaseId,
+    tableId: appwrite.tableId,
+    rowId: job.id,
+    data: managedJobToRowData(job, ownerClerkUserId)
+  });
+
+  return { savedToAppwrite: true as const, job };
+}
+
+export async function updateManagedJobStatus(jobId: string, status: AdminJobStatus) {
+  const appwrite = getJobsTableConfig();
+
+  if (!appwrite) {
+    return { savedToAppwrite: false as const };
+  }
+
+  const { tablesDB } = createAppwriteServerClient();
+
+  await tablesDB.updateRow({
+    databaseId: appwrite.config.databaseId,
+    tableId: appwrite.tableId,
+    rowId: jobId,
+    data: {
+      status,
+      updatedAt: new Date().toISOString()
+    }
+  });
+
+  return { savedToAppwrite: true as const, jobId, status };
 }

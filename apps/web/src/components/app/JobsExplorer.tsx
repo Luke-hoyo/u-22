@@ -8,6 +8,7 @@ import {
   type Industry,
   type Job
 } from "@/lib/app-data";
+import { useFavoriteJobs } from "@/hooks/useFavoriteJobs";
 import { JobCard } from "./JobCard";
 import { JobCardSkeleton } from "./JobCardSkeleton";
 import styles from "./ProductUI.module.css";
@@ -28,6 +29,7 @@ export function JobsExplorer() {
   const [jobs, setJobs] = useState<Job[]>(mockJobs);
   const [sourceMessage, setSourceMessage] = useState("公開中の仕事を表示しています。");
   const [isLoading, setIsLoading] = useState(true);
+  const { isFavorite, toggle } = useFavoriteJobs();
 
   useEffect(() => {
     let active = true;
@@ -147,7 +149,14 @@ export function JobsExplorer() {
         {isLoading ? (
           Array.from({ length: 6 }, (_, index) => <JobCardSkeleton key={`skeleton-${index}`} />)
         ) : filteredJobs.length > 0 ? (
-          filteredJobs.map((job) => <JobCard job={job} key={job.id} />)
+          filteredJobs.map((job) => (
+            <JobCard
+              favorite={isFavorite(job.id)}
+              job={job}
+              key={job.id}
+              onToggleFavorite={toggle}
+            />
+          ))
         ) : (
           <div className={styles.emptyState}>
             条件に合う仕事が見つかりませんでした。地域や職種を変えてみてください。
