@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function MaintenancePage() {
   return (
     <StatusScreen
-      code="MAINTENANCE"
+      code="メンテナンス中"
       title="ただいま、整備中です。"
       description="より安心して使えるよう、サービスを一時的に整備しています。作業が終わり次第、同じURLから利用できます。"
       icon={Wrench}

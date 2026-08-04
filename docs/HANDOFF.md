@@ -1,6 +1,6 @@
 # U-22 はたるくん 引き継ぎメモ
 
-最終更新日: 2026-07-20
+最終更新日: 2026-08-04
 
 ## プロジェクト概要
 
@@ -39,7 +39,7 @@ U-22/
 | 認証 | Clerk Pro |
 | データベース | Appwrite Databases |
 | 画像保存 | Appwrite Storage |
-| 通知 | Appwrite Messaging |
+| 通知 | Appwrite Messaging + アプリ内通知 | アプリ内通知は実装済み、FCM プッシュは未設定 |
 | 管理画面 | Web版ダッシュボード + Appwrite |
 | 求人・応募・イベント | Appwrite TablesDB |
 | 地図 | Google Maps API または Mapbox |
@@ -59,12 +59,31 @@ Stitch出力のKinetic Clarityを、Web版、Mobile版、Figma、Codex作業の�
 
 ## 優先タスク
 
+1. コンテスト提出用の説明文・デモ導線の整理
+2. Appwrite Storage 接続（求人画像など）
+3. FCM / Appwrite Messaging によるプッシュ通知
+4. E2E テストと CI/CD の整備
+
+## 実装済み（2026-08 時点）
+
+- Web 本番デプロイ（Windows Server 2025 / IIS）
+- Clerk 認証（Web / Mobile）
+- Appwrite TablesDB（求人・応募・ポイント・イベント・通知）
+- 農家向けダッシュボード（求人作成・応募管理）
+- Mobile 農家向け求人編集 UI
+- アプリ内通知（求人公開・新規応募）
+- Sentry 監視（Web / Mobile）
+- 本番環境でのモックフォールバック制限
+- マイナンバー・商品券交換のデモフロー
+
+## 旧優先タスク（完了）
+
 1. Web版の基礎構築
 2. Mobile版の画面整理
 3. Appwriteのデータ設計とセットアップ
 4. ポイント機能の実装
-6. 発表用デモ導線の整理
-7. APIキー・個人情報・本人確認画像の保護方針を整理する
+5. 発表用デモ導線の整理
+6. APIキー・個人情報・本人確認画像の保護方針の整理
 
 ## Clerk連携メモ
 

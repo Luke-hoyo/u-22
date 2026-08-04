@@ -2301,24 +2301,6 @@ class _ProfileRow extends StatelessWidget {
   }
 }
 
-class _StatusGallery extends StatelessWidget {
-  const _StatusGallery();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _SectionHeader('状態画面の用意'),
-          SizedBox(height: 10),
-          _StatusPanel(
-              icon: Icons.cloud_off_outlined,
-              title: 'オフラインです',
-              body: '通信が戻ると応募状況を再同期します。'),
-        ]);
-  }
-}
-
 class _StatusPanel extends StatelessWidget {
   const _StatusPanel(
       {required this.icon,

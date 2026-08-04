@@ -1,4 +1,5 @@
 .DS_Store
+skills-lock.json
 
 # Environment variables
 .env
@@ -49,3 +50,5 @@ pnpm-debug.log*
 **/ios/Pods/
 **/ios/Runner.xcworkspace/xcuserdata/
 **/ios/Runner.xcodeproj/xcuserdata/
+**/ios/**/swiftpm/
+apps/mobile/sentry-wizard

@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 
 import '../models/demo_account.dart';
 import '../models/onboarding_profile.dart';
-import '../models/user_role.dart';
 import '../services/profile_service.dart';
 import '../utils/auth_identifier.dart';
 import '../widgets/auth_status_notice.dart';
