@@ -19,6 +19,7 @@
     "appwrite:setup:point-transactions": "node scripts/setup-appwrite-point-transactions.mjs",
     "appwrite:setup:farmer-applications": "node scripts/setup-appwrite-farmer-applications.mjs",
     "appwrite:setup:events": "node scripts/setup-appwrite-events.mjs",
+    "appwrite:setup:notifications": "node scripts/setup-appwrite-notifications.mjs",
     "appwrite:migrate:users-profile": "node scripts/migrate-appwrite-users-profile.mjs",
     "appwrite:setup:all": "node scripts/setup-appwrite-all.mjs",
     "appwrite:seed:jobs": "node scripts/seed-appwrite-jobs.mjs",

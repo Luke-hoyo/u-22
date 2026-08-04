@@ -38,17 +38,27 @@ class AdminManagedJob {
   final int capacity;
   final String updatedAt;
 
-  AdminManagedJob copyWith({AdminJobStatus? status}) {
+  AdminManagedJob copyWith({
+    String? id,
+    String? title,
+    String? organization,
+    String? area,
+    String? industry,
+    AdminJobStatus? status,
+    int? applicants,
+    int? capacity,
+    String? updatedAt,
+  }) {
     return AdminManagedJob(
-      id: id,
-      title: title,
-      organization: organization,
-      area: area,
-      industry: industry,
+      id: id ?? this.id,
+      title: title ?? this.title,
+      organization: organization ?? this.organization,
+      area: area ?? this.area,
+      industry: industry ?? this.industry,
       status: status ?? this.status,
-      applicants: applicants,
-      capacity: capacity,
-      updatedAt: updatedAt,
+      applicants: applicants ?? this.applicants,
+      capacity: capacity ?? this.capacity,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }

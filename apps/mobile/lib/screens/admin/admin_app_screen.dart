@@ -6,6 +6,7 @@ import '../../models/demo_account.dart';
 import '../../models/user_role.dart';
 import '../../services/hatarukun_api_service.dart';
 import '../logout_screen.dart';
+import 'managed_job_editor_sheet.dart';
 
 const _primary = Color(0xFF004D40);
 const _primaryDark = Color(0xFF003F35);
@@ -83,13 +84,10 @@ class _AdminAppScreenState extends State<AdminAppScreen> {
 
       setState(() {
         useRemoteData = true;
-        managedJobs = loadedJobs.isNotEmpty ? loadedJobs : initialManagedJobs();
-        applicants = loadedApplicants.isNotEmpty ? loadedApplicants : initialApplicants();
-        farmerApplications = loadedFarmerApplications.isNotEmpty
-            ? loadedFarmerApplications
-            : initialFarmerApplications();
-        pointRequests =
-            loadedPointRequests.isNotEmpty ? loadedPointRequests : initialPointRequests();
+        managedJobs = loadedJobs;
+        applicants = loadedApplicants;
+        farmerApplications = loadedFarmerApplications;
+        pointRequests = loadedPointRequests;
         operatorFocus = loadedFocus;
       });
     } catch (error) {
@@ -243,6 +241,47 @@ class _AdminAppScreenState extends State<AdminAppScreen> {
     }
   }
 
+  Future<void> _openJobEditor({AdminManagedJob? job}) async {
+    final draft = await showManagedJobEditorSheet(context, job: job);
+    if (draft == null) return;
+
+    setState(() {
+      final index = managedJobs.indexWhere((item) => item.id == draft.id);
+      if (index >= 0) {
+        managedJobs = [
+          ...managedJobs.sublist(0, index),
+          draft,
+          ...managedJobs.sublist(index + 1),
+        ];
+      } else {
+        managedJobs = [draft, ...managedJobs];
+      }
+      jobMessage = job == null ? '募集を作成しました。' : '募集を更新しました。';
+    });
+
+    if (!useRemoteData) return;
+
+    final token = await _token();
+    if (token == null) return;
+
+    try {
+      final saved = await _api.saveManagedJob(sessionToken: token, job: draft);
+      if (!mounted) return;
+      setState(() {
+        final index = managedJobs.indexWhere((item) => item.id == saved.id);
+        if (index >= 0) {
+          managedJobs = [
+            ...managedJobs.sublist(0, index),
+            saved,
+            ...managedJobs.sublist(index + 1),
+          ];
+        }
+      });
+    } catch (_) {
+      _showSnack('募集を保存できませんでした。');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final pages = _buildPages();
@@ -343,8 +382,11 @@ class _AdminAppScreenState extends State<AdminAppScreen> {
             applicants: applicants,
             managedJobs: managedJobs,
             jobMessage: jobMessage,
+            useRemoteData: useRemoteData,
             onMoveApplicant: _moveApplicant,
             onToggleJobStatus: _toggleJobStatus,
+            onCreateJob: () => _openJobEditor(),
+            onEditJob: (job) => _openJobEditor(job: job),
           ),
           _FarmerApplicantsPage(
             applicants: applicants,
@@ -381,6 +423,8 @@ class _AdminAppScreenState extends State<AdminAppScreen> {
             onFocusChanged: _changeOperatorFocus,
             onSetJobReviewStatus: _setJobReviewStatus,
             onDecidePoint: _decidePointRequest,
+            onCreateJob: () => _openJobEditor(),
+            onEditJob: (job) => _openJobEditor(job: job),
           ),
           _OperatorInvitesPage(
             focus: operatorFocus,
@@ -442,6 +486,8 @@ class _OperatorHomePage extends StatelessWidget {
     required this.onFocusChanged,
     required this.onSetJobReviewStatus,
     required this.onDecidePoint,
+    required this.onCreateJob,
+    required this.onEditJob,
   });
 
   final OperatorFocus focus;
@@ -452,6 +498,8 @@ class _OperatorHomePage extends StatelessWidget {
   final ValueChanged<OperatorFocus> onFocusChanged;
   final void Function(String, AdminJobStatus) onSetJobReviewStatus;
   final void Function(String, AdminPointRequestStatus) onDecidePoint;
+  final VoidCallback onCreateJob;
+  final void Function(AdminManagedJob job) onEditJob;
 
   @override
   Widget build(BuildContext context) {
@@ -477,6 +525,12 @@ class _OperatorHomePage extends StatelessWidget {
           _Feedback(message: jobMessage),
         ],
         const SizedBox(height: 12),
+        FilledButton.icon(
+          onPressed: onCreateJob,
+          icon: const Icon(Icons.add),
+          label: const Text('募集を新規作成'),
+        ),
+        const SizedBox(height: 12),
         if (showCommunity)
           _PointRequestsPanel(
             requests: pointRequests,
@@ -485,7 +539,11 @@ class _OperatorHomePage extends StatelessWidget {
         if (!showCommunity) ...[
           _SectionTitle('募集審査'),
           for (final job in filteredJobs) ...[
-            _JobReviewCard(job: job, onSetStatus: onSetJobReviewStatus),
+            _JobReviewCard(
+              job: job,
+              onSetStatus: onSetJobReviewStatus,
+              onEdit: () => onEditJob(job),
+            ),
             const SizedBox(height: 10),
           ],
           const SizedBox(height: 8),
@@ -566,15 +624,21 @@ class _FarmerHomePage extends StatelessWidget {
     required this.applicants,
     required this.managedJobs,
     required this.jobMessage,
+    required this.useRemoteData,
     required this.onMoveApplicant,
     required this.onToggleJobStatus,
+    required this.onCreateJob,
+    required this.onEditJob,
   });
 
   final List<AdminApplicant> applicants;
   final List<AdminManagedJob> managedJobs;
   final String jobMessage;
+  final bool useRemoteData;
   final void Function(String, AdminApplicantStatus) onMoveApplicant;
   final void Function(String) onToggleJobStatus;
+  final VoidCallback onCreateJob;
+  final void Function(AdminManagedJob job) onEditJob;
 
   @override
   Widget build(BuildContext context) {
@@ -593,6 +657,12 @@ class _FarmerHomePage extends StatelessWidget {
           const SizedBox(height: 12),
           _Feedback(message: jobMessage),
         ],
+        const SizedBox(height: 12),
+        FilledButton.icon(
+          onPressed: onCreateJob,
+          icon: const Icon(Icons.add),
+          label: const Text('募集を新規作成'),
+        ),
         const SizedBox(height: 12),
         Row(
           children: [
@@ -628,8 +698,19 @@ class _FarmerHomePage extends StatelessWidget {
         ],
         const SizedBox(height: 8),
         const _SectionTitle('自分の募集'),
+        if (managedJobs.isEmpty)
+          _Panel(
+            child: Text(
+              useRemoteData ? '登録済みの募集はまだありません。' : '募集データを読み込んでいます。',
+              style: const TextStyle(color: _textSub),
+            ),
+          ),
         for (final job in managedJobs) ...[
-          _FarmerJobCard(job: job, onToggle: () => onToggleJobStatus(job.id)),
+          _FarmerJobCard(
+            job: job,
+            onToggle: () => onToggleJobStatus(job.id),
+            onEdit: () => onEditJob(job),
+          ),
           const SizedBox(height: 10),
         ],
       ],
@@ -842,9 +923,15 @@ class _FocusSelector extends StatelessWidget {
 }
 
 class _JobReviewCard extends StatelessWidget {
-  const _JobReviewCard({required this.job, required this.onSetStatus});
+  const _JobReviewCard({
+    required this.job,
+    required this.onSetStatus,
+    required this.onEdit,
+  });
+
   final AdminManagedJob job;
   final void Function(String, AdminJobStatus) onSetStatus;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -852,7 +939,13 @@ class _JobReviewCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _StatusChip(jobStatusLabels[job.status]!),
+          Row(
+            children: [
+              _StatusChip(jobStatusLabels[job.status]!),
+              const Spacer(),
+              TextButton(onPressed: onEdit, child: const Text('編集')),
+            ],
+          ),
           const SizedBox(height: 8),
           Text(job.title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 17)),
           Text('${job.organization} / ${job.area}',
@@ -998,9 +1091,15 @@ class _FarmerApplicantCard extends StatelessWidget {
 }
 
 class _FarmerJobCard extends StatelessWidget {
-  const _FarmerJobCard({required this.job, required this.onToggle});
+  const _FarmerJobCard({
+    required this.job,
+    required this.onToggle,
+    required this.onEdit,
+  });
+
   final AdminManagedJob job;
   final VoidCallback onToggle;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -1020,6 +1119,7 @@ class _FarmerJobCard extends StatelessWidget {
               ],
             ),
           ),
+          TextButton(onPressed: onEdit, child: const Text('編集')),
           OutlinedButton(
             onPressed: onToggle,
             child: Text(job.status == AdminJobStatus.published ? '停止' : '公開'),

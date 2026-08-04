@@ -6,6 +6,7 @@ import {
   type ApplicationStatus
 } from "@/lib/app-data";
 import { formatAgeGroupFromBirthDate } from "@/lib/demo-user-state";
+import { shouldUseMockFallback } from "@/lib/mock-fallback";
 import { getAppwriteConfig } from "./config";
 import { createAppwriteServerClient } from "./server";
 import { type UserProfileRow, getMyNumberStatusFromRow } from "./users";
@@ -207,9 +208,12 @@ export type AdminApplicantsResult = {
 
 export async function listAdminApplicants(): Promise<AdminApplicantsResult> {
   const appwrite = getApplicationsTable();
+  const allowMock = shouldUseMockFallback();
 
   if (!appwrite) {
-    return { source: "mock", applicants: adminApplicants };
+    return allowMock
+      ? { source: "mock", applicants: adminApplicants }
+      : { source: "appwrite", applicants: [] };
   }
 
   try {
@@ -221,7 +225,9 @@ export async function listAdminApplicants(): Promise<AdminApplicantsResult> {
     });
 
     if (response.rows.length === 0) {
-      return { source: "mock", applicants: adminApplicants };
+      return allowMock
+        ? { source: "mock", applicants: adminApplicants }
+        : { source: "appwrite", applicants: [] };
     }
 
     const userIds = Array.from(
@@ -240,7 +246,9 @@ export async function listAdminApplicants(): Promise<AdminApplicantsResult> {
     };
   } catch (error) {
     console.error("Admin applicants fetch failed", error);
-    return { source: "mock", applicants: adminApplicants };
+    return allowMock
+      ? { source: "mock", applicants: adminApplicants }
+      : { source: "appwrite", applicants: [] };
   }
 }
 

@@ -4,6 +4,7 @@ import {
   type AdminPointRequest,
   type AdminPointRequestStatus
 } from "@/lib/app-data";
+import { shouldUseMockFallback } from "@/lib/mock-fallback";
 import { getAppwriteConfig } from "./config";
 import { createAppwriteServerClient } from "./server";
 import { type UserProfileRow } from "./users";
@@ -112,9 +113,12 @@ export type AdminPointRequestsResult = {
 
 export async function listAdminPointRequests(): Promise<AdminPointRequestsResult> {
   const appwrite = getPointTransactionsTable();
+  const allowMock = shouldUseMockFallback();
 
   if (!appwrite) {
-    return { source: "mock", pointRequests: adminPointRequests };
+    return allowMock
+      ? { source: "mock", pointRequests: adminPointRequests }
+      : { source: "appwrite", pointRequests: [] };
   }
 
   try {
@@ -130,7 +134,9 @@ export async function listAdminPointRequests(): Promise<AdminPointRequestsResult
     });
 
     if (response.rows.length === 0) {
-      return { source: "mock", pointRequests: adminPointRequests };
+      return allowMock
+        ? { source: "mock", pointRequests: adminPointRequests }
+        : { source: "appwrite", pointRequests: [] };
     }
 
     const userIds = Array.from(
@@ -146,7 +152,9 @@ export async function listAdminPointRequests(): Promise<AdminPointRequestsResult
     };
   } catch (error) {
     console.error("Admin point requests fetch failed", error);
-    return { source: "mock", pointRequests: adminPointRequests };
+    return allowMock
+      ? { source: "mock", pointRequests: adminPointRequests }
+      : { source: "appwrite", pointRequests: [] };
   }
 }
 

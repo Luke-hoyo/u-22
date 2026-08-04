@@ -36,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String selectedRegion = 'すべて';
   final favorites = <String>{};
   final participatedEventIds = <String>{};
-  List<Job> jobs = mockJobs;
+  List<Job> jobs = [];
   List<_CommunityEvent> communityEvents = _events;
   bool isLoadingRemoteData = false;
   bool useRemoteData = false;
@@ -65,6 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
+    jobs = mockJobs;
     applications = [
       const _DemoApplication(
         id: 'APP-001',
@@ -120,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       setState(() {
         useRemoteData = true;
-        jobs = loadedJobs.isNotEmpty ? loadedJobs : mockJobs;
+        jobs = loadedJobs;
         applications = loadedApplications
             .map(
               (application) => _DemoApplication(
@@ -220,6 +221,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Job get currentJob {
+    if (jobs.isEmpty) {
+      return mockJobs.first;
+    }
+
     final firstApplication =
         applications.isNotEmpty ? applications.first : null;
     return jobs.firstWhere(

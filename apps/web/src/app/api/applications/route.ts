@@ -2,6 +2,7 @@ import { createHash } from "crypto";
 import { Query, type Models } from "node-appwrite";
 import { NextResponse } from "next/server";
 import type { Application, ApplicationStatus } from "@/lib/app-data";
+import { notifyNewApplication } from "@/lib/appwrite/messaging";
 import { requireUser } from "@/lib/auth/require-user";
 import { getAppwriteConfig } from "@/lib/appwrite/config";
 import { createAppwriteServerClient } from "@/lib/appwrite/server";
@@ -155,6 +156,28 @@ export async function POST(request: Request) {
         updatedAt: now.toISOString()
       }
     });
+
+    let jobTitle = "募集";
+
+    try {
+      const jobsTableId = appwrite.config.tables.jobs;
+
+      if (jobsTableId) {
+        const jobRow = await tablesDB.getRow({
+          databaseId: appwrite.config.databaseId,
+          tableId: jobsTableId,
+          rowId: jobId
+        });
+
+        if (typeof jobRow.title === "string" && jobRow.title.trim()) {
+          jobTitle = jobRow.title.trim();
+        }
+      }
+    } catch {
+      // Keep generic title when job lookup fails.
+    }
+
+    await notifyNewApplication({ jobTitle });
 
     return NextResponse.json({
       ok: true,

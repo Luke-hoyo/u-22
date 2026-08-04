@@ -13,7 +13,8 @@ const scripts = [
   "setup-appwrite-applications.mjs",
   "setup-appwrite-point-transactions.mjs",
   "setup-appwrite-farmer-applications.mjs",
-  "setup-appwrite-events.mjs"
+  "setup-appwrite-events.mjs",
+  "setup-appwrite-notifications.mjs"
 ];
 
 for (const script of scripts) {

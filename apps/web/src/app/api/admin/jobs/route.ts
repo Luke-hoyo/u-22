@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { AdminJobStatus, AdminManagedJob, Industry } from "@/lib/app-data";
+import { notifyJobPublished } from "@/lib/appwrite/messaging";
 import { listManagedJobs, saveManagedJob, updateManagedJobStatus } from "@/lib/appwrite/jobs";
 import { requireAdmin } from "@/lib/auth/require-admin";
 
@@ -135,6 +136,13 @@ export async function POST(request: Request) {
       );
     }
 
+    if (job.status === "published") {
+      await notifyJobPublished({
+        title: job.title,
+        organization: job.organization
+      });
+    }
+
     return NextResponse.json({
       ok: true,
       job,
@@ -172,6 +180,18 @@ export async function PATCH(request: Request) {
         { message: "募集の保存先が未設定です。" },
         { status: 503 }
       );
+    }
+
+    if (status === "published") {
+      const jobs = await listManagedJobs();
+      const job = jobs.jobs.find((item) => item.id === jobId);
+
+      if (job) {
+        await notifyJobPublished({
+          title: job.title,
+          organization: job.organization
+        });
+      }
     }
 
     return NextResponse.json({

@@ -23,6 +23,7 @@ export function createAppwriteServerClient() {
 
   return {
     config,
+    client,
     tablesDB: new TablesDB(client)
   };
 }

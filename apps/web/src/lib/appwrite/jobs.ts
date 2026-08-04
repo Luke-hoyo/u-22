@@ -7,6 +7,7 @@ import {
   type Industry,
   type Job
 } from "@/lib/app-data";
+import { shouldUseMockFallback } from "@/lib/mock-fallback";
 import { getAppwriteConfig, getAppwriteConfigStatus } from "./config";
 import { createAppwriteServerClient } from "./server";
 
@@ -109,8 +110,21 @@ function mapRowToJob(row: AppwriteJobRow): Job {
 export async function getJobsData(): Promise<JobsDataResult> {
   const status = getAppwriteConfigStatus();
   const checkedAt = new Date().toISOString();
+  const allowMock = shouldUseMockFallback();
 
   if (!status.configured) {
+    if (!allowMock) {
+      return {
+        source: "appwrite",
+        configured: false,
+        reason: "求人データベースの接続情報が未設定です。",
+        missingKeys: status.missingKeys,
+        total: 0,
+        jobs: [],
+        checkedAt
+      };
+    }
+
     return {
       source: "mock",
       configured: false,
@@ -131,6 +145,18 @@ export async function getJobsData(): Promise<JobsDataResult> {
     });
 
     if (response.rows.length === 0) {
+      if (!allowMock) {
+        return {
+          source: "appwrite",
+          configured: true,
+          reason: "登録済みの求人はまだありません。",
+          missingKeys: [],
+          total: 0,
+          jobs: [],
+          checkedAt
+        };
+      }
+
       return {
         source: "mock",
         configured: true,
@@ -151,6 +177,21 @@ export async function getJobsData(): Promise<JobsDataResult> {
       checkedAt
     };
   } catch (error) {
+    if (!allowMock) {
+      return {
+        source: "appwrite",
+        configured: true,
+        reason:
+          error instanceof Error
+            ? `求人データベースに接続できませんでした: ${error.message}`
+            : "求人データベースに接続できませんでした。",
+        missingKeys: [],
+        total: 0,
+        jobs: [],
+        checkedAt
+      };
+    }
+
     return {
       source: "mock",
       configured: true,
@@ -301,9 +342,12 @@ export type ManagedJobsResult = {
 
 export async function listManagedJobs(): Promise<ManagedJobsResult> {
   const appwrite = getJobsTableConfig();
+  const allowMock = shouldUseMockFallback();
 
   if (!appwrite) {
-    return { source: "mock", jobs: adminManagedJobs };
+    return allowMock
+      ? { source: "mock", jobs: adminManagedJobs }
+      : { source: "appwrite", jobs: [] };
   }
 
   try {
@@ -318,7 +362,9 @@ export async function listManagedJobs(): Promise<ManagedJobsResult> {
     ]);
 
     if (response.rows.length === 0) {
-      return { source: "mock", jobs: adminManagedJobs };
+      return allowMock
+        ? { source: "mock", jobs: adminManagedJobs }
+        : { source: "appwrite", jobs: [] };
     }
 
     return {
@@ -328,7 +374,9 @@ export async function listManagedJobs(): Promise<ManagedJobsResult> {
       )
     };
   } catch {
-    return { source: "mock", jobs: adminManagedJobs };
+    return allowMock
+      ? { source: "mock", jobs: adminManagedJobs }
+      : { source: "appwrite", jobs: [] };
   }
 }
 

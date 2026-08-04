@@ -16,7 +16,7 @@ import {
   Sprout,
   UserRound
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   canAccessAdmin,
@@ -29,7 +29,7 @@ import {
 } from "@/lib/access-control";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
 import { AppwritePing } from "@/components/appwrite/AppwritePing";
-import { getNotificationsForRole, getNotificationTitleForRole, getShellLabelForRole } from "@/lib/notifications";
+import { getNotificationsForRole, getNotificationTitleForRole, getShellLabelForRole, type AppNotification } from "@/lib/notifications";
 import styles from "./AppShell.module.css";
 
 const navigation = [
@@ -185,13 +185,15 @@ export function AppShell({
   const pathname = usePathname();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [readNotificationIds, setReadNotificationIds] = useState<string[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>(() =>
+    getNotificationsForRole(userRole)
+  );
   const notificationWrapRef = useRef<HTMLDivElement | null>(null);
   const demoAuth = isDemoAuthEnabled();
   const rootPath = `/${pathname.split("/")[1]}`;
   const title = getRolePageTitle(userRole, rootPath);
   const isAdminUser = canAccessAdmin(userRole);
   const shellLabel = getShellLabelForRole(userRole);
-  const notifications = useMemo(() => getNotificationsForRole(userRole), [userRole]);
   const unreadNotifications = notifications.filter(
     (notification) => !readNotificationIds.includes(notification.id)
   );
@@ -218,6 +220,43 @@ export function AppShell({
   useEffect(() => {
     setNotificationsOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (demoAuth) {
+      setNotifications(getNotificationsForRole(userRole));
+      return;
+    }
+
+    let active = true;
+
+    async function loadNotifications() {
+      try {
+        const response = await fetch("/api/notifications", { cache: "no-store" });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const result = (await response.json()) as {
+          notifications?: AppNotification[];
+        };
+
+        if (!active || !Array.isArray(result.notifications)) {
+          return;
+        }
+
+        setNotifications(result.notifications);
+      } catch {
+        // Keep fallback notifications on fetch errors.
+      }
+    }
+
+    void loadNotifications();
+
+    return () => {
+      active = false;
+    };
+  }, [demoAuth, userRole]);
 
   useEffect(() => {
     if (!notificationsOpen) {

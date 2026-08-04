@@ -26,8 +26,8 @@ export function JobsExplorer() {
   const [query, setQuery] = useState("");
   const [industry, setIndustry] = useState<IndustryFilter>("all");
   const [region, setRegion] = useState("all");
-  const [jobs, setJobs] = useState<Job[]>(mockJobs);
-  const [sourceMessage, setSourceMessage] = useState("公開中の仕事を表示しています。");
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [sourceMessage, setSourceMessage] = useState("公開中の仕事を読み込んでいます。");
   const [isLoading, setIsLoading] = useState(true);
   const { isFavorite, toggle } = useFavoriteJobs();
 
@@ -55,7 +55,9 @@ export function JobsExplorer() {
         setJobs(result.jobs);
         setSourceMessage(
           result.source === "appwrite"
-            ? "地域事業者が登録した仕事を表示しています。"
+            ? result.jobs.length > 0
+              ? "地域事業者が登録した仕事を表示しています。"
+              : result.reason ?? "登録済みの求人はまだありません。"
             : "公開サンプルの仕事を表示しています。"
         );
       } catch (error) {
@@ -63,8 +65,8 @@ export function JobsExplorer() {
           return;
         }
 
-        setJobs(mockJobs);
-        setSourceMessage("公開サンプルの仕事を表示しています。");
+        setJobs([]);
+        setSourceMessage("求人を読み込めませんでした。時間をおいて再度お試しください。");
       } finally {
         if (active) {
           setIsLoading(false);

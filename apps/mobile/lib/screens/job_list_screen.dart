@@ -27,7 +27,7 @@ class JobListScreen extends StatefulWidget {
 class _JobListScreenState extends State<JobListScreen> {
   final _api = HatarukunApiService();
   late Job selectedJob = widget.initialJob;
-  List<Job> jobs = mockJobs;
+  List<Job> jobs = [];
   bool isLoading = false;
 
   @override
@@ -35,7 +35,10 @@ class _JobListScreenState extends State<JobListScreen> {
     super.initState();
     if (widget.sessionTokenProvider != null) {
       _loadJobs();
+      return;
     }
+
+    jobs = mockJobs;
   }
 
   Future<void> _loadJobs() async {
@@ -50,14 +53,14 @@ class _JobListScreenState extends State<JobListScreen> {
       if (!mounted) return;
 
       setState(() {
-        jobs = loadedJobs.isNotEmpty ? loadedJobs : mockJobs;
-        if (!jobs.any((job) => job.id == selectedJob.id)) {
+        jobs = loadedJobs;
+        if (jobs.isNotEmpty && !jobs.any((job) => job.id == selectedJob.id)) {
           selectedJob = jobs.first;
         }
       });
     } catch {
       if (!mounted) return;
-      setState(() => jobs = mockJobs);
+      setState(() => jobs = []);
     } finally {
       if (mounted) {
         setState(() => isLoading = false);
