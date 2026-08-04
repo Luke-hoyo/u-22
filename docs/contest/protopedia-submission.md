@@ -3,7 +3,7 @@
 要項: [U-22 プログラミング・コンテスト 2026 応募要項](https://u22procon.com/assets/files/u22-2026-guideline.pdf)
 
 このファイルは Protopedia・作品説明動画・エントリーフォームに転記するための下書きです。  
-**公開前に、審査用アカウント情報・連絡先・動画 URL を各自で差し替えてください。**
+**公開前に、動作確認用アカウント情報・連絡先・動画 URL を各自で差し替えてください。**
 
 ---
 
@@ -37,48 +37,94 @@
 
 個人探求のテーマとして「若者の経済的負担を下げながら、地域の産業を支える仕組みは作れないか」と考え、マッチング・免除見込みの可視化・地域イベントによる定着支援を一体化したアプリを設計しました。
 
-審査員の方には、単なる画面デモではなく、**若者・農家・自治体・運営の4者が同じデータ上で動く**ところまで見ていただきたいです。
+単なる画面デモではなく、**若者・農家・自治体・運営の4者が同じデータ上で動く**ところまで再現しています。
 
 ---
 
-## Protopedia：システム構成
+## Protopedia：システム構成（どうやって作ったか）
+
+> 要項の「システム構成」は、部品一覧だけでなく **設計方針・作り方・工夫** を書く欄です。  
+> 下の本文を Protopedia にそのまま貼れます。構成図は画像として別途添付すると伝わりやすいです。
+
+### 本文（コピペ用）
 
 ```text
-[ユーザー]
-  若者 / 農家 / 自治体 / 運営
-       ↓
-[クライアント]
-  Web: Next.js (App Router) + React + TypeScript
-  Mobile: Flutter / Dart (iOS & Android 共通)
-       ↓
-[認証]
-  Clerk（Web: @clerk/nextjs / Mobile: clerk_flutter）
-  ロール: young_user / farmer / municipality / operator
-       ↓
-[アプリケーションサーバー]
-  Next.js API Routes（/api/*）
-  モバイルは Clerk JWT を Bearer で送信し、サーバー側のみ Appwrite API Key を使用
-       ↓
-[データ・通知]
-  Appwrite TablesDB
-    - jobs（求人）
-    - applications（応募）
-    - users（プロフィール）
-    - point_transactions（ポイント履歴）
-    - community_events（地域イベント）
-    - farmer_applications（農家申請）
-    - notifications（アプリ内通知）
-  Sentry（Web / Mobile のエラー監視）
-       ↓
-[インフラ]
-  Windows Server 2025 + IIS + Node.js（本番 Web）
+【設計の方針】
+「はたるくん」は、若者・農家・自治体・運営の4者が同じデータを扱う前提で設計しました。
+そのため、画面ごとに別システムを作るのではなく、
+「共通バックエンド＋役割別フロント」という構成にしています。
+
+まず Stitch で UI 基準（Kinetic Clarity）を固め、色・余白・情報の見せ方を決めてから、
+Web（利用の中心画面）→ API / データ設計 → Mobile（同じ API を利用）
+の順で実装しました。行政連携（JASSO・eKYC 等）は本番相当の UI とステータス管理で再現し、
+将来差し替えやすい境界を意識しています。
+
+【どう作ったか（構築手順）】
+1. 要件整理
+   求人マッチング、奨学金免除見込み、地域ポイント、農家・運営の管理画面を必須機能として定義。
+2. UI 設計
+   Stitch の Kinetic Clarity を採用し、Primary #004D40 / Accent #FFAB40 を Web・Mobile で共通化。
+3. 認証基盤
+   Clerk でログイン・セッション・ロール（young_user / farmer / municipality / operator）を管理。
+4. データ層
+   Appwrite TablesDB に求人・応募・ユーザー・ポイント・イベント・農家申請・通知を設計。
+   セットアップ用 Node スクリプトでテーブル作成と初期データを再現可能にした。
+5. アプリケーションサーバー
+   Next.js API Routes を中継層とし、Appwrite API Key や Clerk Secret はサーバー側のみに配置。
+   Mobile は Clerk JWT を Bearer で送り、サーバーが検証してから DB 操作する。
+6. クライアント実装
+   Web: Next.js + React + TypeScript
+   Mobile: Flutter（iOS / Android 共通）で同じ API を呼び出し
+7. 本番公開
+   Windows Server 2025 + IIS + Node.js にデプロイし、https://hatarukun.jp で公開。
+   ヘルスチェックと Sentry で障害監視を追加。
+
+【システム構成図（概要）】
+利用者（若者 / 農家 / 自治体 / 運営）
+  → Web（Next.js） / Mobile（Flutter）
+  → Clerk（認証・ロール）
+  → Next.js API Routes（業務ロジック・秘密情報の集約）
+  → Appwrite TablesDB（求人・応募・ポイント・通知など）
+  → Sentry（エラー監視） / Windows Server 2025（本番）
+
+【技術選定の理由】
+・Next.js: ブラウザからそのまま使える Web を中心に実装するため
+・Flutter: iOS / Android を1コードベースで揃え、同じ API を再利用するため
+・Clerk: ロール付き認証を自前実装せず、安全に利用者種別を分けるため
+・Appwrite: Firebase 有料化を避けつつ、テーブル設計とスクリプト化がしやすいため
+・Sentry: 本番障害を可視化し、公開後も安定運用するため
+
+【工夫した点（構成面）】
+・秘密鍵をクライアントに置かない（Mobile には Publishable Key のみ）
+・本番ではモックへの自動フォールバックを制限し、実データ接続を前提にした
+・Web と Mobile で UI トーンと業務フローを揃え、同じアカウントで両端を確認できるようにした
+・行政連携はデモステータスで再現し、後から本物の API に差し替えられる形にした
 ```
 
-### 設計上のポイント
+### 構成図テキスト（画像化用）
 
-- **秘密鍵はサーバーに集約**: モバイルに Appwrite API Key や Clerk Secret を置かず、Next.js API 経由で書き込む。
-- **本番とデモの分離**: 本番環境では Appwrite 接続失敗時にモックへ自動フォールバックしないよう制御。
-- **UI の共通化**: Stitch で作成した「Kinetic Clarity」を Web / Mobile で共有（Primary `#004D40`、Accent `#FFAB40`）。
+```text
+[若者] [農家] [自治体] [運営]
+           │
+     ┌─────┴─────┐
+     ▼           ▼
+  Web(Next.js)  Mobile(Flutter)
+     │           │
+     └─────┬─────┘
+           ▼
+        Clerk 認証
+   (ロール: young_user / farmer /
+    municipality / operator)
+           ▼
+   Next.js API Routes
+   （秘密鍵・業務ロジック）
+           ▼
+   Appwrite TablesDB
+   jobs / applications / users /
+   points / events / notifications
+           ▼
+   Windows Server 2025 + Sentry
+```
 
 ---
 
@@ -119,7 +165,7 @@
 
 ### 1. 政策アイデアを「動くサービス」に落とし込んだ
 
-奨学金免除は制度設計の話にとどまりがちですが、**求人 → 応募 → 免除見込み → 地域ポイント**まで一連の導線を実装し、利用者が意思決定できる UI にしました。審査員が操作するだけで制度の価値が伝わる構成を意識しています。
+奨学金免除は制度設計の話にとどまりがちですが、**求人 → 応募 → 免除見込み → 地域ポイント**まで一連の導線を実装し、利用者が意思決定できる UI にしました。操作するだけで制度の価値が伝わる構成を意識しています。
 
 ### 2. Web と Mobile を同じバックエンドで統合
 
@@ -127,7 +173,7 @@ Flutter で iOS / Android を1コードベース化しつつ、データは Web 
 
 ### 3. 本番公開まで持っていった
 
-コンテスト用のローカルデモにとどめず、`https://hatarukun.jp` で実際に動作する環境を構築しました。Windows Server 2025 へのデプロイ、IIS リバースプロキシ、SSL、ヘルスチェック、502 復旧手順まで整備し、**審査員が URL だけで動作確認できる**状態にしています。
+ローカルデモにとどめず、`https://hatarukun.jp` で実際に動作する環境を構築しました。Windows Server 2025 へのデプロイ、IIS リバースプロキシ、SSL、ヘルスチェック、502 復旧手順まで整備し、**URL を開くだけで動作を確認できる**状態にしています。
 
 ### 4. 行政サービスらしい信頼感と、若者向けの使いやすさの両立
 
@@ -160,43 +206,107 @@ UI 骨格、API 設計、Appwrite スキーマ、デプロイ手順の整理に 
 
 ---
 
-## エントリーフォーム：動作・開発環境
+## エントリーフォーム：インストール手順（コピペ用）
 
-### Web（審査員向け・推奨）
+> 要項どおり、**起動方法 + ログイン情報 + スマホ版**を書きます。  
+> Web はインストール不要。スマホは **ブラウザ版** と **Flutter ネイティブ版** の両方を記載します。
 
-1. ブラウザで `https://hatarukun.jp` を開く
-2. 「ログイン」から Clerk アカウントでサインイン  
-   （審査用アカウントはエントリー時に別途記載）
-3. ロール別の確認先:
-   - 若者: `/dashboard` → 求人・応募・ポイント
-   - 農家: `/farmer/dashboard` → 求人管理・応募者
-   - 運営: `/operator/invites` 等
+### 推奨（そのまま貼る）
 
-**推奨ブラウザ**: Google Chrome（最新版）  
-**必要ソフト**: なし（Web アプリ）
+```text
+【作品の起動方法】
+本作品は Web アプリとスマートフォン向けアプリ（Flutter / iOS・Android）で構成されています。
+主な確認は Web（PC・スマホブラウザ）で行えます。ネイティブアプリはソースからビルドして確認できます。
 
-### Mobile（実機確認）
+━━━━━━━━━━━━━━━━
+A. Web 版（PC / スマホ共通・インストール不要）
+━━━━━━━━━━━━━━━━
+1. Google Chrome（最新版）を起動する
+   入手元: https://www.google.com/chrome/
+2. 次の URL を開く
+   https://hatarukun.jp
+3. 「ログイン」から動作確認用アカウントでサインインする
 
-1. Flutter SDK 3.x をインストール
-2. リポジトリの `apps/mobile` で `flutter pub get`
-3. `dart_defines.local.json` に `CLERK_PUBLISHABLE_KEY` を設定（審査用キーを同封）
-4. `flutter run --dart-define-from-file=dart_defines.local.json`
+※スマートフォンの Chrome / Safari でも同じ URL で動作します。
+  レスポンシブ表示のため、スマホ実機での確認も可能です。
 
-**対応 OS**: iOS 15+ / Android 8+（API 26+）
+━━━━━━━━━━━━━━━━
+B. スマートフォン向けネイティブアプリ（Flutter）
+━━━━━━━━━━━━━━━━
+必要ソフト:
+  Flutter SDK 3.44.4（入手元: https://docs.flutter.dev/get-started/install）
+  （iOS 実機の場合は Xcode、Android 実機の場合は Android Studio も必要）
 
-### ローカル開発（任意）
+手順:
+1. 提出ソースの apps/mobile フォルダへ移動する
+2. dart_defines.example.json を参考に dart_defines.local.json を作成し、
+   動作確認用の CLERK_PUBLISHABLE_KEY を設定する
+   （キーは下記「動作確認用アカウント・設定」に記載）
+3. 次を実行する
+   flutter pub get
+   flutter run --dart-define-from-file=dart_defines.local.json
+4. 接続した iPhone / Android、またはエミュレータでアプリが起動する
 
-```bash
-# Web
+Windows の場合:
+   apps\mobile\scripts\run-local.bat
+   （dart_defines.local.json が無い場合はスクリプトが生成を試みます）
+
+対応 OS: iOS 13.0 以降 / Android（Flutter 標準 minSdk）
+
+※キー未設定時はデモログイン画面でも起動できますが、
+  本番 API 連携の確認には CLERK_PUBLISHABLE_KEY の設定が必要です。
+
+━━━━━━━━━━━━━━━━
+C. 動作確認用アカウント
+━━━━━━━━━━━━━━━━
+■ 若者ユーザー（求人・応募・ポイント）
+  サインイン URL: https://hatarukun.jp/sign-in
+  メールアドレス: 【動作確認用メール】
+  パスワード: 【動作確認用パスワード】
+  Web 確認先: /dashboard → /jobs → /points
+  Mobile 確認先: ホーム / 求人 / ポイント / マイページ
+
+■ 農家ユーザー（求人作成・応募管理）
+  サインイン URL: https://hatarukun.jp/sign-in
+  メールアドレス: 【動作確認用メール】
+  パスワード: 【動作確認用パスワード】
+  Web 確認先: /farmer/dashboard
+  Mobile 確認先: 農家向け管理画面（求人作成・編集）
+
+■ Mobile 用 Clerk Publishable Key（ネイティブ起動時）
+  CLERK_PUBLISHABLE_KEY: 【動作確認用 pk_ キー】
+
+━━━━━━━━━━━━━━━━
+D. 推奨デモ手順
+━━━━━━━━━━━━━━━━
+1. 【スマホブラウザまたは PC】若者アカウントでログイン
+   → 求人検索 → 詳細 → 応募 → 免除見込み → ポイント
+2. 【PC または Mobile 農家画面】農家アカウントでログイン
+   → 求人作成・公開 → 応募者ステータス更新
+3. （任意）【Flutter 実機】ネイティブアプリでも同じアカウントでログインし、
+   Web とデータが共有されていることを確認
+
+【注意】
+・インターネット接続が必要です。
+・推奨ブラウザ: Google Chrome 151.0.7922.72 以降（最新版）
+・特別なハードウェアは不要です。
+・マイナンバー連携・商品券交換・行政連携はデモ再現です。
+・主要機能は A（Web）だけで確認できます。B はスマホアプリとしての追加確認用です。
+```
+
+### 補足：ソースから Web をローカル起動する場合（任意）
+
+```text
+【Web ローカル起動（任意）】
+必要ソフト: Node.js 22.12.0 LTS 以降（https://nodejs.org/）
+秘密情報はエントリーフォームまたは別添メモの値を .env.local に設定してください。
+（公開リポジトリやソース本体には含めません）
+
 cd apps/web
-cp .env.example .env.local   # キーを設定
 npm install
-npm run dev                  # http://localhost:3000
-
-# Mobile
-cd apps/mobile
-flutter pub get
-flutter run --dart-define-from-file=dart_defines.local.json
+npm run build
+npm run start
+→ http://localhost:3000
 ```
 
 ---
@@ -281,7 +391,7 @@ Mobile
 
 - [ ] Protopedia に作品タイトル・概要・動画 URL を登録（**限定共有**）
 - [ ] 動画を YouTube **限定公開**でアップロード（3分以内）
-- [ ] エントリーフォームに Web URL・動作環境・審査用ログイン情報を記載
+- [ ] エントリーフォームに Web URL・動作環境・動作確認用ログイン情報を記載
 - [ ] 15歳未満の場合は保護者同意書をアップロード
 - [ ] ストレージにソースコードをアップロード（`node_modules` 等は除外）
 - [ ] 秘密鍵・API Key がソースに含まれていないか確認
