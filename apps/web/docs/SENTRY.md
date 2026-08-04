@@ -96,3 +96,24 @@ NEXT_PUBLIC_SENTRY_ENVIRONMENT=development
 - `sendDefaultPii: false`
 - メール・IP・Cookie などは送信前にスクラブ
 - マイナンバー等の機密データは送らない設計
+
+## モバイル（Flutter）
+
+Web と同じ Sentry プロジェクトの DSN を使えます。`apps/mobile/dart_defines.local.json` に追加:
+
+```json
+{
+  "SENTRY_DSN": "https://...@....ingest.sentry.io/...",
+  "SENTRY_ENVIRONMENT": "production"
+}
+```
+
+起動・ビルド:
+
+```sh
+cd apps/mobile
+flutter run --dart-define-from-file=dart_defines.local.json
+flutter build apk --release --dart-define-from-file=dart_defines.local.json
+```
+
+`SENTRY_DSN` 未設定のときは Sentry は無効のまま起動します。詳細は `apps/mobile/README.md` を参照。

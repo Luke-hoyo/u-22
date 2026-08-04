@@ -1,3 +1,5 @@
 {
-  "CLERK_PUBLISHABLE_KEY": "pk_test_..."
+  "CLERK_PUBLISHABLE_KEY": "pk_test_...",
+  "SENTRY_DSN": "https://examplePublicKey@o0.ingest.sentry.io/0",
+  "SENTRY_ENVIRONMENT": "development"
 }

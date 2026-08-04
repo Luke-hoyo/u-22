@@ -1,12 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:clerk_flutter/clerk_flutter.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'config/clerk_mobile_config.dart';
+import 'config/sentry_mobile_config.dart';
 import 'screens/launch_screen.dart';
+import 'utils/sentry_event_scrubber.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  if (SentryMobileConfig.isEnabled) {
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = SentryMobileConfig.dsn;
+        options.environment = SentryMobileConfig.environment;
+        options.tracesSampleRate = 0.1;
+        options.sendDefaultPii = false;
+        options.beforeSend = scrubSentryEvent;
+      },
+      appRunner: _runApp,
+    );
+    return;
+  }
+
+  _runApp();
+}
+
+void _runApp() {
   final app = HatarukunApp(clerkEnabled: ClerkMobileConfig.isEnabled);
 
   if (ClerkMobileConfig.isEnabled) {

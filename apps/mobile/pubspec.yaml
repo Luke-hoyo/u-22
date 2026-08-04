@@ -14,6 +14,7 @@ dependencies:
   clerk_flutter: ^0.0.18-beta
   syncfusion_flutter_charts: ^34.1.33
   mobile_scanner: ^7.4.0
+  sentry_flutter: ^8.14.2
 
 dev_dependencies:
   flutter_test:
