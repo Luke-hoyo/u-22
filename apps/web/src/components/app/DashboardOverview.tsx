@@ -11,7 +11,7 @@ import {
   WalletCards
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   Bar,
   BarChart,
@@ -24,20 +24,16 @@ import {
 import { formatCurrency, getJobById } from "@/lib/app-data";
 import { useApplications } from "@/hooks/useApplications";
 import { usePoints } from "@/hooks/usePoints";
-import {
-  defaultDemoPreferences,
-  readDemoPreferences
-} from "@/lib/demo-user-state";
+import { useProfilePreferences } from "@/hooks/useProfilePreferences";
 import styles from "./DashboardOverview.module.css";
 
 export function DashboardOverview() {
   const prefersReducedMotion = useReducedMotion();
   const { applications, primaryApplication, isLoading: applicationsLoading } = useApplications();
   const { balance: points, isLoading: pointsLoading } = usePoints();
+  const { preferences, isLoading: profileLoading } = useProfilePreferences();
   const currentJob = primaryApplication ? getJobById(primaryApplication.jobId) : null;
-  const [scholarshipBalance, setScholarshipBalance] = useState(
-    defaultDemoPreferences.scholarshipBalance
-  );
+  const scholarshipBalance = preferences.scholarshipBalance;
 
   const annualSupport = useMemo(() => {
     const fromApplications = applications.reduce(
@@ -84,7 +80,7 @@ export function DashboardOverview() {
   const metrics = [
     {
       label: "奨学金残高",
-      value: `${Math.round(scholarshipBalance / 10000).toLocaleString("ja-JP")}万円`,
+      value: profileLoading ? "..." : `${Math.round(scholarshipBalance / 10000).toLocaleString("ja-JP")}万円`,
       note: "登録した貸与型奨学金",
       href: "/profile",
       icon: WalletCards,
@@ -104,10 +100,6 @@ export function DashboardOverview() {
     hidden: { opacity: 0, y: prefersReducedMotion ? 0 : 16 },
     visible: { opacity: 1, y: 0 }
   };
-
-  useEffect(() => {
-    setScholarshipBalance(readDemoPreferences().scholarshipBalance);
-  }, []);
 
   const nextActionTitle =
     primaryApplication?.status === "interview"

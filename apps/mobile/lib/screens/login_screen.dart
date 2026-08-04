@@ -54,7 +54,9 @@ class LoginScreen extends StatelessWidget {
     if (!clerkEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('現在はデモモードです。認証設定後に利用できます。'),
+          content: Text(
+            'このビルドでは認証が無効です。Clerkキー付きで再ビルドしてください。',
+          ),
         ),
       );
       return;

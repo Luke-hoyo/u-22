@@ -11,6 +11,7 @@ import {
   readDemoPreferences,
   writeDemoAvatar
 } from "@/lib/demo-user-state";
+import { useProfilePreferences } from "@/hooks/useProfilePreferences";
 import styles from "./ProductUI.module.css";
 
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
@@ -22,18 +23,6 @@ function getDisplayName(user: ReturnType<typeof useUser>["user"]) {
     user?.primaryEmailAddress?.emailAddress.split("@")[0] ??
     "利用者"
   );
-}
-
-function getRegionLabel(user: ReturnType<typeof useUser>["user"]) {
-  const region = typeof user?.unsafeMetadata.region === "string" ? user.unsafeMetadata.region : "未設定";
-  const birthDate =
-    typeof user?.unsafeMetadata.birthDate === "string" ? user.unsafeMetadata.birthDate : "";
-  const ageGroup =
-    typeof user?.unsafeMetadata.ageGroup === "string"
-      ? user.unsafeMetadata.ageGroup
-      : formatAgeGroupFromBirthDate(birthDate);
-
-  return `${region} / ${ageGroup}`;
 }
 
 function DemoProfileSummaryCard({ variant = "young" }: { variant?: "young" | "admin" }) {
@@ -159,13 +148,17 @@ function DemoProfileSummaryCard({ variant = "young" }: { variant?: "young" | "ad
 function ClerkProfileSummaryCard({ variant = "young" }: { variant?: "young" | "admin" }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isLoaded, user } = useUser();
+  const { preferences } = useProfilePreferences();
   const [isUploading, setIsUploading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   const imageUrl = user?.imageUrl;
   const displayName = getDisplayName(user);
-  const regionLabel = variant === "admin" ? "受け入れ管理" : getRegionLabel(user);
+  const regionLabel =
+    variant === "admin"
+      ? "受け入れ管理"
+      : `${preferences.regions.split("、")[0] ?? "未設定"} / ${formatAgeGroupFromBirthDate(preferences.birthDate)}`;
 
   async function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];

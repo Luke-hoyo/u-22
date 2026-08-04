@@ -51,6 +51,12 @@ try {
       { key: "scholarshipBalance", type: "integer", required: false, default: 0 },
       { key: "organizationName", type: "string", size: 160, required: false, default: "" },
       { key: "organizationType", type: "string", size: 40, required: false, default: "" },
+      { key: "birthDate", type: "string", size: 16, required: false, default: "" },
+      { key: "address", type: "string", size: 200, required: false, default: "" },
+      { key: "workStyle", type: "string", size: 120, required: false, default: "" },
+      { key: "regions", type: "string", size: 120, required: false, default: "" },
+      { key: "period", type: "string", size: 40, required: false, default: "" },
+      { key: "housingSupport", type: "boolean", required: false, default: false },
       { key: "profileCompleted", type: "boolean", required: false, default: false },
       { key: "consentedAt", type: "string", size: 40, required: true },
       { key: "updatedAt", type: "string", size: 40, required: true }

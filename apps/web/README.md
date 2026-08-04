@@ -188,15 +188,38 @@ APPWRITE_TABLE_ID_USERS=
 APPWRITE_TABLE_ID_JOBS=
 APPWRITE_TABLE_ID_APPLICATIONS=
 APPWRITE_TABLE_ID_POINT_TRANSACTIONS=
+APPWRITE_TABLE_ID_FARMER_APPLICATIONS=
 ```
 
-利用者テーブルを作成:
+テーブルを作成:
+
+```sh
+npm run appwrite:setup:all
+```
+
+個別に作成する場合:
 
 ```sh
 npm run appwrite:setup:users
+npm run appwrite:setup:applications
+npm run appwrite:setup:point-transactions
+npm run appwrite:setup:farmer-applications
+npm run appwrite:setup:events
 ```
 
-モバイルの初回プロフィールは、Clerkの短時間JWTを付けて
+既存の `users` テーブルにWebプロフィール列を追加する場合:
+
+```sh
+npm run appwrite:migrate:users-profile
+```
+
+イベントデータを流し込む場合:
+
+```sh
+npm run appwrite:seed:events
+```
+
+モバイルの初回プロフィールは、Clerkの短時間JWTを `Authorization: Bearer` で付けて
 `/api/mobile/profile` へ送信し、Next.js側だけがAppwrite API Keyを使って保存します。
 事業者が選んだ `farmer` は `pending_review` として保存され、Clerkの管理権限は
 承認されるまで付与されません。
@@ -259,3 +282,34 @@ npm run appwrite:seed:jobs
 | `source` | string | web |
 | `image` | string | /higashihiroshima.jpg |
 | `kintoneRecordId` | string | JOB-001 |
+
+`farmer_applications` テーブルの主な列:
+
+| key | type | 例 |
+| --- | --- | --- |
+| `farmName` | string | 東広島みのりファーム |
+| `representativeName` | string | 山田 太郎 |
+| `email` | string | farmer@example.com |
+| `region` | string | 広島県 |
+| `area` | string | 東広島市 |
+| `industry` | string | agriculture |
+| `capacity` | integer | 2 |
+| `desiredStartMonth` | string | 2026年9月 |
+| `housingSupport` | boolean | true |
+| `status` | string | pending |
+| `submittedAt` | string | 2026年8月3日 |
+| `note` | string | 受け入れ条件の詳細は面談時に確認します。 |
+| `updatedAt` | datetime/string | 2026-08-03T00:00:00.000Z |
+
+Web版のマイページは `GET/PATCH /api/profile` 経由で `users` テーブルに希望条件を保存します。初回アクセス時に localStorage に残っている値があれば、自動で Appwrite へ移行します。
+
+`events` テーブルの主な列:
+
+| key | type | 例 |
+| --- | --- | --- |
+| `title` | string | 夏の棚田メンテナンス |
+| `region` | string | 広島県 東広島市 |
+| `date` | string | 8月3日（日）9:00 |
+| `points` | integer | 600 |
+| `category` | string | 地域活動 |
+| `updatedAt` | datetime/string | 2026-08-03T00:00:00.000Z |

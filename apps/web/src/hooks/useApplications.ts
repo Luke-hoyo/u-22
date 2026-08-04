@@ -2,32 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { applications as seedApplications, type Application } from "@/lib/app-data";
-import { readSavedApplications } from "@/lib/demo-user-state";
+import { hasSavedApplication, readSavedApplications, saveJobApplication } from "@/lib/demo-user-state";
 
 type ApplicationsSource = "appwrite" | "local" | "seed" | "loading";
-
-function mergeApplications(primary: Application[], secondary: Application[]) {
-  const merged = new Map<string, Application>();
-
-  for (const application of secondary) {
-    merged.set(application.id, application);
-  }
-
-  for (const application of primary) {
-    merged.set(application.id, application);
-  }
-
-  return Array.from(merged.values()).sort((left, right) => {
-    const leftTime = Date.parse(left.appliedAt);
-    const rightTime = Date.parse(right.appliedAt);
-
-    if (Number.isFinite(leftTime) && Number.isFinite(rightTime)) {
-      return rightTime - leftTime;
-    }
-
-    return 0;
-  });
-}
 
 function sortByStatusPriority(items: Application[]) {
   const priority: Record<Application["status"], number> = {
@@ -41,7 +18,7 @@ function sortByStatusPriority(items: Application[]) {
 }
 
 export function useApplications() {
-  const [applications, setApplications] = useState<Application[]>(seedApplications);
+  const [applications, setApplications] = useState<Application[]>([]);
   const [source, setSource] = useState<ApplicationsSource>("loading");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -54,20 +31,19 @@ export function useApplications() {
       if (response.ok) {
         const data = (await response.json()) as { applications?: Application[] };
         const serverApplications = Array.isArray(data.applications) ? data.applications : [];
-        const localApplications = readSavedApplications();
-        const nextApplications =
-          serverApplications.length > 0
-            ? mergeApplications(serverApplications, localApplications)
-            : localApplications.length > 0
-              ? localApplications
-              : seedApplications;
+        setApplications(serverApplications);
+        setSource("appwrite");
+        return;
+      }
 
-        setApplications(nextApplications);
-        setSource(serverApplications.length > 0 ? "appwrite" : localApplications.length > 0 ? "local" : "seed");
+      if (response.status === 503) {
+        const localApplications = readSavedApplications();
+        setApplications(localApplications.length > 0 ? localApplications : seedApplications);
+        setSource(localApplications.length > 0 ? "local" : "seed");
         return;
       }
     } catch {
-      // fall through to local/seed
+      // fall through
     } finally {
       setIsLoading(false);
     }
@@ -88,4 +64,41 @@ export function useApplications() {
     isLoading,
     reload
   };
+}
+
+export async function applyToJob(jobId: string, expectedSupport: number) {
+  try {
+    const response = await fetch("/api/applications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jobId, expectedSupport })
+    });
+
+    if (response.ok) {
+      const data = (await response.json()) as { application?: Application };
+      return {
+        ok: true as const,
+        application: data.application ?? null,
+        source: "appwrite" as const
+      };
+    }
+
+    if (response.status === 503) {
+      const application = saveJobApplication(jobId, expectedSupport);
+      return { ok: true as const, application, source: "local" as const };
+    }
+
+    const data = (await response.json().catch(() => null)) as { message?: string } | null;
+    return {
+      ok: false as const,
+      message: data?.message ?? "応募内容を保存できませんでした。"
+    };
+  } catch {
+    if (hasSavedApplication(jobId)) {
+      return { ok: true as const, application: null, source: "local" as const };
+    }
+
+    const application = saveJobApplication(jobId, expectedSupport);
+    return { ok: true as const, application, source: "local" as const };
+  }
 }

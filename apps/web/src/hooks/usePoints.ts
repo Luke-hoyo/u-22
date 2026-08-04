@@ -2,17 +2,16 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { pointTransactions as seedTransactions, rewards } from "@/lib/app-data";
-
-type Reward = (typeof rewards)[number];
 import {
   readDemoEventParticipations,
   readDemoPointLedger,
   readDemoPoints,
   readDemoRewardExchanges,
   saveDemoEventParticipation,
-  saveDemoRewardExchange,
-  writeDemoPoints
+  saveDemoRewardExchange
 } from "@/lib/demo-user-state";
+
+type Reward = (typeof rewards)[number];
 
 type PointLedgerItem = {
   id: string;
@@ -83,7 +82,6 @@ export function usePoints() {
       setExchangedRewardIds(snapshot.exchangedRewardIds);
       setRewardProgress(snapshot.rewardProgress ?? getLocalRewardProgress(snapshot.balance));
       setSource(snapshot.nextSource);
-      writeDemoPoints(snapshot.balance);
     },
     []
   );
@@ -111,6 +109,15 @@ export function usePoints() {
           exchangedRewardIds: Array.isArray(data.exchangedRewardIds) ? data.exchangedRewardIds : [],
           rewardProgress: data.rewardProgress,
           nextSource: data.source === "appwrite" ? "appwrite" : "seed"
+        });
+        return;
+      }
+
+      if (response.status === 503) {
+        const localSnapshot = loadLocalSnapshot();
+        applySnapshot({
+          ...localSnapshot,
+          nextSource: "local"
         });
         return;
       }
@@ -149,38 +156,39 @@ export function usePoints() {
       return true;
     }
 
-    const nextBalance = balance + eventPoints;
-    const participatedAt = new Intl.DateTimeFormat("ja-JP", {
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    }).format(new Date());
-    saveDemoEventParticipation({
-      id: `EVENT-${Date.now()}`,
-      eventId,
-      eventTitle,
-      pointsEarned: eventPoints,
-      participatedAt
-    });
+    if (response.status === 409) {
+      setMessage("このイベントはすでに参加済みです。");
+      await reload();
+      return false;
+    }
 
-    applySnapshot({
-      balance: nextBalance,
-      transactions: [
-        {
-          id: `EVENT-${Date.now()}`,
-          label: `${eventTitle}に参加`,
-          date: participatedAt,
-          amount: eventPoints
-        },
-        ...transactions
-      ],
-      participatedEventIds: [eventId, ...participatedEventIds],
-      exchangedRewardIds,
-      nextSource: "local"
-    });
-    setMessage(`「${eventTitle}」の参加を記録し、${eventPoints} ptを付与しました。`);
-    return true;
+    if (response.status === 503) {
+      const participatedAt = new Intl.DateTimeFormat("ja-JP", {
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(new Date());
+      saveDemoEventParticipation({
+        id: `EVENT-${Date.now()}`,
+        eventId,
+        eventTitle,
+        pointsEarned: eventPoints,
+        participatedAt
+      });
+
+      const localSnapshot = loadLocalSnapshot();
+      applySnapshot({
+        ...localSnapshot,
+        nextSource: "local"
+      });
+      setMessage(`「${eventTitle}」の参加を記録し、${eventPoints} ptを付与しました。`);
+      return true;
+    }
+
+    const data = (await response.json().catch(() => null)) as { message?: string } | null;
+    setMessage(data?.message ?? "ポイント履歴を保存できませんでした。");
+    return false;
   }
 
   async function exchangeReward(reward: Reward) {
@@ -201,38 +209,33 @@ export function usePoints() {
       return true;
     }
 
-    const nextBalance = balance - reward.cost;
-    const exchangedAt = new Intl.DateTimeFormat("ja-JP", {
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    }).format(new Date());
-    saveDemoRewardExchange({
-      id: `EXCHANGE-${Date.now()}`,
-      rewardId: reward.id,
-      rewardName: reward.name,
-      pointsUsed: reward.cost,
-      exchangedAt
-    });
+    if (response.status === 503) {
+      const exchangedAt = new Intl.DateTimeFormat("ja-JP", {
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(new Date());
+      saveDemoRewardExchange({
+        id: `EXCHANGE-${Date.now()}`,
+        rewardId: reward.id,
+        rewardName: reward.name,
+        pointsUsed: reward.cost,
+        exchangedAt
+      });
 
-    applySnapshot({
-      balance: nextBalance,
-      transactions: [
-        {
-          id: `EXCHANGE-${Date.now()}`,
-          label: `${reward.name}に交換`,
-          date: exchangedAt,
-          amount: -reward.cost
-        },
-        ...transactions
-      ],
-      participatedEventIds,
-      exchangedRewardIds: [reward.id, ...exchangedRewardIds],
-      nextSource: "local"
-    });
-    setMessage(`「${reward.name}」に交換しました。`);
-    return true;
+      const localSnapshot = loadLocalSnapshot();
+      applySnapshot({
+        ...localSnapshot,
+        nextSource: "local"
+      });
+      setMessage(`「${reward.name}」に交換しました。`);
+      return true;
+    }
+
+    const data = (await response.json().catch(() => null)) as { message?: string } | null;
+    setMessage(data?.message ?? "特典交換を保存できませんでした。");
+    return false;
   }
 
   return {

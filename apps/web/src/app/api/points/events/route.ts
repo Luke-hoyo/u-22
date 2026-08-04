@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { createHash } from "crypto";
 import { Query, type Models } from "node-appwrite";
 import { NextResponse } from "next/server";
-import { communityEvents } from "@/lib/app-data";
+import { getCommunityEventById } from "@/lib/appwrite/events";
 import { getAppwriteConfig } from "@/lib/appwrite/config";
 import { createAppwriteServerClient } from "@/lib/appwrite/server";
 
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
 
   const body = (await request.json().catch(() => null)) as EventPointRequest | null;
   const eventId = typeof body?.eventId === "string" ? body.eventId : "";
-  const event = communityEvents.find((item) => item.id === eventId);
+  const event = await getCommunityEventById(eventId);
 
   if (!event) {
     return NextResponse.json(

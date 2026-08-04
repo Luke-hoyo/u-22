@@ -10,7 +10,14 @@
     "typecheck": "tsc --noEmit",
     "deploy:server": "powershell.exe -ExecutionPolicy Bypass -File ./scripts/deploy-windows-server.ps1",
     "appwrite:setup:users": "node scripts/setup-appwrite-users.mjs",
-    "appwrite:seed:jobs": "node scripts/seed-appwrite-jobs.mjs"
+    "appwrite:setup:applications": "node scripts/setup-appwrite-applications.mjs",
+    "appwrite:setup:point-transactions": "node scripts/setup-appwrite-point-transactions.mjs",
+    "appwrite:setup:farmer-applications": "node scripts/setup-appwrite-farmer-applications.mjs",
+    "appwrite:setup:events": "node scripts/setup-appwrite-events.mjs",
+    "appwrite:migrate:users-profile": "node scripts/migrate-appwrite-users-profile.mjs",
+    "appwrite:setup:all": "node scripts/setup-appwrite-all.mjs",
+    "appwrite:seed:jobs": "node scripts/seed-appwrite-jobs.mjs",
+    "appwrite:seed:events": "node scripts/seed-appwrite-events.mjs"
   },
   "dependencies": {
     "@clerk/localizations": "^4.13.8",

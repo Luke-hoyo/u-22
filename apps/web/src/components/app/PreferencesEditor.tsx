@@ -4,28 +4,26 @@ import { Check, Pencil, X } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import {
   defaultDemoPreferences,
-  readDemoPreferences,
-  writeDemoPreferences,
   type DemoPreferences
 } from "@/lib/demo-user-state";
+import { useProfilePreferences } from "@/hooks/useProfilePreferences";
 import styles from "./ProductUI.module.css";
 
 export function PreferencesEditor() {
-  const [preferences, setPreferences] = useState<DemoPreferences>(defaultDemoPreferences);
+  const { preferences, isLoading, errorMessage, setErrorMessage, save } = useProfilePreferences();
   const [draft, setDraft] = useState<DemoPreferences>(defaultDemoPreferences);
   const [editing, setEditing] = useState(false);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const stored = readDemoPreferences();
-    setPreferences(stored);
-    setDraft(stored);
-  }, []);
+    setDraft(preferences);
+  }, [preferences]);
 
   function startEditing() {
     setDraft(preferences);
     setEditing(true);
     setMessage("");
+    setErrorMessage("");
   }
 
   function cancelEditing() {
@@ -33,17 +31,26 @@ export function PreferencesEditor() {
     setEditing(false);
   }
 
-  function save(event: FormEvent<HTMLFormElement>) {
+  async function handleSave(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const next = {
       ...draft,
       scholarshipBalance: Math.max(0, Number(draft.scholarshipBalance) || 0)
     };
-    writeDemoPreferences(next);
-    setPreferences(next);
-    setDraft(next);
+
+    const result = await save(next);
+
+    if (!result.ok) {
+      return;
+    }
+
+    setDraft(result.preferences);
     setEditing(false);
-    setMessage("希望条件を保存しました。求人のおすすめに反映されます。");
+    setMessage(
+      "offline" in result && result.offline
+        ? "希望条件を保存しました。Appwrite未設定のため、この端末にのみ保存されます。"
+        : "希望条件を保存しました。求人のおすすめに反映されます。"
+    );
   }
 
   return (
@@ -56,15 +63,22 @@ export function PreferencesEditor() {
             キャンセル
           </button>
         ) : (
-          <button className={styles.secondaryButton} type="button" onClick={startEditing}>
+          <button
+            className={styles.secondaryButton}
+            type="button"
+            onClick={startEditing}
+            disabled={isLoading}
+          >
             <Pencil aria-hidden="true" size={16} />
             編集
           </button>
         )}
       </div>
 
-      {editing ? (
-        <form className={styles.preferencesForm} onSubmit={save}>
+      {isLoading ? (
+        <div className={styles.emptyState}>プロフィールを読み込み中です。</div>
+      ) : editing ? (
+        <form className={styles.preferencesForm} onSubmit={handleSave}>
           <div className={styles.formGroup}>
             <label htmlFor="preference-birth-date">生年月日</label>
             <input
@@ -204,6 +218,11 @@ export function PreferencesEditor() {
       {message ? (
         <div className={styles.feedback} role="status">
           {message}
+        </div>
+      ) : null}
+      {errorMessage ? (
+        <div className={styles.feedback} role="alert">
+          {errorMessage}
         </div>
       ) : null}
     </section>

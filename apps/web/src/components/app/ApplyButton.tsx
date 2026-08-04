@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Send } from "lucide-react";
 import { useEffect, useState } from "react";
-import { hasSavedApplication, saveJobApplication } from "@/lib/demo-user-state";
+import { hasSavedApplication } from "@/lib/demo-user-state";
+import { applyToJob } from "@/hooks/useApplications";
 import styles from "./ProductUI.module.css";
 
 export function ApplyButton({
@@ -14,28 +15,63 @@ export function ApplyButton({
   jobId: string;
 }) {
   const [applied, setApplied] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    setApplied(hasSavedApplication(jobId));
+    let active = true;
+
+    async function checkApplied() {
+      try {
+        const response = await fetch("/api/applications", { cache: "no-store" });
+
+        if (!active) {
+          return;
+        }
+
+        if (response.ok) {
+          const data = (await response.json()) as {
+            applications?: Array<{ jobId?: string }>;
+          };
+          const applications = Array.isArray(data.applications) ? data.applications : [];
+          setApplied(applications.some((application) => application.jobId === jobId));
+          return;
+        }
+
+        if (response.status === 503) {
+          setApplied(hasSavedApplication(jobId));
+        }
+      } catch {
+        if (active) {
+          setApplied(hasSavedApplication(jobId));
+        }
+      }
+    }
+
+    void checkApplied();
+
+    return () => {
+      active = false;
+    };
   }, [jobId]);
 
   async function apply() {
-    const localApplication = saveJobApplication(jobId, expectedSupport);
-    setApplied(true);
+    setIsSubmitting(true);
+    setErrorMessage("");
 
-    try {
-      await fetch("/api/applications", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          jobId,
-          expectedSupport: localApplication.expectedSupport
-        })
-      });
-    } catch {
-      // Appwriteが未設定でも、コンテスト用デモの応募体験は継続させます。
+    const result = await applyToJob(jobId, expectedSupport);
+
+    if (result.ok) {
+      setApplied(true);
+      setIsSubmitting(false);
+      return;
+    }
+
+    setErrorMessage(result.message);
+    setIsSubmitting(false);
+
+    if (hasSavedApplication(jobId)) {
+      setApplied(true);
     }
   }
 
@@ -44,7 +80,7 @@ export function ApplyButton({
       <button
         className={`${styles.primaryButton} ${styles.fullButton}`}
         type="button"
-        disabled={applied}
+        disabled={applied || isSubmitting}
         onClick={apply}
       >
         {applied ? (
@@ -55,7 +91,7 @@ export function ApplyButton({
         ) : (
           <>
             <Send aria-hidden="true" size={18} />
-            この仕事に応募する
+            {isSubmitting ? "送信中..." : "この仕事に応募する"}
           </>
         )}
       </button>
@@ -68,6 +104,11 @@ export function ApplyButton({
           </Link>
         </div>
       )}
+      {errorMessage ? (
+        <div className={styles.feedback} role="alert">
+          {errorMessage}
+        </div>
+      ) : null}
     </>
   );
 }

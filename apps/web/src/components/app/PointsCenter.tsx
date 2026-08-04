@@ -1,7 +1,8 @@
 "use client";
 
 import { CalendarDays, CheckCircle2, Gift, Sparkles, TicketCheck } from "lucide-react";
-import { communityEvents, rewards } from "@/lib/app-data";
+import { rewards } from "@/lib/app-data";
+import { useCommunityEvents } from "@/hooks/useCommunityEvents";
 import { usePoints } from "@/hooks/usePoints";
 import styles from "./ProductUI.module.css";
 
@@ -22,6 +23,7 @@ export function PointsCenter() {
     participateEvent,
     exchangeReward
   } = usePoints();
+  const { events, isLoading: eventsLoading } = useCommunityEvents();
 
   return (
     <>
@@ -56,7 +58,10 @@ export function PointsCenter() {
             <CalendarDays aria-hidden="true" color="#006a62" size={20} />
           </div>
           <div className={styles.eventList}>
-            {communityEvents.map((event) => (
+            {eventsLoading ? (
+              <div className={styles.emptyState}>イベントを読み込み中です。</div>
+            ) : (
+              events.map((event) => (
               <article className={styles.eventCard} key={event.id}>
                 <span className={styles.dateBox}>
                   {getEventDay(event.date)}
@@ -88,7 +93,8 @@ export function PointsCenter() {
                   )}
                 </button>
               </article>
-            ))}
+              ))
+            )}
           </div>
         </section>
 
