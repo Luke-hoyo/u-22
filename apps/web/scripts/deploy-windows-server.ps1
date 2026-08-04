@@ -184,6 +184,11 @@ try {
 
     if ($deploySucceeded) {
       Write-Host "Scheduled Task '$TaskName' restarted."
+
+      $healthScript = Join-Path $scriptDir "check-production-health.ps1"
+      if (Test-Path $healthScript) {
+        & $healthScript
+      }
     } else {
       Write-Host "Deployment failed. Scheduled Task '$TaskName' was started again."
     }

@@ -7,7 +7,18 @@ WEB_ENV="$ROOT/../web/.env.local"
 
 if [[ ! -f "$DEFINES_FILE" && -f "$WEB_ENV" ]]; then
   KEY="$(grep '^NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=' "$WEB_ENV" | cut -d= -f2- | tr -d '"')"
-  printf '{\n  "CLERK_PUBLISHABLE_KEY": "%s"\n}\n' "$KEY" >"$DEFINES_FILE"
+  SENTRY_DSN="$(grep -E '^(SENTRY_DSN|NEXT_PUBLIC_SENTRY_DSN)=' "$WEB_ENV" | head -n1 | cut -d= -f2- | tr -d '"')"
+  SENTRY_ENV="$(grep '^SENTRY_ENVIRONMENT=' "$WEB_ENV" | cut -d= -f2- | tr -d '"')"
+  {
+    printf '{\n  "CLERK_PUBLISHABLE_KEY": "%s"' "$KEY"
+    if [[ -n "$SENTRY_DSN" ]]; then
+      printf ',\n  "SENTRY_DSN": "%s"' "$SENTRY_DSN"
+    fi
+    if [[ -n "$SENTRY_ENV" ]]; then
+      printf ',\n  "SENTRY_ENVIRONMENT": "%s"' "$SENTRY_ENV"
+    fi
+    printf '\n}\n'
+  } >"$DEFINES_FILE"
   echo "Created dart_defines.local.json from apps/web/.env.local"
 fi
 

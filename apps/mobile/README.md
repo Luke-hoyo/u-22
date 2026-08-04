@@ -49,6 +49,33 @@ flutter run --dart-define-from-file=dart_defines.local.json
 
 `CLERK_PUBLISHABLE_KEY` を指定しない場合、今まで通りコンテスト用のデモログインだけで動きます。
 
+### Windows（コマンドプロンプト）
+
+README の2行をそのまま貼ると、1行目の `cd` だけ実行されて止まることがあります。**1行で**実行するか、用意した `.bat` を使ってください。
+
+リポジトリ直下（例: `C:\hatarukun\u-22`）で:
+
+```cmd
+cd /d C:\hatarukun\u-22\apps\mobile && flutter run --dart-define-from-file=dart_defines.local.json
+```
+
+または:
+
+```cmd
+C:\hatarukun\u-22\apps\mobile\scripts\run-local.bat
+```
+
+`dart_defines.local.json` は Git に含まれません。無い場合は `apps\web\.env.production` または `.env.local` から `scripts\sync-dart-defines.ps1` が自動生成します。
+
+`dart_defines.local.json` を直したあとは **ホットリロードでは反映されません**。いったん `q` で止めて、もう一度 `run-local.bat` を実行してください。
+
+PowerShell なら:
+
+```powershell
+cd C:\hatarukun\u-22\apps\mobile
+.\scripts\run-local.ps1
+```
+
 ## Sentry
 
 Web版と同じ Sentry プロジェクトの DSN を使えます。未設定のときは Sentry は無効のまま起動します。
@@ -70,5 +97,20 @@ flutter build apk --release --dart-define-from-file=dart_defines.local.json
 ```
 
 個人情報は `sendDefaultPii: false` と送信前スクラブで除外しています。
+
+### Sentry 接続テスト
+
+Web の `/api/admin/sentry-test` に相当するモバイル用コマンド:
+
+```sh
+cd apps/mobile
+./scripts/sentry-test-mobile.sh
+```
+
+起動直後に `hatarukun mobile sentry connectivity test` を Sentry に送ります。Issues に出れば成功です。
+
+```sh
+flutter run -t lib/tool/sentry_test.dart --dart-define-from-file=dart_defines.local.json
+```
 
 Clerk Flutter SDKはBetaのため、コンテスト段階では「認証の入口確認」として使い、本人確認・奨学金情報・ポイントは引き続きモックデータで再現します。

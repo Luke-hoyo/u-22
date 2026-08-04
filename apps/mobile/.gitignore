@@ -46,3 +46,6 @@ app.*.map.json
 
 # Local Clerk / API defines (never commit)
 dart_defines.local.json
+
+sentry.properties
+sentry-wizard

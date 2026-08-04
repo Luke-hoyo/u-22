@@ -346,11 +346,24 @@ git pull --ff-only origin main
 デプロイ後の確認:
 
 ```powershell
+npm run health:production
 curl https://hatarukun.jp/api/events
 curl https://hatarukun.jp/api/appwrite/status
 ```
 
-`events` の `source` が `appwrite` であること、`appwrite/status` が `ok: true` であることを確認してください。
+`health:production` は `/api/health` と `/api/health/sentry` が 200 になるまで再試行します。`events` の `source` が `appwrite` であること、`appwrite/status` が `ok: true` であることを確認してください。
+
+### サイト全体が `502` になる
+
+Cloudflare の `error code: 502` は、Windows サーバー上の Node プロセスが止まっている状態です。Web サーバーで次を実行してください。
+
+```powershell
+cd C:\hatarukun\u-22\apps\web
+npm run deploy:server
+npm run health:production
+```
+
+`deploy:server` 後も 502 のままなら、タスクスケジューラの `HatarukunWeb` が起動しているか、手動で `npm run start` が動くかを確認します。
 
 ## Sentry（任意）
 

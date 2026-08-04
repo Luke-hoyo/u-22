@@ -14,9 +14,10 @@ dependencies:
   clerk_flutter: ^0.0.18-beta
   syncfusion_flutter_charts: ^34.1.33
   mobile_scanner: ^7.4.0
-  sentry_flutter: ^8.14.2
+  sentry_flutter: ^9.22.0
 
 dev_dependencies:
+  sentry_dart_plugin: ^3.4.0
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
@@ -26,3 +27,9 @@ flutter:
   assets:
     - assets/brand/hatarukun-icon-1024.png
     - assets/brand/higashihiroshima.jpg
+
+sentry:
+  upload_debug_symbols: true
+  upload_source_maps: true
+  project: flutter
+  org: u-22kinkou
