@@ -13,7 +13,6 @@
 - 本番の行政システム連携は行わない
 - JASSO連携、税制免除、eKYCはデモ用ステータスで再現する
 - ポイント付与・商品券交換はデモ用データで再現する
-- kintoneは提供されているため、費用は0円として扱う
 - Firebaseは有料プラン化を避けるため、現時点では使わない
 - Google CloudやAzureは後から拡張候補として検討する
 - Windows版は今回は含めない
@@ -41,8 +40,8 @@ U-22/
 | データベース | Appwrite Databases |
 | 画像保存 | Appwrite Storage |
 | 通知 | Appwrite Messaging |
-| 業務管理 | kintone |
-| 求人連携 | kintone API |
+| 管理画面 | Web版ダッシュボード + Appwrite |
+| 求人・応募・イベント | Appwrite TablesDB |
 | 地図 | Google Maps API または Mapbox |
 | 監視 | Sentry Education |
 | セキュリティ | GitHub Secret scanning / Dependabot / CodeQL / 1Password |
@@ -62,9 +61,8 @@ Stitch出力のKinetic Clarityを、Web版、Mobile版、Figma、Codex作業の�
 
 1. Web版の基礎構築
 2. Mobile版の画面整理
-3. kintoneの求人・応募データ設計
-4. Appwriteのデータ設計
-5. ポイント機能のモック実装
+3. Appwriteのデータ設計とセットアップ
+4. ポイント機能の実装
 6. 発表用デモ導線の整理
 7. APIキー・個人情報・本人確認画像の保護方針を整理する
 
@@ -109,7 +107,6 @@ Mobile版は `clerk_flutter` BetaでClerk認証の入口を追加済みです。
 - housingSupport
 - workPeriodMonths
 - requiredSkills
-- kintoneRecordId
 
 ### Application
 
@@ -130,7 +127,6 @@ Mobile版は `clerk_flutter` BetaでClerk認証の入口を追加済みです。
 - eventDate
 - points
 - description
-- kintoneRecordId
 
 ### PointTransaction
 

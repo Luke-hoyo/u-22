@@ -46,14 +46,7 @@ try {
       { key: "amount", type: "integer", required: true },
       { key: "occurredAt", type: "string", size: 40, required: true },
       { key: "source", type: "string", size: 16, required: false, default: "web" },
-      { key: "image", type: "string", size: 200, required: false, default: "" },
-      {
-        key: "kintoneRecordId",
-        type: "string",
-        size: 64,
-        required: false,
-        default: ""
-      }
+      { key: "image", type: "string", size: 200, required: false, default: "" }
     ]
   });
 

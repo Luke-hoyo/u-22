@@ -1,6 +1,6 @@
 # サービス候補メモ
 
-最終更新日: 2026-07-19
+最終更新日: 2026-08-04
 
 GitHub Student Developer Pack、Clerk Pro、Visual Studio Dev Essentialsで使えそうなサービス候補を整理します。
 
@@ -10,7 +10,6 @@ GitHub Student Developer Pack、Clerk Pro、Visual Studio Dev Essentialsで使�
 | --- | --- | --- |
 | Clerk Pro | 認証・ユーザー管理 | Proプラン提供済み。Next.jsの認証を短時間で作りやすい |
 | Appwrite Education plan | DB・Storage・Messaging | GitHub Student Developer PackでEducation planが使える。Firebaseの有料化回避に向く |
-| kintone | 農家・自治体側の管理画面 | 提供済み。求人・応募・イベント管理に向く |
 | Sentry Education | エラー監視 | Web/Mobileのエラーを発表前に拾いやすい |
 | GitHub Codespaces | クラウド開発環境 | PC環境が変わっても開発しやすい |
 | GitHub security features | Secret scanning・Dependabot・CodeQL | APIキー漏えい、依存関係の脆弱性、コード上の問題を検知できる |
@@ -20,7 +19,7 @@ GitHub Student Developer Pack、Clerk Pro、Visual Studio Dev Essentialsで使�
 
 | サービス | 用途 | 使うタイミング |
 | --- | --- | --- |
-| Azure Functions | kintone APIの中継 | APIキーをフロントに出したくないとき |
+| Azure Functions | API中継 | サーバーレスで重い処理を分離したいとき |
 | Application Insights | 監視・ログ | Azure Functionsを使う場合 |
 | DigitalOcean | 代替ホスティング・APIサーバー | AzureやGoogle Cloudを使わない場合 |
 | MongoDB Atlas | 代替DB | Appwriteが合わなかった場合 |
@@ -32,7 +31,7 @@ GitHub Student Developer Pack、Clerk Pro、Visual Studio Dev Essentialsで使�
 
 | 領域 | 候補 | 使い道 |
 | --- | --- | --- |
-| 秘密情報管理 | 1Password | Clerk、Appwrite、kintone、SentryのAPIキーや管理者ログイン情報を保存する |
+| 秘密情報管理 | 1Password | Clerk、Appwrite、SentryのAPIキーや管理者ログイン情報を保存する |
 | シークレット検知 | GitHub Secret scanning | GitHubにAPIキーやトークンを誤ってpushしたときに検知する |
 | 依存関係チェック | Dependabot | npm、Flutter、GitHub Actionsなどの脆弱な依存関係を検知・更新する |
 | コード解析 | CodeQL | TypeScriptなどのコード上の脆弱性を検査する |
@@ -45,7 +44,6 @@ GitHub Student Developer Pack、Clerk Pro、Visual Studio Dev Essentialsで使�
 - 実在の奨学金情報、本人確認画像、マイナンバー情報は使わない
 - `.env` やAPIキーはGitHubにpushしない
 - `.env.example` にはキー名だけを書く
-- kintone APIキーはフロントエンドに直接置かない
 - GitHubのSecret scanningとDependabotを有効化する
 - ClerkのMFAやセッション管理を、将来の本人確認強化として説明する
 - Appwriteの権限設定で、自分のデータだけ見える設計にする
@@ -67,7 +65,7 @@ GitHub Student Developer Pack、Clerk Pro、Visual Studio Dev Essentialsで使�
 DB: Appwrite Databases
 画像保存: Appwrite Storage
 通知: Appwrite Messaging
-管理画面: kintone
+管理画面: Web版ダッシュボード（農家・自治体・運営）
 エラー監視: Sentry
 秘密情報管理: 1Password
 シークレット検知: GitHub Secret scanning
@@ -80,7 +78,6 @@ API中継: Next.js API Route または Azure Functions
 
 - ClerkとAppwriteはどちらも認証機能を持つため、ログインはClerkに統一する
 - AppwriteはDB、Storage、Messaging担当として使う
-- kintone APIキーはフロントエンドに直接置かない
 - APIキー、本人確認画像、応募情報、ポイント履歴は個人情報として扱う
 - Sentryなどの監視ツールに個人情報を送らない
 - GitHubのセキュリティ機能はpublic/privateやプランで利用範囲が変わるため、導入時にリポジトリ設定で確認する

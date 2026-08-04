@@ -24,7 +24,6 @@ Next.js / React / TypeScriptで構築予定です。
 - Appwrite Databases
 - Appwrite Storage
 - Appwrite Messaging
-- kintone API
 - Sentry
 
 ## Clerk初期設定
@@ -281,7 +280,6 @@ npm run appwrite:seed:jobs
 | `occurredAt` | datetime/string | 2026-08-03T00:00:00.000Z |
 | `source` | string | web |
 | `image` | string | /higashihiroshima.jpg |
-| `kintoneRecordId` | string | JOB-001 |
 
 `farmer_applications` テーブルの主な列:
 

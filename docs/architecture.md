@@ -2,18 +2,18 @@
 
 ## 全体像
 
-U-22版の「はたるくん」は、Webアプリ、Mobileアプリ、Clerk、Appwrite、kintoneを組み合わせて構成します。
+U-22版の「はたるくん」は、Webアプリ、Mobileアプリ、Clerk、Appwriteを組み合わせて構成します。
 
 ```text
-若者
+若者 / 農家 / 自治体 / 運営
   ↓
 Webアプリ / Mobileアプリ
   ↓
-Clerk / Appwrite Databases / Appwrite Storage
+Clerk（認証） / Next.js API Route
   ↓
-kintone API
+Appwrite Databases / Appwrite Storage
   ↓
-農家・自治体向け求人管理
+求人・応募・プロフィール・ポイント・農家申請
 ```
 
 ## UIデザイン
@@ -73,17 +73,7 @@ Appwriteは、Firebaseの代替としてデータベース、画像保存、通�
 - Appwrite Messaging: 将来的な通知
 - Appwrite Functions: 必要に応じた軽いバックエンド処理
 
-## kintone
-
-kintoneは、農家・自治体・運営者向けの業務管理に使います。
-
-- 求人情報の登録
-- 応募状況の確認
-- 就業先情報の管理
-- 地域イベント情報の管理
-- ポイント付与状況の確認
-
-kintoneは提供済みのため、コンテスト予算では0円として扱います。
+農家・自治体・運営向けの管理画面は、Web版のダッシュボード（`/farmer/dashboard` など）と Appwrite のテーブルで担います。
 
 ## Google Cloud / Azure
 
@@ -92,7 +82,6 @@ Google CloudやAzureは、学校クレジットやVisual Studio Dev Essentials�
 将来的な候補:
 
 - API中継
-- kintone APIキーの秘匿
 - 監視
 - 分析
 
@@ -103,11 +92,11 @@ Google CloudやAzureは、学校クレジットやVisual Studio Dev Essentials�
 コンテスト段階では、実データを使わずモックデータで再現します。本格運用を想定する場合は、次の方針を取ります。
 
 - APIキーやトークンをフロントエンドに直接置かない
-- kintone APIはNext.js API Route、Appwrite Functions、Azure Functionsなどの中継API経由にする
+- 外部APIはNext.js API Route、Appwrite Functions、Azure Functionsなどの中継API経由にする
 - GitHub Secret scanningでAPIキーの漏えいを検知する
 - Dependabotで依存パッケージの脆弱性を検知する
 - CodeQLでコード上のセキュリティ問題を検査する
-- 1PasswordでClerk、Appwrite、kintone、Sentryなどのキーを管理する
+- 1PasswordでClerk、Appwrite、Sentryなどのキーを管理する
 - 本人確認画像は最小限の保存にし、不要になったら削除する
 - Appwriteの権限設定で、本人以外が個人情報を読めないようにする
 
@@ -116,13 +105,11 @@ Google CloudやAzureは、学校クレジットやVisual Studio Dev Essentials�
 ポイント機能は、地域イベント参加を促し、若者と地域の接点を増やすために使います。
 
 ```text
-自治体・運営者
-  ↓ 地域イベントを登録
-kintone
-  ↓ APIでイベント情報を取得
+運営・自治体
+  ↓ Webダッシュボードでイベントを管理（Appwrite `events`）
 Webアプリ / Mobileアプリ
   ↓ ユーザーが参加
-Appwrite Databases
+Appwrite Databases（`point_transactions`）
   ↓
 ポイント残高・ポイント履歴を更新
 ```

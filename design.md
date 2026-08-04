@@ -77,7 +77,7 @@ Stitchで作成した「Kinetic Clarity」を、今後のUIデザイン基準と
 - 地域イベントカード
 - ポイント履歴
 - 商品券交換までの進捗バー
-- kintone管理連携を示す管理側ステータス
+- 農家・運営向けダッシュボードの管理ステータス
 
 ## 技術前提
 
@@ -85,7 +85,7 @@ Stitchで作成した「Kinetic Clarity」を、今後のUIデザイン基準と
 - Mobile: Flutter / Dart
 - 認証: Clerk Pro
 - DB / Storage: Appwrite
-- 業務管理: kintone
+- 管理画面: Web版ダッシュボード
 - 監視: Sentry
 
 ## Stitch用プロンプト

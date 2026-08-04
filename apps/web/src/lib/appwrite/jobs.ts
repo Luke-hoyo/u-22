@@ -25,7 +25,6 @@ type AppwriteJobRow = Models.Row & {
   duties?: string[] | string;
   schedule?: string;
   image?: string;
-  kintoneRecordId?: string;
 };
 
 export type JobsDataSource = "appwrite" | "mock";
@@ -97,8 +96,7 @@ function mapRowToJob(row: AppwriteJobRow): Job {
     description: row.description ?? row.summary ?? "詳細説明は地域側のダッシュボードから登録します。",
     duties: parseStringList(row.duties, ["仕事内容を確認", "地域担当者と面談"]),
     schedule: row.schedule ?? "勤務時間は地域担当者と確認",
-    image: row.image,
-    kintoneRecordId: row.kintoneRecordId ?? row.$id
+    image: row.image
   };
 }
 

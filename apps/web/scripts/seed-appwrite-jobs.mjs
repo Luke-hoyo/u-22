@@ -72,8 +72,7 @@ function toRowData(job) {
     description: job.description,
     duties: job.duties.join(","),
     schedule: job.schedule,
-    image: job.image ?? "",
-    kintoneRecordId: job.kintoneRecordId
+    image: job.image ?? ""
   };
 }
 

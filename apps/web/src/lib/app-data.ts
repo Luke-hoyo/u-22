@@ -19,7 +19,6 @@ export type Job = {
   duties: string[];
   schedule: string;
   image?: string;
-  kintoneRecordId: string;
 };
 
 export type ApplicationStatus = "applied" | "interview" | "matched" | "working";
@@ -59,9 +58,7 @@ export const jobs: Job[] = [
       "ぶどうの房づくり、収穫、選果、出荷までをチームで担当します。初めての方には道具の使い方から説明し、地域での暮らしも担当者がサポートします。",
     duties: ["ぶどうの栽培管理", "収穫・選果・出荷", "直売所イベントの運営補助"],
     schedule: "8:00〜17:00（休憩90分）",
-    image: "/higashihiroshima.jpg",
-    kintoneRecordId: "JOB-001"
-  },
+    image: "/higashihiroshima.jpg"  },
   {
     id: "uwajima-aquaculture",
     title: "海と向き合う養殖スタッフ",
@@ -80,9 +77,7 @@ export const jobs: Job[] = [
     description:
       "給餌やいけすの点検、水質管理、出荷作業を行います。安全研修を受けた後、先輩スタッフと一緒に海へ出るため未経験でも安心です。",
     duties: ["給餌・いけす点検", "水質と魚の健康管理", "水揚げ・出荷作業"],
-    schedule: "6:30〜15:30（季節により変動）",
-    kintoneRecordId: "JOB-002"
-  },
+    schedule: "6:30〜15:30（季節により変動）"  },
   {
     id: "hita-forestry",
     title: "森を育てる林業アシスタント",
@@ -101,9 +96,7 @@ export const jobs: Job[] = [
     description:
       "植林、下草刈り、間伐材の整理から始め、段階的に林業機械の操作を学びます。天候や体調を確認しながらチームで作業します。",
     duties: ["植林・下草刈り", "間伐材の整理", "林業機械の操作補助"],
-    schedule: "7:30〜16:30（休憩100分）",
-    kintoneRecordId: "JOB-003"
-  },
+    schedule: "7:30〜16:30（休憩100分）"  },
   {
     id: "nagano-vegetable",
     title: "高原野菜の生産・販売スタッフ",
@@ -122,9 +115,7 @@ export const jobs: Job[] = [
     description:
       "レタスやトマトなどの栽培、収穫、袋詰めに加え、週末のマルシェ販売も担当します。生産者と消費者をつなぐ経験ができます。",
     duties: ["野菜の栽培・収穫", "選果・袋詰め", "マルシェでの販売"],
-    schedule: "7:00〜16:00（繁忙期は早出あり）",
-    kintoneRecordId: "JOB-004"
-  },
+    schedule: "7:00〜16:00（繁忙期は早出あり）"  },
   {
     id: "kesennuma-processing",
     title: "水産加工と地域ブランドづくり",
@@ -143,9 +134,7 @@ export const jobs: Job[] = [
     description:
       "鮮魚の下処理、加工、梱包を基本に、慣れてきたら新商品のアイデア出しや撮影、販売イベントにも参加します。",
     duties: ["水産物の加工・梱包", "品質管理", "商品企画と販売補助"],
-    schedule: "8:00〜17:00（休憩60分）",
-    kintoneRecordId: "JOB-005"
-  },
+    schedule: "8:00〜17:00（休憩60分）"  },
   {
     id: "wakayama-citrus",
     title: "みかん農園の通年スタッフ",
@@ -164,9 +153,7 @@ export const jobs: Job[] = [
     description:
       "剪定、摘果、収穫など年間を通した作業を経験します。希望者には農地探しや就農計画づくりの支援も行います。",
     duties: ["剪定・摘果・収穫", "選果・箱詰め", "就農計画づくり"],
-    schedule: "8:00〜17:00（季節により変動）",
-    kintoneRecordId: "JOB-006"
-  }
+    schedule: "8:00〜17:00（季節により変動）"  }
 ];
 
 export const applications: Application[] = [
