@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="300" viewBox="0 0 980 300">
+<rect width="980" height="300" fill="#F8FAF9"/>
+<text x="40" y="48" fill="#004D40" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="26" font-weight="800">どう作ったか（構築フロー）</text>
+<defs><marker id="a4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#64748b"/></marker></defs>
+<rect x="40" y="120" width="120" height="90" rx="10" fill="#004D40"/><text fill="#fff" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="100.0" y="165.0">要件整理</tspan></text>
+<line x1="160" y1="165" x2="170" y2="165" stroke="#64748b" stroke-width="2" marker-end="url(#a4)"/>
+<rect x="170" y="120" width="120" height="90" rx="10" fill="#0F766E"/><text fill="#fff" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="230.0" y="156.0">UI設計</tspan><tspan x="230.0" y="174.0">Stitch</tspan></text>
+<line x1="290" y1="165" x2="300" y2="165" stroke="#64748b" stroke-width="2" marker-end="url(#a4)"/>
+<rect x="300" y="120" width="120" height="90" rx="10" fill="#0F766E"/><text fill="#fff" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="360.0" y="156.0">Clerk</tspan><tspan x="360.0" y="174.0">認証</tspan></text>
+<line x1="420" y1="165" x2="430" y2="165" stroke="#64748b" stroke-width="2" marker-end="url(#a4)"/>
+<rect x="430" y="120" width="120" height="90" rx="10" fill="#0F766E"/><text fill="#fff" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="490.0" y="156.0">Appwrite</tspan><tspan x="490.0" y="174.0">データ</tspan></text>
+<line x1="550" y1="165" x2="560" y2="165" stroke="#64748b" stroke-width="2" marker-end="url(#a4)"/>
+<rect x="560" y="120" width="120" height="90" rx="10" fill="#0F766E"/><text fill="#fff" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="620.0" y="156.0">Next.js</tspan><tspan x="620.0" y="174.0">API</tspan></text>
+<line x1="680" y1="165" x2="690" y2="165" stroke="#64748b" stroke-width="2" marker-end="url(#a4)"/>
+<rect x="690" y="120" width="120" height="90" rx="10" fill="#0F766E"/><text fill="#fff" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="750.0" y="156.0">Web/</tspan><tspan x="750.0" y="174.0">Mobile</tspan></text>
+<line x1="810" y1="165" x2="820" y2="165" stroke="#64748b" stroke-width="2" marker-end="url(#a4)"/>
+<rect x="820" y="120" width="120" height="90" rx="10" fill="#004D40"/><text fill="#fff" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="880.0" y="156.0">本番</tspan><tspan x="880.0" y="174.0">公開</tspan></text>
+</svg>

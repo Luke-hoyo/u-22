@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="360" viewBox="0 0 980 360">
+<rect width="980" height="360" fill="#F8FAF9"/>
+<text x="40" y="48" fill="#004D40" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="26" font-weight="800">農家・事業者の参加フロー</text>
+<defs><marker id="a3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#64748b"/></marker></defs>
+<rect x="40" y="140" width="150" height="80" rx="10" fill="#004D40"/><text fill="#fff" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="115.0" y="171.0">参加申請</tspan><tspan x="115.0" y="189.0">/farmer/apply</tspan></text>
+<line x1="200" y1="180" x2="250" y2="180" stroke="#64748b" stroke-width="2" marker-end="url(#a3)"/>
+<rect x="250" y="140" width="150" height="80" rx="10" fill="#115E59"/><text fill="#fff" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="325.0" y="171.0">運営が確認</tspan><tspan x="325.0" y="189.0">・承認</tspan></text>
+<line x1="410" y1="180" x2="460" y2="180" stroke="#64748b" stroke-width="2" marker-end="url(#a3)"/>
+<rect x="460" y="140" width="150" height="80" rx="10" fill="#0F766E"/><text fill="#fff" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="535.0" y="171.0">農家アカウント</tspan><tspan x="535.0" y="189.0">招待</tspan></text>
+<line x1="620" y1="180" x2="670" y2="180" stroke="#64748b" stroke-width="2" marker-end="url(#a3)"/>
+<rect x="670" y="140" width="150" height="80" rx="10" fill="#0F766E"/><text fill="#fff" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="745.0" y="171.0">求人作成</tspan><tspan x="745.0" y="189.0">・公開</tspan></text>
+<line x1="745" y1="220" x2="745" y2="260" stroke="#64748b" stroke-width="2" marker-end="url(#a3)"/>
+<rect x="670" y="260" width="150" height="70" rx="10" fill="#134E4A"/><text fill="#fff" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="745.0" y="295.0">応募者管理</tspan></text>
+<text x="40" y="330" fill="#64748b" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="13">申請 → 承認 → 招待 → 求人運用</text>
+</svg>

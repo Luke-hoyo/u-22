@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="420" viewBox="0 0 980 420">
+<rect width="980" height="420" fill="#F8FAF9"/>
+<text x="40" y="48" fill="#004D40" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="26" font-weight="800">若者の利用フロー</text>
+<defs><marker id="a2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#64748b"/></marker></defs>
+<rect x="40" y="140" width="140" height="70" rx="10" fill="#004D40"/><text fill="#fff" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="110.0" y="175.0">ログイン</tspan></text>
+<line x1="190" y1="175" x2="230" y2="175" stroke="#64748b" stroke-width="2" marker-end="url(#a2)"/>
+<rect x="230" y="140" width="140" height="70" rx="10" fill="#0F766E"/><text fill="#fff" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="300.0" y="175.0">求人検索</tspan></text>
+<line x1="380" y1="175" x2="420" y2="175" stroke="#64748b" stroke-width="2" marker-end="url(#a2)"/>
+<rect x="420" y="140" width="140" height="70" rx="10" fill="#0F766E"/><text fill="#fff" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="490.0" y="175.0">求人詳細</tspan></text>
+<line x1="570" y1="175" x2="610" y2="175" stroke="#64748b" stroke-width="2" marker-end="url(#a2)"/>
+<rect x="610" y="140" width="140" height="70" rx="10" fill="#115E59"/><text fill="#fff" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="680.0" y="175.0">応募</tspan></text>
+<line x1="760" y1="175" x2="800" y2="175" stroke="#64748b" stroke-width="2" marker-end="url(#a2)"/>
+<rect x="800" y="140" width="140" height="70" rx="10" fill="#134E4A"/><text fill="#fff" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="870.0" y="166.0">免除見込み</tspan><tspan x="870.0" y="184.0">確認</tspan></text>
+<line x1="300" y1="210" x2="300" y2="280" stroke="#64748b" stroke-width="2" marker-end="url(#a2)"/>
+<rect x="230" y="280" width="140" height="70" rx="10" fill="#0F766E"/><text fill="#fff" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="300.0" y="315.0">地域イベント</tspan></text>
+<line x1="380" y1="315" x2="420" y2="315" stroke="#64748b" stroke-width="2" marker-end="url(#a2)"/>
+<rect x="420" y="280" width="140" height="70" rx="10" fill="#FFAB40"/><text fill="#1f2937" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="490.0" y="315.0">ポイント獲得</tspan></text>
+<line x1="570" y1="315" x2="610" y2="315" stroke="#64748b" stroke-width="2" marker-end="url(#a2)"/>
+<rect x="610" y="280" width="140" height="70" rx="10" fill="#FFAB40"/><text fill="#1f2937" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="14" font-weight="700" text-anchor="middle"><tspan x="680.0" y="306.0">商品券交換</tspan><tspan x="680.0" y="324.0">（デモ）</tspan></text>
+<text x="40" y="390" fill="#64748b" font-family="Hiragino Sans, Yu Gothic, Meiryo, sans-serif" font-size="13">上段：就労マッチング　／　下段：地域定着ポイント</text>
+</svg>
