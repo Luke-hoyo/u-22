@@ -30,8 +30,7 @@ const protectedPrefixes = [
   "/profile",
   "/role-router",
   "/simulation",
-  "/api/account",
-  "/api/appwrite/jobs"
+  "/api/account"
 ] as const;
 
 function isAuthBypassPath(pathname: string) {
