@@ -323,6 +323,8 @@ npm run deploy:server
 
 `deploy:server` は `git pull` → `npm ci` → `npm run build` → スケジュールタスク `HatarukunWeb` の再起動を行います。`.env.production` が揃っている必要があります。
 
+`npm ci` で `package-lock.json` の不整合エラーが出る場合は、最新版を `git pull` してください。Sentry 追加後は lock ファイルの更新が必要でした。
+
 デプロイ後の確認:
 
 ```powershell
