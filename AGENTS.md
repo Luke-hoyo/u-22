@@ -16,6 +16,10 @@ Standard commands are defined in `apps/web/package.json` scripts. Run them from 
 - Production build: `npm run build`. Do not run `next build` while `npm run dev` is running — both use the same `.next/` directory and will conflict.
 - There is no automated test script for the web app; validate changes by running the dev server and exercising the UI.
 
+Build-time gotcha: `next build` fails with `useUser can only be used within the <ClerkProvider />` when demo auth is on. Demo auth (`HATARAKUN_DEMO_AUTH=true`) is a runtime escape hatch that removes `<ClerkProvider>` in `layout.tsx`, but the `/` landing page (`PRLandingPage`) still calls `useUser()`, which throws during static prerender. To build, disable demo auth so `<ClerkProvider>` is present, e.g. `HATARAKUN_DEMO_AUTH=false NEXT_PUBLIC_HATARAKUN_DEMO_AUTH=false npm run build` (placeholder Clerk keys are enough for a successful build). `npm run dev` is unaffected and works fine with demo auth on.
+
+Note (Next.js 16.3+): `next dev` and `next build` each rewrite `apps/web/next-env.d.ts` to different type paths (`.next/dev/types/*` vs `.next/types/*`), so this tracked file flips depending on which command ran last. `next dev` also regenerates `apps/web/AGENTS.md` + `apps/web/CLAUDE.md` on every run.
+
 ### Non-obvious startup caveat: `.env.local` is required and gitignored
 
 `npm run dev` runs a `predev` check (`scripts/check-clerk-env.mjs`) that **exits non-zero unless `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` are present** in `apps/web/.env.local` (or the environment). `.env.local` is gitignored, so it does not persist across VM snapshots and must be recreated.
