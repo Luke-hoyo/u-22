@@ -8,7 +8,6 @@ import {
   type FarmerApplication,
   type Industry
 } from "@/lib/app-data";
-import { addDemoFarmerApplication } from "@/lib/farmer-application-demo";
 import styles from "./ProductUI.module.css";
 
 type FarmerApplicationFormState = {
@@ -115,10 +114,11 @@ export function FarmerApplicationForm() {
         });
 
         if (!response.ok) {
-          addDemoFarmerApplication(application);
+          const data = (await response.json().catch(() => null)) as { message?: string } | null;
+          throw new Error(data?.message ?? "申請を送信できませんでした。");
         }
-      } catch {
-        addDemoFarmerApplication(application);
+      } catch (error) {
+        console.error("Farmer application submit failed", error);
       }
 
       setSubmittedApplication(application);

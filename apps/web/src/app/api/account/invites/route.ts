@@ -1,7 +1,6 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { getUserRole } from "@/lib/access-control";
 import { getDemoUserRole, isDemoAuthEnabled } from "@/lib/demo-auth";
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { canUseSignedInvites, createFarmerInviteCode } from "@/lib/role-invites";
 
 type InviteRequestBody = {
@@ -15,23 +14,28 @@ function canIssueInvite(role: string) {
 }
 
 export async function POST(request: Request) {
-  const role = isDemoAuthEnabled()
-    ? getDemoUserRole()
-    : getUserRole((await currentUser())?.publicMetadata);
+  if (isDemoAuthEnabled()) {
+    const role = getDemoUserRole();
 
-  if (!isDemoAuthEnabled()) {
-    const { isAuthenticated } = await auth();
-
-    if (!isAuthenticated) {
-      return NextResponse.json({ message: "ログインが必要です。" }, { status: 401 });
+    if (!canIssueInvite(role)) {
+      return NextResponse.json(
+        { message: "招待コードを発行できる権限がありません。" },
+        { status: 403 }
+      );
     }
-  }
+  } else {
+    const authResult = await requireAdmin(request);
 
-  if (!canIssueInvite(role)) {
-    return NextResponse.json(
-      { message: "招待コードを発行できる権限がありません。" },
-      { status: 403 }
-    );
+    if (!authResult.ok) {
+      return authResult.response;
+    }
+
+    if (!canIssueInvite(authResult.role)) {
+      return NextResponse.json(
+        { message: "招待コードを発行できる権限がありません。" },
+        { status: 403 }
+      );
+    }
   }
 
   if (!canUseSignedInvites()) {

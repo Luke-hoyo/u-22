@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../data/admin_mock_data.dart';
 import '../../models/demo_account.dart';
 import '../../models/user_role.dart';
+import '../../services/hatarukun_api_service.dart';
 import '../logout_screen.dart';
 
 const _primary = Color(0xFF004D40);
@@ -16,27 +17,89 @@ class AdminAppScreen extends StatefulWidget {
   const AdminAppScreen({
     required this.role,
     required this.account,
+    this.sessionTokenProvider,
     super.key,
   });
 
   final AppUserRole role;
   final DemoAccount account;
+  final Future<String> Function()? sessionTokenProvider;
 
   @override
   State<AdminAppScreen> createState() => _AdminAppScreenState();
 }
 
 class _AdminAppScreenState extends State<AdminAppScreen> {
+  final _api = HatarukunApiService();
   int currentIndex = 0;
   OperatorFocus operatorFocus = OperatorFocus.agriculture;
   String jobMessage = '';
   String inviteMessage = '';
+  bool useRemoteData = false;
+  bool isLoadingRemoteData = false;
 
   late List<AdminManagedJob> managedJobs = initialManagedJobs();
   late List<AdminApplicant> applicants = initialApplicants();
   late List<FarmerApplication> farmerApplications = initialFarmerApplications();
   late List<AdminPointRequest> pointRequests = initialPointRequests();
   final inviteCodes = <String, String>{};
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.sessionTokenProvider != null) {
+      _loadRemoteData();
+    }
+  }
+
+  Future<String?> _token() async {
+    final provider = widget.sessionTokenProvider;
+    if (provider == null) return null;
+    return provider();
+  }
+
+  Future<void> _loadRemoteData() async {
+    final token = await _token();
+    if (token == null) return;
+
+    setState(() => isLoadingRemoteData = true);
+
+    try {
+      final results = await Future.wait([
+        _api.fetchManagedJobs(sessionToken: token),
+        _api.fetchAdminApplicants(sessionToken: token),
+        _api.fetchFarmerApplications(sessionToken: token),
+        _api.fetchPointRequests(sessionToken: token),
+        _api.fetchOperatorFocus(sessionToken: token),
+      ]);
+
+      if (!mounted) return;
+
+      final loadedJobs = results[0] as List<AdminManagedJob>;
+      final loadedApplicants = results[1] as List<AdminApplicant>;
+      final loadedFarmerApplications = results[2] as List<FarmerApplication>;
+      final loadedPointRequests = results[3] as List<AdminPointRequest>;
+      final loadedFocus = results[4] as OperatorFocus;
+
+      setState(() {
+        useRemoteData = true;
+        managedJobs = loadedJobs.isNotEmpty ? loadedJobs : initialManagedJobs();
+        applicants = loadedApplicants.isNotEmpty ? loadedApplicants : initialApplicants();
+        farmerApplications = loadedFarmerApplications.isNotEmpty
+            ? loadedFarmerApplications
+            : initialFarmerApplications();
+        pointRequests =
+            loadedPointRequests.isNotEmpty ? loadedPointRequests : initialPointRequests();
+        operatorFocus = loadedFocus;
+      });
+    } catch (error) {
+      _showSnack('管理データを読み込めませんでした。');
+    } finally {
+      if (mounted) {
+        setState(() => isLoadingRemoteData = false);
+      }
+    }
+  }
 
   void _showSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
@@ -55,19 +118,43 @@ class _AdminAppScreenState extends State<AdminAppScreen> {
         _ => '募集状態を更新しました。',
       };
     });
+
+    if (useRemoteData) {
+      _token().then((token) {
+        if (token == null) return null;
+        return _api.updateManagedJobStatus(
+          sessionToken: token,
+          jobId: jobId,
+          status: status,
+        );
+      }).catchError((_) => _showSnack('募集状態を保存できませんでした。'));
+    }
   }
 
   void _toggleJobStatus(String jobId) {
+    AdminJobStatus? nextStatus;
+
     setState(() {
       managedJobs = managedJobs.map((job) {
         if (job.id != jobId) return job;
-        final next = job.status == AdminJobStatus.published
+        nextStatus = job.status == AdminJobStatus.published
             ? AdminJobStatus.paused
             : AdminJobStatus.published;
-        return job.copyWith(status: next);
+        return job.copyWith(status: nextStatus);
       }).toList();
       jobMessage = '募集の公開状態を更新しました。';
     });
+
+    if (useRemoteData && nextStatus != null) {
+      _token().then((token) {
+        if (token == null) return null;
+        return _api.updateManagedJobStatus(
+          sessionToken: token,
+          jobId: jobId,
+          status: nextStatus!,
+        );
+      }).catchError((_) => _showSnack('募集状態を保存できませんでした。'));
+    }
   }
 
   void _moveApplicant(String id, AdminApplicantStatus status) {
@@ -77,6 +164,17 @@ class _AdminAppScreenState extends State<AdminAppScreen> {
           .toList();
       jobMessage = '応募者の状態を更新しました。';
     });
+
+    if (useRemoteData) {
+      _token().then((token) {
+        if (token == null) return null;
+        return _api.updateAdminApplicantStatus(
+          sessionToken: token,
+          applicationId: id,
+          status: status,
+        );
+      }).catchError((_) => _showSnack('応募者の状態を保存できませんでした。'));
+    }
   }
 
   void _decideFarmerApplication(String id, FarmerApplicationStatus status) {
@@ -88,6 +186,17 @@ class _AdminAppScreenState extends State<AdminAppScreen> {
           ? '申請を承認しました。招待コードを発行できます。'
           : '申請を差し戻しました。';
     });
+
+    if (useRemoteData) {
+      _token().then((token) {
+        if (token == null) return null;
+        return _api.updateFarmerApplicationStatus(
+          sessionToken: token,
+          applicationId: id,
+          status: status,
+        );
+      }).catchError((_) => _showSnack('農家申請を保存できませんでした。'));
+    }
   }
 
   void _issueInvite(FarmerApplication application) {
@@ -110,6 +219,28 @@ class _AdminAppScreenState extends State<AdminAppScreen> {
           .toList();
       jobMessage = 'ポイント申請を更新しました。';
     });
+
+    if (useRemoteData) {
+      _token().then((token) {
+        if (token == null) return null;
+        return _api.updatePointRequestStatus(
+          sessionToken: token,
+          requestId: id,
+          status: status,
+        );
+      }).catchError((_) => _showSnack('ポイント申請を保存できませんでした。'));
+    }
+  }
+
+  void _changeOperatorFocus(OperatorFocus focus) {
+    setState(() => operatorFocus = focus);
+
+    if (useRemoteData) {
+      _token().then((token) {
+        if (token == null) return null;
+        return _api.saveOperatorFocus(sessionToken: token, focus: focus);
+      }).catchError((_) => _showSnack('表示分野を保存できませんでした。'));
+    }
   }
 
   @override
@@ -136,7 +267,18 @@ class _AdminAppScreenState extends State<AdminAppScreen> {
           ),
         ],
       ),
-      body: SafeArea(child: pages[currentIndex.clamp(0, pages.length - 1)]),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            pages[currentIndex.clamp(0, pages.length - 1)],
+            if (isLoadingRemoteData)
+              const ColoredBox(
+                color: Color(0x66FFFFFF),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+          ],
+        ),
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentIndex.clamp(0, destinations.length - 1),
         height: 74,
@@ -236,7 +378,7 @@ class _AdminAppScreenState extends State<AdminAppScreen> {
             applicants: applicants,
             pointRequests: pointRequests,
             jobMessage: jobMessage,
-            onFocusChanged: (focus) => setState(() => operatorFocus = focus),
+            onFocusChanged: _changeOperatorFocus,
             onSetJobReviewStatus: _setJobReviewStatus,
             onDecidePoint: _decidePointRequest,
           ),
@@ -245,7 +387,7 @@ class _AdminAppScreenState extends State<AdminAppScreen> {
             farmerApplications: farmerApplications,
             inviteCodes: inviteCodes,
             inviteMessage: inviteMessage,
-            onFocusChanged: (focus) => setState(() => operatorFocus = focus),
+            onFocusChanged: _changeOperatorFocus,
             onDecideFarmer: _decideFarmerApplication,
             onIssueInvite: _issueInvite,
             onCopyInvite: _copyInvite,

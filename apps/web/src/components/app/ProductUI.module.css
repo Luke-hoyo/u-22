@@ -802,6 +802,25 @@
   background: #f7fcfa;
 }
 
+.jobEditorOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(16 28 24 / 48%);
+  backdrop-filter: blur(2px);
+}
+
+.jobEditorDialog {
+  width: min(100%, 44rem);
+  max-height: min(90vh, 52rem);
+  margin: 0;
+  overflow-y: auto;
+  box-shadow: 0 24px 48px rgb(0 0 0 / 18%);
+}
+
 .jobEditorForm {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

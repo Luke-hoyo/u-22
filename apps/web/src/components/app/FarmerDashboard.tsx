@@ -11,10 +11,6 @@ import {
   type AdminPointRequestStatus,
   type FarmerApplicationStatus
 } from "@/lib/app-data";
-import {
-  readDemoFarmerApplications,
-  writeDemoFarmerApplications
-} from "@/lib/farmer-application-demo";
 import type { UserRole } from "@/lib/access-control";
 import { readOperatorFocus, type OperatorFocus } from "@/lib/operator-focus";
 import { FarmerHomeDashboard } from "./dashboard/FarmerHomeDashboard";
@@ -73,10 +69,16 @@ export function FarmerDashboard({
         const response = await fetch("/api/admin/jobs", { cache: "no-store" });
 
         if (response.ok) {
-          const data = (await response.json()) as { jobs?: typeof adminManagedJobs };
-          if (Array.isArray(data.jobs) && data.jobs.length > 0) {
+          const data = (await response.json()) as {
+            jobs?: typeof adminManagedJobs;
+            source?: "appwrite" | "mock";
+          };
+          if (Array.isArray(data.jobs) && data.source === "appwrite") {
             setManagedJobs(data.jobs);
             return;
+          }
+          if (Array.isArray(data.jobs) && data.jobs.length > 0) {
+            setManagedJobs(data.jobs);
           }
         }
       } catch {
@@ -92,15 +94,11 @@ export function FarmerDashboard({
           const data = (await response.json()) as { applications?: typeof farmerApplications };
           if (Array.isArray(data.applications)) {
             setFarmerApplicationList(data.applications);
-            writeDemoFarmerApplications(data.applications);
-            return;
           }
         }
       } catch {
-        // fall through to local cache
+        // keep seed data
       }
-
-      setFarmerApplicationList(readDemoFarmerApplications());
     }
 
     void loadOperatorFocus();
@@ -115,8 +113,15 @@ export function FarmerDashboard({
       const response = await fetch("/api/admin/applicants", { cache: "no-store" });
 
       if (response.ok) {
-        const data = (await response.json()) as { applicants?: typeof adminApplicants };
-        if (Array.isArray(data.applicants)) {
+        const data = (await response.json()) as {
+          applicants?: typeof adminApplicants;
+          source?: "appwrite" | "mock";
+        };
+        if (Array.isArray(data.applicants) && data.source === "appwrite") {
+          setApplicants(data.applicants);
+          return;
+        }
+        if (Array.isArray(data.applicants) && data.applicants.length > 0) {
           setApplicants(data.applicants);
         }
       }
@@ -130,8 +135,15 @@ export function FarmerDashboard({
       const response = await fetch("/api/admin/point-requests", { cache: "no-store" });
 
       if (response.ok) {
-        const data = (await response.json()) as { pointRequests?: typeof adminPointRequests };
-        if (Array.isArray(data.pointRequests)) {
+        const data = (await response.json()) as {
+          pointRequests?: typeof adminPointRequests;
+          source?: "appwrite" | "mock";
+        };
+        if (Array.isArray(data.pointRequests) && data.source === "appwrite") {
+          setPointRequests(data.pointRequests);
+          return;
+        }
+        if (Array.isArray(data.pointRequests) && data.pointRequests.length > 0) {
           setPointRequests(data.pointRequests);
         }
       }
@@ -271,14 +283,11 @@ export function FarmerDashboard({
   }
 
   function decideFarmerApplication(applicationId: string, status: FarmerApplicationStatus) {
-    setFarmerApplicationList((currentApplications) => {
-      const nextApplications = currentApplications.map((application) =>
+    setFarmerApplicationList((currentApplications) =>
+      currentApplications.map((application) =>
         application.id === applicationId ? { ...application, status } : application
-      );
-
-      writeDemoFarmerApplications(nextApplications);
-      return nextApplications;
-    });
+      )
+    );
 
     void fetch("/api/farmer/applications", {
       method: "PATCH",

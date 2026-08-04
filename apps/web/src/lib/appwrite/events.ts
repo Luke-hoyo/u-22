@@ -39,16 +39,53 @@ export function getEventsTableConfig() {
   return { config, tableId };
 }
 
+export type CommunityEventsDiagnostics = {
+  reason: "missing_config" | "empty_table" | "fetch_error";
+  missingKeys?: string[];
+  errorMessage?: string;
+};
+
+function getMissingEventConfigKeys(): string[] {
+  const config = getAppwriteConfig();
+  const entries: Array<[string, string | undefined]> = [
+    ["NEXT_PUBLIC_APPWRITE_ENDPOINT", config.endpoint],
+    ["NEXT_PUBLIC_APPWRITE_PROJECT_ID", config.projectId],
+    ["APPWRITE_API_KEY", config.apiKey],
+    ["APPWRITE_DATABASE_ID", config.databaseId],
+    ["APPWRITE_TABLE_ID_EVENTS", config.tables.events]
+  ];
+
+  return entries.filter(([, value]) => !value).map(([key]) => key);
+}
+
 export async function listCommunityEvents(): Promise<{
   source: "appwrite" | "seed";
   events: CommunityEvent[];
+  diagnostics?: CommunityEventsDiagnostics;
 }> {
+  const missingKeys = getMissingEventConfigKeys();
+
+  if (missingKeys.length > 0) {
+    return {
+      source: "seed",
+      events: communityEvents,
+      diagnostics: {
+        reason: "missing_config",
+        missingKeys
+      }
+    };
+  }
+
   const appwrite = getEventsTableConfig();
 
   if (!appwrite) {
     return {
       source: "seed",
-      events: communityEvents
+      events: communityEvents,
+      diagnostics: {
+        reason: "missing_config",
+        missingKeys
+      }
     };
   }
 
@@ -63,7 +100,10 @@ export async function listCommunityEvents(): Promise<{
     if (response.rows.length === 0) {
       return {
         source: "seed",
-        events: communityEvents
+        events: communityEvents,
+        diagnostics: {
+          reason: "empty_table"
+        }
       };
     }
 
@@ -72,10 +112,15 @@ export async function listCommunityEvents(): Promise<{
       events: response.rows.map(mapRowToEvent).filter(Boolean) as CommunityEvent[]
     };
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown Appwrite error";
     console.error("Appwrite events fetch failed", error);
     return {
       source: "seed",
-      events: communityEvents
+      events: communityEvents,
+      diagnostics: {
+        reason: "fetch_error",
+        errorMessage
+      }
     };
   }
 }

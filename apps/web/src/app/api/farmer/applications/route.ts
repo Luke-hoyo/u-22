@@ -1,4 +1,3 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import type { FarmerApplication, FarmerApplicationStatus, Industry } from "@/lib/app-data";
 import {
@@ -6,7 +5,7 @@ import {
   listFarmerApplications,
   updateFarmerApplicationStatus
 } from "@/lib/appwrite/farmer-applications";
-import { canAccessAdmin, getUserRole } from "@/lib/access-control";
+import { requireAdmin } from "@/lib/auth/require-admin";
 
 type FarmerApplicationRequest = {
   farmName?: unknown;
@@ -43,18 +42,11 @@ function formatSubmittedAt(date: Date) {
   }).format(date);
 }
 
-export async function GET() {
-  const { isAuthenticated } = await auth();
+export async function GET(request: Request) {
+  const authResult = await requireAdmin(request);
 
-  if (!isAuthenticated) {
-    return NextResponse.json({ message: "ログインが必要です。" }, { status: 401 });
-  }
-
-  const user = await currentUser();
-  const role = getUserRole(user?.publicMetadata);
-
-  if (!canAccessAdmin(role)) {
-    return NextResponse.json({ message: "閲覧権限がありません。" }, { status: 403 });
+  if (!authResult.ok) {
+    return authResult.response;
   }
 
   const result = await listFarmerApplications();
@@ -117,16 +109,13 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const { isAuthenticated } = await auth();
+  const authResult = await requireAdmin(request);
 
-  if (!isAuthenticated) {
-    return NextResponse.json({ message: "ログインが必要です。" }, { status: 401 });
+  if (!authResult.ok) {
+    return authResult.response;
   }
 
-  const user = await currentUser();
-  const role = getUserRole(user?.publicMetadata);
-
-  if (role !== "municipality" && role !== "operator") {
+  if (authResult.role !== "municipality" && authResult.role !== "operator") {
     return NextResponse.json({ message: "承認権限がありません。" }, { status: 403 });
   }
 

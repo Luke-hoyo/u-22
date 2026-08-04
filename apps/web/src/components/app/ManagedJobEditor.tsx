@@ -1,7 +1,7 @@
 "use client";
 
 import { Save, X } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import {
   industryLabels,
   type AdminManagedJob,
@@ -41,6 +41,27 @@ export function ManagedJobEditor({
 }) {
   const [draft, setDraft] = useState(() => createDraft(job));
 
+  useEffect(() => {
+    setDraft(createDraft(job));
+  }, [job]);
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [onClose]);
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const now = new Date();
@@ -64,19 +85,32 @@ export function ManagedJobEditor({
   }
 
   return (
-    <section className={`${styles.panel} ${styles.jobEditorPanel}`}>
-      <div className={styles.panelHeader}>
-        <div>
-          <span className={styles.sectionEyebrow}>{job ? "募集を編集" : "新しい募集"}</span>
-          <h3>{job ? job.title : "受け入れ募集を作成"}</h3>
+    <div
+      className={styles.jobEditorOverlay}
+      role="presentation"
+      onClick={onClose}
+    >
+      <section
+        aria-labelledby="managed-job-editor-title"
+        aria-modal="true"
+        className={`${styles.panel} ${styles.jobEditorPanel} ${styles.jobEditorDialog}`}
+        role="dialog"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className={styles.panelHeader}>
+          <div>
+            <span className={styles.sectionEyebrow}>{job ? "募集を編集" : "新しい募集"}</span>
+            <h3 id="managed-job-editor-title">
+              {job ? job.title : "受け入れ募集を作成"}
+            </h3>
+          </div>
+          <button className={styles.iconTextButton} type="button" onClick={onClose}>
+            <X aria-hidden="true" size={17} />
+            閉じる
+          </button>
         </div>
-        <button className={styles.iconTextButton} type="button" onClick={onClose}>
-          <X aria-hidden="true" size={17} />
-          閉じる
-        </button>
-      </div>
 
-      <form className={styles.jobEditorForm} onSubmit={submit}>
+        <form className={styles.jobEditorForm} onSubmit={submit}>
         <div className={styles.formGroup}>
           <label htmlFor="managed-job-title">募集タイトル</label>
           <input
@@ -158,6 +192,7 @@ export function ManagedJobEditor({
           {job ? "変更を保存" : "募集を作成"}
         </button>
       </form>
-    </section>
+      </section>
+    </div>
   );
 }

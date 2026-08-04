@@ -28,6 +28,7 @@ import {
   type UserRole
 } from "@/lib/access-control";
 import { isDemoAuthEnabled } from "@/lib/demo-auth";
+import { AppwritePing } from "@/components/appwrite/AppwritePing";
 import { getNotificationsForRole, getNotificationTitleForRole, getShellLabelForRole } from "@/lib/notifications";
 import styles from "./AppShell.module.css";
 
@@ -368,6 +369,7 @@ export function AppShell({
           );
         })}
       </nav>
+      {!demoAuth ? <AppwritePing /> : null}
     </div>
   );
 }

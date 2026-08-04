@@ -62,6 +62,35 @@ export const pointStatusLabels: Record<AdminPointRequestStatus, string> = {
   hold: "保留"
 };
 
+export function buildFarmerSchedule(applicants: AdminApplicant[]) {
+  const scheduleItems = applicants
+    .filter((applicant) => applicant.status === "interview" || applicant.status === "new")
+    .slice(0, 4)
+    .map((applicant) => {
+      const timeMatch = applicant.nextAction.match(/\d{1,2}:\d{2}/);
+
+      return {
+        time: timeMatch?.[0] ?? "未定",
+        title: applicant.status === "interview" ? "オンライン面談" : "応募内容の確認",
+        target: applicant.status === "interview" ? applicant.name : applicant.jobTitle,
+        status: applicant.status === "interview" ? "面談" : "確認"
+      };
+    });
+
+  if (scheduleItems.length === 0) {
+    return [
+      {
+        time: "—",
+        title: "今日の予定はありません",
+        target: "新しい応募を待っています",
+        status: "待機"
+      }
+    ];
+  }
+
+  return scheduleItems;
+}
+
 export const farmerTodaySchedule = [
   {
     time: "09:00",

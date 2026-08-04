@@ -7,6 +7,7 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     source: result.source,
-    events: result.events
+    events: result.events,
+    diagnostics: result.diagnostics
   });
 }

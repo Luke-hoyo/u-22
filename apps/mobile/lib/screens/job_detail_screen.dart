@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
 import '../models/job.dart';
 
 const _primary = Color(0xFF004D40);
@@ -236,8 +235,8 @@ class _FactRow extends StatelessWidget {
 
 String _yen(int value) => '${value.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}円';
 
-Job? jobById(String id) {
-  for (final job in mockJobs) {
+Job? jobById(String id, List<Job> jobs) {
+  for (final job in jobs) {
     if (job.id == id) return job;
   }
   return null;

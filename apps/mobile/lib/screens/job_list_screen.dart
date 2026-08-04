@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/mock_data.dart';
 import '../models/demo_account.dart';
 import '../models/job.dart';
+import '../services/hatarukun_api_service.dart';
 import 'application_form_screen.dart';
 
 class JobListScreen extends StatefulWidget {
@@ -10,19 +11,59 @@ class JobListScreen extends StatefulWidget {
     required this.account,
     required this.initialJob,
     required this.onJobSelected,
+    this.sessionTokenProvider,
     super.key,
   });
 
   final DemoAccount account;
   final Job initialJob;
   final ValueChanged<Job> onJobSelected;
+  final Future<String> Function()? sessionTokenProvider;
 
   @override
   State<JobListScreen> createState() => _JobListScreenState();
 }
 
 class _JobListScreenState extends State<JobListScreen> {
+  final _api = HatarukunApiService();
   late Job selectedJob = widget.initialJob;
+  List<Job> jobs = mockJobs;
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.sessionTokenProvider != null) {
+      _loadJobs();
+    }
+  }
+
+  Future<void> _loadJobs() async {
+    final provider = widget.sessionTokenProvider;
+    if (provider == null) return;
+
+    setState(() => isLoading = true);
+
+    try {
+      final token = await provider();
+      final loadedJobs = await _api.fetchJobs(sessionToken: token);
+      if (!mounted) return;
+
+      setState(() {
+        jobs = loadedJobs.isNotEmpty ? loadedJobs : mockJobs;
+        if (!jobs.any((job) => job.id == selectedJob.id)) {
+          selectedJob = jobs.first;
+        }
+      });
+    } catch {
+      if (!mounted) return;
+      setState(() => jobs = mockJobs);
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+    }
+  }
 
   void selectJob(Job job) {
     setState(() => selectedJob = job);
@@ -64,15 +105,21 @@ class _JobListScreenState extends State<JobListScreen> {
               style: TextStyle(color: Color(0xFF4F5F51), fontSize: 13),
             ),
             const SizedBox(height: 18),
-            for (final job in mockJobs) ...[
-              _JobCard(
-                job: job,
-                selected: job.id == selectedJob.id,
-                onTap: () => selectJob(job),
-                onApply: () => applyForJob(job),
-              ),
-              const SizedBox(height: 12),
-            ],
+            if (isLoading)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else
+              for (final job in jobs) ...[
+                _JobCard(
+                  job: job,
+                  selected: job.id == selectedJob.id,
+                  onTap: () => selectJob(job),
+                  onApply: () => applyForJob(job),
+                ),
+                const SizedBox(height: 12),
+              ],
           ],
         ),
       ),

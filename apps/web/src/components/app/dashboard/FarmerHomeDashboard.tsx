@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { ManagedJobEditor } from "../ManagedJobEditor";
 import { ApplicantTable } from "./ApplicantTable";
-import { farmerTodaySchedule, jobStatusLabels, type DashboardSharedState } from "./types";
+import { buildFarmerSchedule, jobStatusLabels, type DashboardSharedState } from "./types";
 import styles from "../ProductUI.module.css";
 
 export function FarmerHomeDashboard({
@@ -21,6 +21,10 @@ export function FarmerHomeDashboard({
   section?: "home" | "applicants";
 }) {
   const newApplicants = state.applicants.filter((applicant) => applicant.status === "new");
+  const interviewApplicants = state.applicants.filter(
+    (applicant) => applicant.status === "interview"
+  );
+  const todaySchedule = buildFarmerSchedule(state.applicants);
 
   if (section === "applicants") {
     return (
@@ -85,8 +89,12 @@ export function FarmerHomeDashboard({
             <span>今日の面談</span>
             <Clock3 aria-hidden="true" size={20} />
           </div>
-          <strong>1件</strong>
-          <small>18:00 佐藤 みなみさん</small>
+          <strong>{interviewApplicants.length}件</strong>
+          <small>
+            {interviewApplicants[0]
+              ? `${interviewApplicants[0].name}さん / ${interviewApplicants[0].nextAction}`
+              : "面談予定はありません"}
+          </small>
         </article>
         <article className={styles.metricCard}>
           <div>
@@ -124,8 +132,8 @@ export function FarmerHomeDashboard({
             <CalendarDays aria-hidden="true" size={22} />
           </div>
           <div className={styles.scheduleList}>
-            {farmerTodaySchedule.map((item) => (
-              <div className={styles.scheduleItem} key={`${item.time}-${item.title}`}>
+            {todaySchedule.map((item) => (
+              <div className={styles.scheduleItem} key={`${item.time}-${item.title}-${item.target}`}>
                 <time>{item.time}</time>
                 <div>
                   <strong>{item.title}</strong>
