@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>はたるくん — U-22 応募動画スライド</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --primary: #004D40;
+    --primary-dark: #00342B;
+    --secondary: #006A62;
+    --secondary-container: #81F3E5;
+    --accent: #FFAB40;
+    --surface: #F8F9FA;
+    --surface-bright: #FFFFFF;
+    --text-main: #191C1D;
+    --text-sub: #3F4945;
+    --outline-variant: #BFC9C4;
+    --font: "Hanken Grotesk", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    background: #0c1512;
+    font-family: var(--font);
+    color: var(--text-main);
+    overflow: hidden;
+  }
+
+  /* Stage scales a fixed 1280x720 canvas to the viewport */
+  #stage-wrap {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #stage {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    transform-origin: center center;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    padding: 72px 88px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .slide.active { display: flex; }
+
+  /* Decorative brand corner */
+  .slide::after {
+    content: "";
+    position: absolute;
+    right: -140px;
+    bottom: -140px;
+    width: 360px;
+    height: 360px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(129,243,229,0.35), rgba(0,77,64,0.06) 70%);
+    pointer-events: none;
+  }
+
+  .eyebrow {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--secondary);
+    text-transform: uppercase;
+  }
+  h1 { font-size: 76px; font-weight: 800; line-height: 1.05; color: var(--primary-dark); }
+  h2 { font-size: 46px; font-weight: 700; line-height: 1.15; color: var(--primary-dark); }
+  .lead { font-size: 26px; font-weight: 400; line-height: 1.6; color: var(--text-sub); }
+
+  .brand-mark {
+    display: inline-flex; align-items: center; gap: 18px; margin-bottom: 28px;
+  }
+  .brand-dot {
+    width: 64px; height: 64px; border-radius: 20px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    display: grid; place-items: center;
+    box-shadow: 0 10px 24px rgba(0,77,64,0.25);
+  }
+  .brand-dot span {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 6px rgba(255,171,64,0.25);
+  }
+  .brand-name { font-size: 30px; font-weight: 800; color: var(--primary); letter-spacing: 0.02em; }
+
+  /* Title slide */
+  .title-slide { justify-content: center; background: linear-gradient(160deg, #ffffff 0%, #eef6f3 100%); }
+  .title-slide h1 { margin: 10px 0 22px; }
+  .title-sub { font-size: 30px; font-weight: 600; color: var(--secondary); margin-bottom: 40px; }
+  .title-team { font-size: 22px; font-weight: 600; color: var(--text-main); }
+  .title-note { margin-top: 18px; font-size: 16px; color: var(--text-sub); }
+  .accent-bar { width: 96px; height: 10px; border-radius: 9999px; background: var(--accent); margin: 0 0 18px; }
+
+  .flex-grow { flex: 1; }
+  .row { display: flex; gap: 28px; }
+  .col { flex: 1; }
+
+  .card {
+    background: var(--surface-bright);
+    border: 1px solid var(--outline-variant);
+    border-radius: 20px;
+    padding: 30px 32px;
+    box-shadow: 0 8px 22px rgba(25,28,29,0.05);
+  }
+  .card h3 { font-size: 26px; font-weight: 700; color: var(--primary-dark); margin-bottom: 12px; }
+  .card p { font-size: 19px; line-height: 1.6; color: var(--text-sub); }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--secondary-container);
+    color: var(--primary-dark);
+    font-weight: 700; font-size: 20px;
+    padding: 10px 20px; border-radius: 9999px;
+  }
+  .chip .k { font-size: 15px; font-weight: 600; color: var(--secondary); }
+
+  ul.big { list-style: none; margin-top: 20px; }
+  ul.big li {
+    font-size: 24px; line-height: 1.5; color: var(--text-main);
+    padding: 14px 0 14px 44px; position: relative;
+    border-bottom: 1px solid rgba(191,201,196,0.5);
+  }
+  ul.big li::before {
+    content: ""; position: absolute; left: 6px; top: 22px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--accent);
+  }
+  ul.big li b { color: var(--primary-dark); font-weight: 800; }
+
+  /* Demo divider slides */
+  .demo-slide { background: linear-gradient(150deg, var(--primary-dark) 0%, var(--primary) 60%, var(--secondary) 100%); justify-content: center; }
+  .demo-slide::after { background: radial-gradient(circle at 30% 30%, rgba(255,171,64,0.30), rgba(255,255,255,0) 70%); }
+  .demo-slide .eyebrow { color: var(--accent); }
+  .demo-slide h1 { color: #fff; font-size: 66px; }
+  .demo-slide .lead { color: rgba(255,255,255,0.85); }
+  .demo-tag {
+    display: inline-flex; align-items: center; gap: 14px;
+    color: #fff; font-weight: 800; font-size: 22px; letter-spacing: 0.2em;
+    margin-bottom: 22px;
+  }
+  .demo-tag .rec { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 6px rgba(255,171,64,0.3); }
+  .demo-flow { display: flex; align-items: center; gap: 18px; margin-top: 34px; flex-wrap: wrap; }
+  .demo-flow .step { background: rgba(255,255,255,0.14); color:#fff; border:1px solid rgba(255,255,255,0.3); border-radius: 14px; padding: 14px 22px; font-size: 22px; font-weight: 700; }
+  .demo-flow .arrow { color: var(--accent); font-size: 30px; font-weight: 800; }
+
+  /* Architecture diagram */
+  .arch { display: flex; flex-direction: column; gap: 16px; margin-top: 18px; align-items: center; }
+  .arch .tier { display: flex; gap: 18px; justify-content: center; width: 100%; }
+  .node {
+    background: var(--surface-bright); border: 2px solid var(--outline-variant);
+    border-radius: 16px; padding: 16px 22px; text-align: center; min-width: 210px;
+    box-shadow: 0 6px 16px rgba(25,28,29,0.06);
+  }
+  .node .t { font-size: 22px; font-weight: 800; color: var(--primary-dark); }
+  .node .s { font-size: 15px; color: var(--text-sub); margin-top: 4px; }
+  .node.brand { border-color: var(--primary); background: #eef6f3; }
+  .node.api { border-color: var(--accent); background: #fff6e9; }
+  .arch .down { color: var(--secondary); font-size: 26px; font-weight: 800; }
+
+  /* Highlight (invite code) */
+  .headline-num { font-size: 22px; font-weight: 800; color: var(--accent); letter-spacing: 0.15em; }
+  .tagline {
+    margin-top: auto; background: var(--primary-dark); color: #fff;
+    border-radius: 16px; padding: 22px 30px; font-size: 26px; font-weight: 800;
+  }
+  .tagline .accent { color: var(--accent); }
+  code, .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+
+  /* Values */
+  .values { display: flex; gap: 24px; margin-top: 28px; }
+  .value { flex: 1; border-radius: 20px; padding: 30px; color: #fff; }
+  .value.p { background: linear-gradient(160deg, #006A62, #004D40); }
+  .value.t { background: linear-gradient(160deg, #00342B, #006A62); }
+  .value.i { background: linear-gradient(160deg, #004D40, #00695C); }
+  .value .k { font-size: 16px; font-weight: 800; letter-spacing: 0.16em; color: var(--accent); }
+  .value h3 { font-size: 28px; font-weight: 800; margin: 8px 0 12px; }
+  .value p { font-size: 18px; line-height: 1.55; color: rgba(255,255,255,0.9); }
+
+  /* Closing */
+  .closing { background: linear-gradient(160deg, var(--primary-dark), var(--primary)); justify-content: center; }
+  .closing::after { background: radial-gradient(circle at 30% 30%, rgba(255,171,64,0.28), rgba(255,255,255,0) 70%); }
+  .closing h1 { color: #fff; }
+  .closing .url {
+    display: inline-block; margin-top: 30px; font-size: 40px; font-weight: 800;
+    color: var(--primary-dark); background: var(--accent); padding: 14px 34px; border-radius: 9999px;
+  }
+  .closing .team { color: rgba(255,255,255,0.85); font-size: 22px; margin-top: 28px; }
+
+  .footer-brand {
+    position: absolute; left: 88px; bottom: 40px;
+    font-size: 16px; font-weight: 700; color: var(--secondary); letter-spacing: 0.06em;
+  }
+
+  /* HUD (hidden in print) */
+  #hud {
+    position: fixed; right: 20px; bottom: 16px; z-index: 10;
+    color: #cfe3dd; font: 600 14px var(--font); background: rgba(0,0,0,0.35);
+    padding: 6px 12px; border-radius: 9999px; user-select: none;
+  }
+  #progress { position: fixed; left: 0; top: 0; height: 5px; background: var(--accent); z-index: 10; transition: width .2s ease; }
+
+  @media print {
+    html, body { overflow: visible; background: #fff; }
+    #hud, #progress { display: none !important; }
+    #stage-wrap { position: static; }
+    #stage { width: auto; height: auto; transform: none !important; }
+    .slide {
+      position: relative; inset: auto;
+      display: flex !important;
+      width: 1280px; height: 720px;
+      page-break-after: always; break-after: page;
+    }
+    @page { size: 1280px 720px; margin: 0; }
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="stage-wrap">
+  <div id="stage">
+
+    <!-- 1. Title -->
+    <section class="slide title-slide active">
+      <div class="brand-mark">
+        <span class="brand-dot"><span></span></span>
+        <span class="brand-name">はたるくん</span>
+      </div>
+      <div class="accent-bar"></div>
+      <h1>奨学金を、<br />地域で働く力に。</h1>
+      <p class="title-sub">奨学金返済免除 × 第一次産業再生 マッチングプラットフォーム</p>
+      <p class="title-team">近畿大学附属広島高等学校 東広島校 / チーム〇〇</p>
+      <p class="title-note">U-22 プログラミング・コンテスト 2026 応募作品　※本動画は音声合成(音読さん)で収録しています</p>
+    </section>
+
+    <!-- 2. Problem -->
+    <section class="slide">
+      <div class="eyebrow">課題</div>
+      <h2>二つの課題を、一度に。</h2>
+      <div class="row" style="margin-top:34px;">
+        <div class="col card">
+          <h3>若者</h3>
+          <p>貸与型奨学金の返済が、進路やキャリアの重荷になっている。</p>
+        </div>
+        <div class="col card">
+          <h3>地方の第一次産業</h3>
+          <p>農業・林業・水産業で担い手が不足し、地域の維持が難しい。</p>
+        </div>
+      </div>
+      <div class="row" style="margin-top:28px; align-items:center;">
+        <div class="chip"><span class="k">解決</span> 働くと奨学金返済が免除される仕組みで、両者をマッチング</div>
+      </div>
+      <div class="footer-brand">はたるくん</div>
+    </section>
+
+    <!-- 3. Overview -->
+    <section class="slide">
+      <div class="eyebrow">作品概要</div>
+      <h2>4者が、同じデータ基盤で動く。</h2>
+      <ul class="big">
+        <li><b>若者</b>：求人を探して応募し、<b>奨学金返済の免除見込み</b>を確認できる</li>
+        <li><b>農家・事業者</b>：求人の掲載から応募管理までを行える</li>
+        <li><b>自治体・運営</b>：受け入れ先申請やポイント付与を承認する</li>
+        <li>Web と モバイルが<b>同じアカウント・同じデータ</b>でつながる</li>
+      </ul>
+      <div class="footer-brand">はたるくん</div>
+    </section>
+
+    <!-- 4. Demo divider: young 1 -->
+    <section class="slide demo-slide">
+      <div class="demo-tag"><span class="rec"></span> LIVE DEMO</div>
+      <div class="eyebrow">若者の利用フロー</div>
+      <h1>求人検索 → 応募 → マッチング</h1>
+      <div class="demo-flow">
+        <span class="step">ダッシュボード</span><span class="arrow">→</span>
+        <span class="step">求人検索</span><span class="arrow">→</span>
+        <span class="step">求人詳細・免除見込み</span><span class="arrow">→</span>
+        <span class="step">応募</span><span class="arrow">→</span>
+        <span class="step">マッチング状況</span>
+      </div>
+    </section>
+
+    <!-- 5. Demo divider: young 2 -->
+    <section class="slide demo-slide">
+      <div class="demo-tag"><span class="rec"></span> LIVE DEMO</div>
+      <div class="eyebrow">定着を後押しする機能</div>
+      <h1>免除シミュレーション<br />& 地域ポイント</h1>
+      <p class="lead" style="margin-top:22px;">就業年数に応じた返済免除の見込み／地域イベント参加でポイント → 商品券交換まで。</p>
+    </section>
+
+    <!-- 6. Demo divider: business -->
+    <section class="slide demo-slide">
+      <div class="demo-tag"><span class="rec"></span> LIVE DEMO</div>
+      <div class="eyebrow">事業者・運営の管理画面</div>
+      <h1>募集・応募管理・承認</h1>
+      <div class="demo-flow">
+        <span class="step">求人を作成・公開</span><span class="arrow">→</span>
+        <span class="step">応募ステータス管理</span><span class="arrow">→</span>
+        <span class="step">申請・ポイント承認</span>
+      </div>
+    </section>
+
+    <!-- 7. Architecture -->
+    <section class="slide">
+      <div class="eyebrow">システム構成</div>
+      <h2>共通バックエンド ＋ 役割別フロント</h2>
+      <div class="arch">
+        <div class="tier">
+          <div class="node"><div class="t">利用者</div><div class="s">若者 / 農家 / 自治体 / 運営</div></div>
+        </div>
+        <div class="down">↓</div>
+        <div class="tier">
+          <div class="node"><div class="t">Web</div><div class="s">Next.js / React / TypeScript</div></div>
+          <div class="node"><div class="t">Mobile</div><div class="s">Flutter (iOS / Android)</div></div>
+        </div>
+        <div class="down">↓</div>
+        <div class="tier">
+          <div class="node brand"><div class="t">Clerk</div><div class="s">認証・ロール管理</div></div>
+          <div class="node api"><div class="t">Next.js API Routes</div><div class="s">業務ロジック・秘密情報を集約</div></div>
+        </div>
+        <div class="down">↓</div>
+        <div class="tier">
+          <div class="node"><div class="t">Appwrite</div><div class="s">求人 / 応募 / ポイント / 通知</div></div>
+          <div class="node"><div class="t">Sentry / 本番</div><div class="s">エラー監視・Windows Server 2025</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Highlight: signed invite -->
+    <section class="slide">
+      <div class="headline-num">技術のこだわり</div>
+      <h2>署名付き招待コードで、権限を安全に渡す。</h2>
+      <ul class="big">
+        <li>農家申請を承認すると、<b>申請者のメールに紐づく招待コード</b>を発行</li>
+        <li><b>HMAC-SHA256</b> で署名し、検証は <span class="mono">timingSafeEqual</span>(定数時間比較)</li>
+        <li>ログイン中のメールが一致した時だけ <b>farmer ロール</b>を付与</li>
+      </ul>
+      <div class="tagline">コードが万一漏れても、<span class="accent">本人以外は使えない。</span>　ロール付与を単なるメタデータ書き換えで済ませない設計。</div>
+    </section>
+
+    <!-- 9. Values -->
+    <section class="slide">
+      <div class="eyebrow">審査の3観点で</div>
+      <h2>「動くサービス」に落とし込む。</h2>
+      <div class="values">
+        <div class="value p">
+          <div class="k">PRODUCT</div>
+          <h3>プロダクト</h3>
+          <p>検索→応募→免除見込み→地域ポイントまで、利用者が意思決定できる一連の導線。</p>
+        </div>
+        <div class="value t">
+          <div class="k">TECHNOLOGY</div>
+          <h3>テクノロジー</h3>
+          <p>Web/Mobile 共通API・署名付き権限付与・本番公開と監視まで実装。</p>
+        </div>
+        <div class="value i">
+          <div class="k">IDEA</div>
+          <h3>アイデア</h3>
+          <p>奨学金返済免除と地域定着を結ぶ、政策提案型のプラットフォーム。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. Closing -->
+    <section class="slide closing">
+      <div class="eyebrow" style="color:var(--accent)">CONCLUSION</div>
+      <h1>政策のアイデアを、<br />動くサービスへ。</h1>
+      <a class="url">hatarukun.jp</a>
+      <p class="team">近畿大学附属広島高等学校 東広島校 / チーム〇〇 ―「はたるくん」</p>
+    </section>
+
+  </div>
+</div>
+
+<div id="hud">1 / 10　←/→ で移動</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const stage = document.getElementById('stage');
+  const hud = document.getElementById('hud');
+  const progress = document.getElementById('progress');
+  let i = 0;
+
+  function fitStage() {
+    const s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    stage.style.transform = `scale(${s})`;
+  }
+
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    hud.textContent = `${i + 1} / ${slides.length}　←/→ で移動`;
+    progress.style.width = `${((i + 1) / slides.length) * 100}%`;
+  }
+
+  window.addEventListener('resize', fitStage);
+  document.addEventListener('keydown', (e) => {
+    if (['ArrowRight', ' ', 'PageDown', 'ArrowDown'].includes(e.key)) { e.preventDefault(); show(i + 1); }
+    else if (['ArrowLeft', 'PageUp', 'ArrowUp'].includes(e.key)) { e.preventDefault(); show(i - 1); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+  });
+  document.addEventListener('click', (e) => {
+    // right half → next, left half → prev
+    if (e.clientX > window.innerWidth / 2) show(i + 1); else show(i - 1);
+  });
+
+  fitStage();
+  show(0);
+</script>
+</body>
+</html>
