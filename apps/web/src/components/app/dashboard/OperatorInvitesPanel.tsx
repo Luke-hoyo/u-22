@@ -43,6 +43,7 @@ export function OperatorInvitesPanel({ state }: { state: DashboardSharedState })
             <h3>事業者登録の審査と招待</h3>
             <p className={styles.panelLead}>
               {focusLabel}分野の申請を確認し、承認後に招待コードを発行します。
+              発行コードは申請メールに紐づき、同じメールでログインした人だけが使えます。
             </p>
           </div>
         </div>

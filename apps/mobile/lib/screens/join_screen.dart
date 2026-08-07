@@ -88,7 +88,9 @@ class _JoinScreenState extends State<JoinScreen> {
           ),
           const SizedBox(height: 8),
           const Text(
-            '事業者・自治体・運営アカウントは招待制です。届いたコードを入力してください。',
+            '事業者・自治体・運営アカウントは招待制です。'
+            '本番の事業者向けコードは、申請時のメールアドレスでログインしたアカウントでのみ使えます。'
+            'この画面の固定コードはデモ確認用です。',
             style: TextStyle(color: _textSub, height: 1.55),
           ),
           const SizedBox(height: 24),
@@ -97,7 +99,7 @@ class _JoinScreenState extends State<JoinScreen> {
             textCapitalization: TextCapitalization.characters,
             decoration: const InputDecoration(
               labelText: '招待コード',
-              hintText: 'FARM-AGRI-2026',
+              hintText: 'MUNI-CHUGOKU-2026',
             ),
           ),
           if (_errorMessage != null) ...[
@@ -112,7 +114,7 @@ class _JoinScreenState extends State<JoinScreen> {
           ),
           const SizedBox(height: 20),
           const Text(
-            'デモ用コード例: FARM-AGRI-2026（事業者）, MUNI-CHUGOKU-2026（自治体）, EVENT-CHUGOKU-2026（運営）',
+            'デモ用コード例: FARM-AGRI-2026（事業者デモ）, MUNI-CHUGOKU-2026（自治体）, EVENT-CHUGOKU-2026（運営）',
             style: TextStyle(color: _textSub, fontSize: 12, height: 1.45),
           ),
         ],

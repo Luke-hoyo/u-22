@@ -78,7 +78,6 @@ Clerk Dashboardで手動設定しなくても、招待コードで `publicMetada
 `apps/web/.env.local` に次を設定します。値はGitに入れません。
 
 ```env
-HATARAKUN_FARMER_INVITE_CODE=
 HATARAKUN_MUNICIPALITY_INVITE_CODE=
 HATARAKUN_OPERATOR_INVITE_CODE=
 HATARAKUN_INVITE_SIGNING_SECRET=
@@ -86,7 +85,9 @@ HATARAKUN_INVITE_SIGNING_SECRET=
 
 ログイン後に `/join` を開き、招待コードを入力すると、現在のClerkユーザーにロールが付与されます。
 
-農家申請を承認した後は、農家向けダッシュボード上で申請ごとの招待コードを発行できます。発行されたコードは申請時のメールアドレスとログイン中のClerkメールアドレスが一致する場合だけ使えます。`HATARAKUN_INVITE_SIGNING_SECRET` が未設定の場合、この発行機能は停止します。
+**事業者ロール**は共有の固定コードでは付与しません。申請承認後に発行する署名付き招待コードだけが使え、申請時メールとログイン中メールが一致する場合のみ有効です。`HATARAKUN_INVITE_SIGNING_SECRET` が未設定の場合、この発行機能は停止します。
+
+自治体・運営向けは、上記の環境変数コード（スタッフ共有）を使えます。
 
 招待リンクとして使う場合:
 
