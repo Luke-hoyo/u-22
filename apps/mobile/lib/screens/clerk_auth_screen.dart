@@ -491,9 +491,8 @@ class _JapaneseAuthenticationPanelState
   }
 
   Future<void> _sendCode() async {
-    final validationError = validateAuthIdentifier(
+    final validationError = validateEmailForAuthCode(
       _identifierController.text,
-      isSignUp: false,
     );
     if (validationError != null) {
       setState(() => _errorMessage = validationError);
@@ -583,7 +582,11 @@ class _JapaneseAuthenticationPanelState
       return getAuthCodeDeliveryMessage(_identifierController.text);
     }
 
-    return 'Google / LINE、またはメール・ユーザーIDとパスワードで安全に利用を始められます。';
+    if (_isSignUp) {
+      return 'Google / LINE、またはメールアドレスとパスワードで登録できます。';
+    }
+
+    return 'Google / LINE、パスワード、またはメール認証コードでログインできます。';
   }
 
   @override
@@ -643,6 +646,9 @@ class _JapaneseAuthenticationPanelState
                         _isSignUp ? 'メールアドレス' : 'メールアドレスまたはユーザーID',
                     hintText:
                         _isSignUp ? 'name@example.com' : 'メールまたはユーザーID',
+                    helperText: _isSignUp
+                        ? null
+                        : '認証コードログインではメールアドレスを入力してください。',
                     prefixIcon: const Icon(Icons.person_outline),
                   ),
                 ),
@@ -657,6 +663,11 @@ class _JapaneseAuthenticationPanelState
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _submitWithPassword(),
                   validator: (value) {
+                    // Password is only required for password login/sign-up.
+                    // Email OTP login reuses the identifier field without password.
+                    if (!_isSignUp && (value == null || value.isEmpty)) {
+                      return null;
+                    }
                     final password = value ?? '';
                     if (password.isEmpty) {
                       return 'パスワードを入力してください。';
@@ -667,8 +678,9 @@ class _JapaneseAuthenticationPanelState
                     return null;
                   },
                   decoration: InputDecoration(
-                    labelText: 'パスワード',
-                    hintText: '8文字以上',
+                    labelText:
+                        _isSignUp ? 'パスワード' : 'パスワード（パスワードログイン時）',
+                    hintText: _isSignUp ? '8文字以上' : '認証コード利用時は不要',
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       onPressed: _busy
@@ -712,7 +724,7 @@ class _JapaneseAuthenticationPanelState
             const SizedBox(height: 4),
             TextButton(
               onPressed: _busy ? null : _sendCode,
-              child: const Text('メール認証コードでログイン'),
+              child: const Text('上のメールに認証コードを送ってログイン'),
             ),
           ],
         ] else ...[

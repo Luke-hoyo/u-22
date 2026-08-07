@@ -18,6 +18,21 @@ export function validateAuthIdentifier(value: string, mode: "signIn" | "signUp")
   return null;
 }
 
+/** Email OTP needs a real mailbox; username/ID alone is not enough. */
+export function validateEmailForAuthCode(value: string) {
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return "認証コードを送るには、メールアドレスを入力してください。";
+  }
+
+  if (!isEmailAddress(trimmed)) {
+    return "認証コードを送るには、メールアドレスを入力してください。ユーザーIDの場合はパスワードでログインしてください。";
+  }
+
+  return null;
+}
+
 export function getAuthCodeDeliveryMessage(identifier: string) {
   const trimmed = identifier.trim();
 

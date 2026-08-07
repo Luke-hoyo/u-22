@@ -18,7 +18,8 @@ import { getClerkAuthErrorMessage } from "@/lib/clerk-auth-errors";
 import {
   getAuthCodeDeliveryMessage,
   isEmailAddress,
-  validateAuthIdentifier
+  validateAuthIdentifier,
+  validateEmailForAuthCode
 } from "@/lib/auth-identifier";
 
 type AuthMode = "signIn" | "signUp";
@@ -212,7 +213,7 @@ export function JapaneseAuthenticationPanel({
     setStatusMessage("");
 
     const trimmedIdentifier = identifier.trim();
-    const validationError = validateAuthIdentifier(trimmedIdentifier, "signIn");
+    const validationError = validateEmailForAuthCode(trimmedIdentifier);
 
     if (validationError) {
       setErrorMessage(validationError);
@@ -344,7 +345,9 @@ export function JapaneseAuthenticationPanel({
         <p>
           {step === "code"
             ? getAuthCodeDeliveryMessage(identifier)
-            : "Google / LINE、またはメール・ユーザーIDとパスワードで安全に利用を始められます。"}
+            : isSignUp
+              ? "Google / LINE、またはメールアドレスとパスワードで登録できます。"
+              : "Google / LINE、パスワード、またはメール認証コードでログインできます。"}
         </p>
       </div>
 
@@ -417,23 +420,28 @@ export function JapaneseAuthenticationPanel({
                   required
                 />
               </div>
+              {!isSignUp ? (
+                <small className="auth-field-hint">
+                  認証コードログインではメールアドレスを入力してください。
+                </small>
+              ) : null}
             </label>
 
             <label className="auth-field" htmlFor="auth-password">
-              <span>パスワード</span>
+              <span>{isSignUp ? "パスワード" : "パスワード（パスワードログイン時）"}</span>
               <div className="auth-input-wrap">
                 <Lock aria-hidden="true" size={18} />
                 <input
                   autoComplete={isSignUp ? "new-password" : "current-password"}
                   disabled={busy}
                   id="auth-password"
-                  minLength={8}
+                  minLength={isSignUp ? 8 : undefined}
                   name="password"
-                  placeholder="8文字以上"
+                  placeholder={isSignUp ? "8文字以上" : "認証コード利用時は不要"}
                   type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  required
+                  required={isSignUp}
                 />
               </div>
             </label>
@@ -459,7 +467,7 @@ export function JapaneseAuthenticationPanel({
           {!isSignUp ? (
             <div className="auth-inline-actions">
               <button disabled={busy} type="button" onClick={() => void sendCode()}>
-                メール認証コードでログイン
+                上のメールに認証コードを送ってログイン
               </button>
             </div>
           ) : null}

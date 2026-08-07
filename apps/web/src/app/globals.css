@@ -411,6 +411,13 @@ button {
   font-weight: 700;
 }
 
+.auth-field-hint {
+  color: #5f6f69;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
 .auth-input-wrap {
   display: grid;
   grid-template-columns: auto 1fr;
