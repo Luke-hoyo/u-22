@@ -288,7 +288,10 @@ class _JapaneseAuthenticationPanel extends StatefulWidget {
 
 class _JapaneseAuthenticationPanelState
     extends State<_JapaneseAuthenticationPanel> {
+  static final _oauthLine = clerk.Strategy(name: 'oauth', provider: 'line');
+
   final _identifierController = TextEditingController();
+  final _passwordController = TextEditingController();
   final _codeController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
@@ -296,6 +299,7 @@ class _JapaneseAuthenticationPanelState
   _AuthStep _step = _AuthStep.identifier;
   bool _acceptTerms = false;
   bool _busy = false;
+  bool _obscurePassword = true;
   String? _errorMessage;
   String? _statusMessage;
 
@@ -304,6 +308,7 @@ class _JapaneseAuthenticationPanelState
   @override
   void dispose() {
     _identifierController.dispose();
+    _passwordController.dispose();
     _codeController.dispose();
     super.dispose();
   }
@@ -317,6 +322,13 @@ class _JapaneseAuthenticationPanelState
           'メールアドレスまたはユーザーIDが見つかりません。新規登録をお試しください。',
         String value when value.contains('already') =>
           'このメールアドレスは登録済みです。ログインをお試しください。',
+        String value
+            when value.contains('incorrect password') ||
+                value.contains('password is incorrect') ||
+                value.contains('form_password_incorrect') =>
+          'パスワードが正しくありません。',
+        String value when value.contains('password') && value.contains('weak') =>
+          'もっと安全なパスワードを設定してください。',
         String value when value.contains('code') => '認証コードが正しくないか、有効期限が切れています。',
         _ => '認証に失敗しました。入力内容を確認して、もう一度お試しください。',
       };
@@ -349,6 +361,7 @@ class _JapaneseAuthenticationPanelState
     setState(() {
       _mode = mode;
       _step = _AuthStep.identifier;
+      _passwordController.clear();
       _codeController.clear();
       _errorMessage = null;
       _statusMessage = null;
@@ -375,13 +388,43 @@ class _JapaneseAuthenticationPanelState
     });
   }
 
-  Future<void> _sendCode() async {
+  Future<void> _continueWithLine() async {
+    await _run((authState) async {
+      await authState.resetClient();
+      if (!mounted) return;
+      if (_isSignUp) {
+        await authState.ssoSignUp(
+          context,
+          _oauthLine,
+          onError: _showError,
+        );
+      } else {
+        await authState.ssoSignIn(
+          context,
+          _oauthLine,
+          onError: _showError,
+        );
+      }
+    });
+  }
+
+  Future<void> _submitWithPassword() async {
     final validationError = validateAuthIdentifier(
       _identifierController.text,
       isSignUp: _isSignUp,
     );
     if (validationError != null) {
       setState(() => _errorMessage = validationError);
+      return;
+    }
+
+    final password = _passwordController.text;
+    if (password.isEmpty) {
+      setState(() => _errorMessage = 'パスワードを入力してください。');
+      return;
+    }
+    if (password.length < 8) {
+      setState(() => _errorMessage = 'パスワードは8文字以上で入力してください。');
       return;
     }
 
@@ -399,29 +442,81 @@ class _JapaneseAuthenticationPanelState
         await authState.safelyCall(
           context,
           () => authState.attemptSignUp(
+            strategy: clerk.Strategy.password,
+            emailAddress: trimmedIdentifier,
+            password: password,
+            legalAccepted: _acceptTerms,
+          ),
+          onError: _showError,
+        );
+
+        if (!mounted || _errorMessage != null || authState.user != null) return;
+
+        // Password sign-up may still require email verification.
+        await authState.safelyCall(
+          context,
+          () => authState.attemptSignUp(
             strategy: clerk.Strategy.emailCode,
             emailAddress: trimmedIdentifier,
             legalAccepted: _acceptTerms,
           ),
           onError: _showError,
         );
-      } else {
-        await authState.safelyCall(
-          context,
-          () => authState.attemptSignIn(
-            strategy: clerk.Strategy.emailCode,
-            identifier: trimmedIdentifier,
-          ),
-          onError: _showError,
-        );
+
+        if (!mounted || _errorMessage != null || authState.user != null) return;
+        setState(() {
+          _step = _AuthStep.code;
+          _statusMessage =
+              '$trimmedIdentifier に認証コードを送信しました。メール確認後に登録が完了します。';
+        });
+        return;
       }
+
+      await authState.safelyCall(
+        context,
+        () => authState.attemptSignIn(
+          strategy: clerk.Strategy.password,
+          identifier: trimmedIdentifier,
+          password: password,
+        ),
+        onError: _showError,
+      );
+
+      if (!mounted || _errorMessage != null || authState.user != null) return;
+      setState(
+        () => _errorMessage =
+            'ログインを完了できませんでした。メール認証コードでのログインをお試しください。',
+      );
+    });
+  }
+
+  Future<void> _sendCode() async {
+    final validationError = validateAuthIdentifier(
+      _identifierController.text,
+      isSignUp: false,
+    );
+    if (validationError != null) {
+      setState(() => _errorMessage = validationError);
+      return;
+    }
+
+    final trimmedIdentifier = _identifierController.text.trim();
+
+    await _run((authState) async {
+      await authState.resetClient();
+      await authState.safelyCall(
+        context,
+        () => authState.attemptSignIn(
+          strategy: clerk.Strategy.emailCode,
+          identifier: trimmedIdentifier,
+        ),
+        onError: _showError,
+      );
 
       if (!mounted || _errorMessage != null || authState.user != null) return;
       setState(() {
         _step = _AuthStep.code;
-        _statusMessage = _isSignUp
-            ? '$trimmedIdentifier に認証コードを送信しました。'
-            : getAuthCodeDeliveryMessage(trimmedIdentifier);
+        _statusMessage = getAuthCodeDeliveryMessage(trimmedIdentifier);
       });
     });
   }
@@ -488,7 +583,7 @@ class _JapaneseAuthenticationPanelState
       return getAuthCodeDeliveryMessage(_identifierController.text);
     }
 
-    return 'Googleアカウント、メールアドレス、またはユーザーIDで安全に利用を始められます。';
+    return 'Google / LINE、またはメール・ユーザーIDとパスワードで安全に利用を始められます。';
   }
 
   @override
@@ -514,31 +609,82 @@ class _JapaneseAuthenticationPanelState
               _isSignUp ? 'Googleで新規登録' : 'Googleでログイン',
             ),
           ),
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: _busy ? null : _continueWithLine,
+            icon: const Icon(Icons.chat_bubble_outline),
+            label: Text(
+              _isSignUp ? 'LINEで新規登録' : 'LINEでログイン',
+            ),
+          ),
           const _OrDivider(),
           Form(
             key: _formKey,
-            child: TextFormField(
-              controller: _identifierController,
-              enabled: !_busy,
-              keyboardType:
-                  _isSignUp ? TextInputType.emailAddress : TextInputType.text,
-              autofillHints: _isSignUp
-                  ? const [AutofillHints.email]
-                  : const [AutofillHints.username, AutofillHints.email],
-              textInputAction: TextInputAction.done,
-              onFieldSubmitted: (_) => _sendCode(),
-              validator: (value) {
-                return validateAuthIdentifier(
-                  value ?? '',
-                  isSignUp: _isSignUp,
-                );
-              },
-              decoration: InputDecoration(
-                labelText: _isSignUp ? 'メールアドレス' : 'メールアドレスまたはユーザーID',
-                hintText:
-                    _isSignUp ? 'name@example.com' : 'メールまたはユーザーID',
-                prefixIcon: const Icon(Icons.person_outline),
-              ),
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _identifierController,
+                  enabled: !_busy,
+                  keyboardType: _isSignUp
+                      ? TextInputType.emailAddress
+                      : TextInputType.text,
+                  autofillHints: _isSignUp
+                      ? const [AutofillHints.email]
+                      : const [AutofillHints.username, AutofillHints.email],
+                  textInputAction: TextInputAction.next,
+                  validator: (value) {
+                    return validateAuthIdentifier(
+                      value ?? '',
+                      isSignUp: _isSignUp,
+                    );
+                  },
+                  decoration: InputDecoration(
+                    labelText:
+                        _isSignUp ? 'メールアドレス' : 'メールアドレスまたはユーザーID',
+                    hintText:
+                        _isSignUp ? 'name@example.com' : 'メールまたはユーザーID',
+                    prefixIcon: const Icon(Icons.person_outline),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _passwordController,
+                  enabled: !_busy,
+                  obscureText: _obscurePassword,
+                  autofillHints: _isSignUp
+                      ? const [AutofillHints.newPassword]
+                      : const [AutofillHints.password],
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _submitWithPassword(),
+                  validator: (value) {
+                    final password = value ?? '';
+                    if (password.isEmpty) {
+                      return 'パスワードを入力してください。';
+                    }
+                    if (password.length < 8) {
+                      return 'パスワードは8文字以上で入力してください。';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'パスワード',
+                    hintText: '8文字以上',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      onPressed: _busy
+                          ? null
+                          : () => setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              ),
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           if (_isSignUp) ...[
@@ -558,10 +704,17 @@ class _JapaneseAuthenticationPanelState
           ],
           const SizedBox(height: 16),
           FilledButton.icon(
-            onPressed: _busy ? null : _sendCode,
-            icon: const Icon(Icons.mark_email_read_outlined),
-            label: Text(_isSignUp ? '認証コードを受け取る' : 'メールでログイン'),
+            onPressed: _busy ? null : _submitWithPassword,
+            icon: const Icon(Icons.lock_open_outlined),
+            label: Text(_isSignUp ? 'パスワードで登録' : 'パスワードでログイン'),
           ),
+          if (!_isSignUp) ...[
+            const SizedBox(height: 4),
+            TextButton(
+              onPressed: _busy ? null : _sendCode,
+              child: const Text('メール認証コードでログイン'),
+            ),
+          ],
         ] else ...[
           TextField(
             controller: _codeController,
@@ -730,7 +883,7 @@ class _SecurityMessage extends StatelessWidget {
         SizedBox(width: 9),
         Expanded(
           child: Text(
-            '認証情報は認証基盤で安全に管理され、アプリ側にパスワードを保存しません。',
+            'パスワードは認証基盤(Clerk)で安全に管理され、アプリ側には保存しません。',
             style: TextStyle(
               color: Color(0xFF56645F),
               fontSize: 13,
