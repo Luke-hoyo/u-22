@@ -26,10 +26,14 @@ export function FarmerDashboard({
   userRole: UserRole;
   view?: "home" | "invites" | "review" | "applicants";
 }) {
-  const [managedJobs, setManagedJobs] = useState(adminManagedJobs);
-  const [applicants, setApplicants] = useState(adminApplicants);
-  const [pointRequests, setPointRequests] = useState(adminPointRequests);
-  const [farmerApplicationList, setFarmerApplicationList] = useState(farmerApplications);
+  // Start empty and let the API be the source of truth. The API only returns
+  // bundled mock/seed data in local/demo mode, so production never renders the
+  // demo dataset (even briefly) or swaps to it when Appwrite is briefly slow.
+  const [managedJobs, setManagedJobs] = useState<typeof adminManagedJobs>([]);
+  const [applicants, setApplicants] = useState<typeof adminApplicants>([]);
+  const [pointRequests, setPointRequests] = useState<typeof adminPointRequests>([]);
+  const [farmerApplicationList, setFarmerApplicationList] =
+    useState<typeof farmerApplications>([]);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<(typeof adminManagedJobs)[number] | undefined>();
   const [jobMessage, setJobMessage] = useState("");

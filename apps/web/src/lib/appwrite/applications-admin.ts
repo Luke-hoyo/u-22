@@ -246,9 +246,14 @@ export async function listAdminApplicants(): Promise<AdminApplicantsResult> {
     };
   } catch (error) {
     console.error("Admin applicants fetch failed", error);
-    return allowMock
-      ? { source: "mock", applicants: adminApplicants }
-      : { source: "appwrite", applicants: [] };
+    // Local/demo only: fall back to bundled mock data. In production, rethrow a
+    // transient Appwrite error so the route returns non-200 and the client keeps
+    // the data it already has instead of blanking it out.
+    if (allowMock) {
+      return { source: "mock", applicants: adminApplicants };
+    }
+
+    throw error instanceof Error ? error : new Error("admin applicants fetch failed");
   }
 }
 

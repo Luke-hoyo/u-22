@@ -373,10 +373,15 @@ export async function listManagedJobs(): Promise<ManagedJobsResult> {
         mapRowToManagedJob(row, applicantCounts.get(row.$id) ?? 0)
       )
     };
-  } catch {
-    return allowMock
-      ? { source: "mock", jobs: adminManagedJobs }
-      : { source: "appwrite", jobs: [] };
+  } catch (error) {
+    // Only substitute bundled mock data for local/demo use. In production a
+    // transient Appwrite error must not blank out real data: rethrow so the
+    // route responds non-200 and the client keeps its last-known-good data.
+    if (allowMock) {
+      return { source: "mock", jobs: adminManagedJobs };
+    }
+
+    throw error instanceof Error ? error : new Error("managed jobs fetch failed");
   }
 }
 

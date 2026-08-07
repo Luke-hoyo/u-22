@@ -49,12 +49,20 @@ export async function GET(request: Request) {
     return authResult.response;
   }
 
-  const result = await listFarmerApplications();
+  try {
+    const result = await listFarmerApplications();
 
-  return NextResponse.json({
-    ok: true,
-    ...result
-  });
+    return NextResponse.json({
+      ok: true,
+      ...result
+    });
+  } catch (error) {
+    console.error("Farmer applications fetch failed", error);
+    return NextResponse.json(
+      { message: "農家申請一覧を取得できませんでした。" },
+      { status: 502 }
+    );
+  }
 }
 
 export async function POST(request: Request) {
