@@ -141,7 +141,7 @@ class LoginScreen extends StatelessWidget {
                 FilledButton.icon(
                   onPressed: () => _openAuthentication(context),
                   icon: const Icon(Icons.account_circle_outlined),
-                  label: const Text('Google・メール・ユーザーIDで続ける'),
+                  label: const Text('Google・LINE・パスワードで続ける'),
                 ),
                 const SizedBox(height: 10),
                 OutlinedButton.icon(
