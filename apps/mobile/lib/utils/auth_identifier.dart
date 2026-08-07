@@ -18,6 +18,21 @@ String? validateAuthIdentifier(String value, {required bool isSignUp}) {
   return null;
 }
 
+/// Email OTP needs a real mailbox; username/ID alone is not enough.
+String? validateEmailForAuthCode(String value) {
+  final trimmed = value.trim();
+
+  if (trimmed.isEmpty) {
+    return '認証コードを送るには、メールアドレスを入力してください。';
+  }
+
+  if (!isEmailAddress(trimmed)) {
+    return '認証コードを送るには、メールアドレスを入力してください。ユーザーIDの場合はパスワードでログインしてください。';
+  }
+
+  return null;
+}
+
 String getAuthCodeDeliveryMessage(String identifier) {
   final trimmed = identifier.trim();
 
