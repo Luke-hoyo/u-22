@@ -30,7 +30,7 @@ export async function POST(request: Request) {
 
   if (!config.endpoint || !config.apiKey || !config.databaseId || !tableId) {
     return NextResponse.json(
-      { message: "通知登録用の Appwrite 設定が不足しています。" },
+      { message: "通知登録の準備が整っていません。しばらくしてから再度お試しください。" },
       { status: 503 }
     );
   }

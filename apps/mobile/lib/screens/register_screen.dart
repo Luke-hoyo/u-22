@@ -180,7 +180,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               value: consent,
               onChanged: (value) => setState(() => consent = value ?? false),
               title: const Text('本人確認・奨学金情報をデモ登録することに同意する'),
-              subtitle: const Text('実データ送信は行わず、コンテスト用モックとして保存します。'),
+              subtitle: const Text('入力内容はこの端末内の確認用として保存します。'),
               controlAffinity: ListTileControlAffinity.leading,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),

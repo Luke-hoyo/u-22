@@ -492,7 +492,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           const SizedBox(height: 16),
           const _SecurityNote(
-            text: '通信にはClerkの短時間トークンを使用し、Appwriteの秘密鍵は端末に保存しません。',
+            text: '通信は暗号化された短時間トークンで行い、秘密情報は端末に保存しません。',
           ),
         ],
       ),
@@ -735,7 +735,7 @@ class FarmerApplicationCompleteScreen extends StatelessWidget {
                 leading: const Icon(Icons.storage_outlined),
                 title: const Text('データ保存'),
                 subtitle: Text(
-                  savedToAppwrite ? 'Appwriteへ安全に保存しました' : 'デモ環境へ保存しました',
+                  savedToAppwrite ? 'プロフィールを保存しました' : 'デモ環境へ保存しました',
                 ),
               ),
             ],

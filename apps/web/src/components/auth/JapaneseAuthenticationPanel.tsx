@@ -521,7 +521,7 @@ export function JapaneseAuthenticationPanel({
 
       <p className="auth-security-note">
         <Lock aria-hidden="true" size={17} />
-        パスワードは認証基盤(Clerk)で安全に管理され、アプリ側には保存しません。
+        パスワードは安全に管理され、アプリ内には保存しません。
       </p>
 
       <div className="auth-mobile-footer">

@@ -67,7 +67,7 @@ export async function GET(request: Request) {
 
     if (result.source === "unset") {
       return NextResponse.json(
-        { message: "Appwriteのサーバー設定が不足しています。" },
+        { message: "サーバー設定が不足しています。しばらくしてから再度お試しください。" },
         { status: 503 }
       );
     }
@@ -121,7 +121,7 @@ export async function PATCH(request: Request) {
 
     if (!email) {
       return NextResponse.json(
-        { message: "Clerkで確認済みのメールアドレスが必要です。" },
+        { message: "確認済みのメールアドレスが必要です。" },
         { status: 400 }
       );
     }
@@ -133,7 +133,7 @@ export async function PATCH(request: Request) {
 
     if (!saved.savedToAppwrite) {
       return NextResponse.json(
-        { message: "Appwriteのサーバー設定が不足しています。" },
+        { message: "サーバー設定が不足しています。しばらくしてから再度お試しください。" },
         { status: 503 }
       );
     }

@@ -55,7 +55,7 @@ class LoginScreen extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'このビルドでは認証が無効です。Clerkキー付きで再ビルドしてください。',
+            'このビルドでは認証が無効です。設定を確認して再ビルドしてください。',
           ),
         ),
       );

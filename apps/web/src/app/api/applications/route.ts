@@ -73,7 +73,7 @@ export async function GET(request: Request) {
 
   if (!appwrite) {
     return NextResponse.json(
-      { message: "応募保存用のAppwrite設定が不足しています。" },
+      { message: "応募保存の準備が整っていません。しばらくしてから再度お試しください。" },
       { status: 503 }
     );
   }
@@ -123,7 +123,7 @@ export async function POST(request: Request) {
 
   if (!appwrite) {
     return NextResponse.json(
-      { message: "応募保存用のAppwrite設定が不足しています。" },
+      { message: "応募保存の準備が整っていません。しばらくしてから再度お試しください。" },
       { status: 503 }
     );
   }

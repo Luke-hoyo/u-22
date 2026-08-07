@@ -117,7 +117,7 @@ export async function getJobsData(): Promise<JobsDataResult> {
       return {
         source: "appwrite",
         configured: false,
-        reason: "求人データベースの接続情報が未設定です。",
+        reason: "求人データを表示できません。",
         missingKeys: status.missingKeys,
         total: 0,
         jobs: [],
@@ -128,7 +128,7 @@ export async function getJobsData(): Promise<JobsDataResult> {
     return {
       source: "mock",
       configured: false,
-      reason: "求人データベースの接続情報が未設定のため、公開サンプルを表示しています。",
+      reason: "求人データを取得できないため、公開サンプルを表示しています。",
       missingKeys: status.missingKeys,
       total: mockJobs.length,
       jobs: mockJobs,
