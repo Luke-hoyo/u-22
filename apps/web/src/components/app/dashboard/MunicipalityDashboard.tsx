@@ -118,7 +118,7 @@ export function MunicipalityDashboard({
           <div>
             <span className={styles.sectionEyebrow}>申請審査</span>
             <h3>受け入れ先の申請審査</h3>
-            <p>地域の農家・事業者から届いた参加申請を確認し、承認または差し戻しを行います。</p>
+            <p>地域の事業者から届いた参加申請を確認し、承認または差し戻しを行います。</p>
           </div>
         </section>
         {reviewPanel}
@@ -133,7 +133,7 @@ export function MunicipalityDashboard({
           <span className={styles.sectionEyebrow}>自治体ダッシュボード</span>
           <h3>地域の受け入れと審査状況</h3>
           <p>
-            農家・事業者の参加申請と地域ポイントを確認する画面です。求人の作成や農家ごとの運用管理は行いません。
+            事業者の参加申請と地域ポイントを確認する画面です。求人の作成や事業者ごとの運用管理は行いません。
           </p>
         </div>
         <Link className={styles.primaryButton} href="/farmer/apply">
@@ -144,7 +144,7 @@ export function MunicipalityDashboard({
       <section className={styles.metricsGrid} aria-label="地域状況">
         <article className={`${styles.metricCard} ${styles.metricAccent}`}>
           <div>
-            <span>農家申請待ち</span>
+            <span>事業者申請待ち</span>
             <UserRoundPlus aria-hidden="true" size={20} />
           </div>
           <strong>{state.pendingFarmerApplications}件</strong>
@@ -227,7 +227,7 @@ export function MunicipalityDashboard({
           <div className={styles.adminTaskList}>
             <div>
               <CheckCircle2 aria-hidden="true" size={17} />
-              <span>農家申請の一次確認</span>
+              <span>事業者申請の一次確認</span>
               <b>進行中</b>
             </div>
             <div>

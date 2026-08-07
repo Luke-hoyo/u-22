@@ -303,7 +303,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 prefixIcon: Icon(Icons.category_outlined),
               ),
               items: const [
-                DropdownMenuItem(value: '個人農家', child: Text('個人農家')),
+                DropdownMenuItem(value: '個人事業主', child: Text('個人事業主')),
                 DropdownMenuItem(value: '農業法人', child: Text('農業法人')),
                 DropdownMenuItem(value: '林業事業者', child: Text('林業事業者')),
                 DropdownMenuItem(value: '水産事業者', child: Text('水産事業者')),
@@ -709,7 +709,7 @@ class FarmerApplicationCompleteScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                '$organizationName の情報を運営が確認します。承認後、農家向けWebダッシュボードをご案内します。',
+                '$organizationName の情報を運営が確認します。承認後、事業者向けWebダッシュボードをご案内します。',
                 style: const TextStyle(
                   color: Color(0xFF56645F),
                   height: 1.65,

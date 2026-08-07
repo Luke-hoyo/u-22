@@ -193,7 +193,7 @@ class _AdminAppScreenState extends State<AdminAppScreen> {
           applicationId: id,
           status: status,
         );
-      }).catchError((_) => _showSnack('農家申請を保存できませんでした。'));
+      }).catchError((_) => _showSnack('事業者申請を保存できませんでした。'));
     }
   }
 
@@ -590,7 +590,7 @@ class _OperatorInvitesPage extends StatelessWidget {
       children: [
         _Hero(
           eyebrow: '招待管理',
-          title: '${operatorFocusLabels[focus]}向けの農家招待',
+          title: '${operatorFocusLabels[focus]}向けの事業者招待',
           body: 'プレビュー: ${operatorInvitePreview(focus)}',
         ),
         const SizedBox(height: 12),
@@ -649,7 +649,7 @@ class _FarmerHomePage extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         const _Hero(
-          eyebrow: '農家ホーム',
+          eyebrow: '事業者ホーム',
           title: '今日の受け入れと応募対応',
           body: '自分の募集・応募者・面談予定をこの画面で確認できます。',
         ),
@@ -787,13 +787,13 @@ class _MunicipalityHomePage extends StatelessWidget {
         const _Hero(
           eyebrow: '自治体ダッシュボード',
           title: '地域の受け入れ状況',
-          body: '農家申請とポイント承認をこの画面で確認できます。',
+          body: '事業者申請とポイント承認をこの画面で確認できます。',
         ),
         const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
-                child: _MetricCard(label: '農家申請待ち', value: '$pendingApps件')),
+                child: _MetricCard(label: '事業者申請待ち', value: '$pendingApps件')),
             const SizedBox(width: 10),
             Expanded(
                 child: _MetricCard(label: 'ポイント承認待ち', value: '$pendingPoints件')),
@@ -1037,7 +1037,7 @@ class _ApplicantReadOnlyCard extends StatelessWidget {
           _InfoRow('応募状況', applicant.nextAction),
           const SizedBox(height: 8),
           const Text(
-            '個人情報は閲覧のみです。面談調整や受け入れ確定は農家側で行います。',
+            '個人情報は閲覧のみです。面談調整や受け入れ確定は事業者側で行います。',
             style: TextStyle(color: _textSub, fontSize: 12, height: 1.45),
           ),
         ],

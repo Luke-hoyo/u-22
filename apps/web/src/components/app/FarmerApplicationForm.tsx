@@ -39,7 +39,7 @@ const initialFormState: FarmerApplicationFormState = {
 const flowSteps = [
   {
     title: "申請",
-    description: "農家・事業者が受け入れ条件を送信"
+    description: "事業者が受け入れ条件を送信"
   },
   {
     title: "審査",
@@ -47,7 +47,7 @@ const flowSteps = [
   },
   {
     title: "招待",
-    description: "承認後に農家アカウントへ案内"
+    description: "承認後に事業者アカウントへ案内"
   }
 ];
 
@@ -130,10 +130,10 @@ export function FarmerApplicationForm() {
     <div className={styles.applicationLayout}>
       <section className={`${styles.panel} ${styles.applicationLeadPanel}`}>
         <ClipboardCheck aria-hidden="true" size={34} />
-        <span className={styles.sectionEyebrow}>農家・事業者向け</span>
-        <h3>まずは申請。承認後に、農家アカウントへ進みます。</h3>
+        <span className={styles.sectionEyebrow}>事業者向け</span>
+        <h3>まずは申請。承認後に、事業者アカウントへ進みます。</h3>
         <p>
-          農家側に難しいアカウント設定をさせず、運営が審査してからダッシュボードに招待する流れです。
+          事業者側に難しいアカウント設定をさせず、運営が審査してからダッシュボードに招待する流れです。
           申請、承認、募集管理までをひとつの流れで扱えます。
         </p>
         <div className={styles.applicationFlow} aria-label="申請フロー">
@@ -337,7 +337,7 @@ export function FarmerApplicationForm() {
             <div>
               <strong>{submittedApplication.farmName}の申請を受け付けました。</strong>
               <p>
-                承認後、農家向けダッシュボードへの招待に進みます。
+                承認後、事業者ダッシュボードへの招待に進みます。
               </p>
               <Link href="/farmer/dashboard">ダッシュボードで確認する</Link>
             </div>

@@ -30,7 +30,7 @@ export default async function ProfilePage() {
         <PageHeader
           eyebrow="マイページ"
           title="アカウントと受け入れ情報"
-          description="農家・自治体・運営として使う情報を確認します。"
+          description="事業者・自治体・運営として使う情報を確認します。"
         />
 
         <div className={styles.profileGrid}>

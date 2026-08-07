@@ -26,7 +26,7 @@ const featureItems = [
   {
     label: "事業者",
     title: "応募を受ける",
-    description: "農家・事業者は募集内容と応募状況を、専用入口から確認できます。"
+    description: "事業者は募集内容と応募状況を、専用入口から確認できます。"
   }
 ] as const;
 
@@ -39,7 +39,7 @@ const audienceItems = [
     meta: "ログイン前に雰囲気を確認"
   },
   {
-    title: "農家・事業者の方へ",
+    title: "事業者の方へ",
     description: "受け入れ申請、募集内容、応募状況をWeb上で確認できます。",
     href: "/farmer/apply",
     action: "受け入れ申請へ",

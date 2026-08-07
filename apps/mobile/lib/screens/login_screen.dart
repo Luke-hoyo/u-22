@@ -25,7 +25,7 @@ class LoginScreen extends StatelessWidget {
     final account = DemoAccount(
       id: 'demo-${role.apiValue}',
       name: switch (role) {
-        AppUserRole.farmer => 'デモ農家',
+        AppUserRole.farmer => 'デモ事業者',
         AppUserRole.municipality => 'デモ自治体',
         AppUserRole.operator => 'デモ運営',
         AppUserRole.youngUser => mockAccounts.first.name,
@@ -162,7 +162,7 @@ class LoginScreen extends StatelessWidget {
                   alignment: WrapAlignment.center,
                   children: [
                     ActionChip(
-                      label: const Text('農家デモ'),
+                      label: const Text('事業者デモ'),
                       onPressed: () =>
                           _openAdminDemo(context, AppUserRole.farmer),
                     ),

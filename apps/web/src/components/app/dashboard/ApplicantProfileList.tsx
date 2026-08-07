@@ -47,7 +47,7 @@ export function ApplicantProfileList({ applicants }: { applicants: AdminApplican
             </div>
           </dl>
           <p className={styles.applicantProfileNote}>
-            個人情報は閲覧のみです。面談調整や受け入れ確定は農家側で行います。
+            個人情報は閲覧のみです。面談調整や受け入れ確定は事業者側で行います。
           </p>
         </article>
       ))}

@@ -14,8 +14,8 @@ function getDashboardHeader(role: UserRole, view: DashboardView) {
   if (view === "invites") {
     return {
       eyebrow: "運営ダッシュボード",
-      title: "農家・事業者への招待管理",
-      description: "承認済みの受け入れ先に招待コードを発行し、農家ダッシュボードへ案内します。"
+      title: "事業者への招待管理",
+      description: "承認済みの受け入れ先に招待コードを発行し、事業者ダッシュボードへ案内します。"
     };
   }
 
@@ -23,13 +23,13 @@ function getDashboardHeader(role: UserRole, view: DashboardView) {
     return {
       eyebrow: "自治体ダッシュボード",
       title: "受け入れ先の申請審査",
-      description: "地域の農家・事業者から届いた参加申請を確認し、承認または差し戻しを行います。"
+      description: "地域の事業者から届いた参加申請を確認し、承認または差し戻しを行います。"
     };
   }
 
   if (view === "applicants") {
     return {
-      eyebrow: "農家ダッシュボード",
+      eyebrow: "事業者ダッシュボード",
       title: "応募者一覧",
       description: "自分の募集に届いた応募者の確認と面談・受け入れの進行管理を行います。"
     };
@@ -38,15 +38,15 @@ function getDashboardHeader(role: UserRole, view: DashboardView) {
   switch (role) {
     case "farmer":
       return {
-        eyebrow: "農家ダッシュボード",
+        eyebrow: "事業者ダッシュボード",
         title: "自分の募集と応募者を管理",
-        description: "面談予定と受け入れ枠の確認に特化した農家向けの画面です。"
+        description: "面談予定と受け入れ枠の確認に特化した事業者向けの画面です。"
       };
     case "municipality":
       return {
         eyebrow: "自治体ダッシュボード",
         title: "地域の受け入れ審査とポイント承認",
-        description: "農家申請の確認と地域ポイントの承認を行う自治体向けの画面です。"
+        description: "事業者申請の確認と地域ポイントの承認を行う自治体向けの画面です。"
       };
     case "operator":
       return {
@@ -80,14 +80,14 @@ export async function renderAdminDashboardPage({
         <PageHeader
           eyebrow="管理ダッシュボード"
           title="この画面を開く権限がありません"
-          description="募集管理や応募者確認は、承認済みの農家・自治体・運営アカウントだけが利用できます。"
+          description="募集管理や応募者確認は、承認済みの事業者・自治体・運営アカウントだけが利用できます。"
         />
         <section className={`${styles.panel} ${styles.accessDeniedPanel}`}>
           <ShieldAlert aria-hidden="true" size={34} />
           <div>
             <span>現在のアカウント種別</span>
             <h3>{roleLabels[role]}</h3>
-            <p>受け入れ申請が承認されると、農家向けダッシュボードを利用できます。</p>
+            <p>受け入れ申請が承認されると、事業者ダッシュボードを利用できます。</p>
             <Link className={styles.primaryLink} href="/farmer/apply">
               受け入れ申請へ進む
             </Link>

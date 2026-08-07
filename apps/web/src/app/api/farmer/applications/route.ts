@@ -133,7 +133,7 @@ export async function PATCH(request: Request) {
 
     if (!result.savedToAppwrite) {
       return NextResponse.json(
-        { message: "農家申請の保存先が未設定です。" },
+        { message: "事業者申請の保存先が未設定です。" },
         { status: 503 }
       );
     }

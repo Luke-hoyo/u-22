@@ -12,17 +12,17 @@ export const operatorFocusOptions: Array<{ value: OperatorFocus; label: string; 
     {
       value: "agriculture",
       label: "農業",
-      description: "農業分野の募集審査と農家向け招待を管理します。"
+      description: "農業分野の募集審査と事業者向け招待を管理します。"
     },
     {
       value: "forestry",
       label: "林業",
-      description: "林業分野の募集審査と農家向け招待を管理します。"
+      description: "林業分野の募集審査と事業者向け招待を管理します。"
     },
     {
       value: "fishery",
       label: "水産業",
-      description: "水産業分野の募集審査と農家向け招待を管理します。"
+      description: "水産業分野の募集審査と事業者向け招待を管理します。"
     }
   ];
 

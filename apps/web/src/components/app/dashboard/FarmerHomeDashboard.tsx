@@ -43,7 +43,7 @@ export function FarmerHomeDashboard({
               <h3>応募者</h3>
               <p className={styles.panelLead}>自分の募集に届いた応募のみを表示します。</p>
             </div>
-            <span className={styles.industryChip}>農家向け</span>
+            <span className={styles.industryChip}>事業者向け</span>
           </div>
           <ApplicantTable
             applicants={state.applicants}
@@ -59,7 +59,7 @@ export function FarmerHomeDashboard({
     <div className={styles.dashboardFarmer}>
       <section className={`${styles.adminHero} ${styles.dashboardHeroFarmer}`}>
         <div>
-          <span className={styles.sectionEyebrow}>農家ホーム</span>
+          <span className={styles.sectionEyebrow}>事業者ホーム</span>
           <h3>今日の受け入れと応募対応</h3>
           <p>自分の募集・応募者・面談予定をこの画面で確認できます。</p>
         </div>
@@ -83,7 +83,7 @@ export function FarmerHomeDashboard({
         </div>
       ) : null}
 
-      <section className={styles.metricsGrid} aria-label="農家の受け入れ状況">
+      <section className={styles.metricsGrid} aria-label="事業者の受け入れ状況">
         <article className={`${styles.metricCard} ${styles.metricAccent}`}>
           <div>
             <span>今日の面談</span>
@@ -153,7 +153,7 @@ export function FarmerHomeDashboard({
               <h3>応募者</h3>
               <p className={styles.panelLead}>自分の募集に届いた応募のみを表示します。</p>
             </div>
-            <span className={styles.industryChip}>農家向け</span>
+            <span className={styles.industryChip}>事業者向け</span>
           </div>
           <ApplicantTable
             applicants={state.applicants}

@@ -18,7 +18,7 @@ const roleInvites: { envKey: string; invite: RoleInvite }[] = [
     envKey: "HATARAKUN_FARMER_INVITE_CODE",
     invite: {
       role: "farmer",
-      label: "農家・事業者アカウント",
+      label: "事業者アカウント",
       publicMetadata: {
         organizationId: "farm_minori"
       }
@@ -141,7 +141,7 @@ function resolveSignedFarmerInvite(inviteCode: string, userEmail?: string | null
 
   return {
     role: "farmer",
-    label: "農家・事業者アカウント",
+    label: "事業者アカウント",
     publicMetadata: {
       organizationId: getOrganizationId(applicationId),
       farmerApplicationId: applicationId
