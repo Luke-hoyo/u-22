@@ -2,7 +2,10 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { canAccessAdmin, getAdminHomePath } from "@/lib/access-control";
 import { getDemoUserRole, isDemoAuthEnabled } from "@/lib/demo-auth";
-import { resolveRoleInvite } from "@/lib/role-invites";
+import {
+  getRoleInviteErrorMessage,
+  resolveRoleInviteDetailed
+} from "@/lib/role-invites";
 
 export async function POST(request: Request) {
   if (isDemoAuthEnabled()) {
@@ -27,11 +30,16 @@ export async function POST(request: Request) {
   const user = await client.users.getUser(userId);
   const userEmail = user.emailAddresses.find((email) => email.id === user.primaryEmailAddressId)
     ?.emailAddress;
-  const invite = resolveRoleInvite(inviteCode, userEmail);
+  const resolution = resolveRoleInviteDetailed(inviteCode, userEmail);
 
-  if (!invite) {
-    return NextResponse.json({ message: "招待コードが正しくありません。" }, { status: 400 });
+  if (!resolution.ok) {
+    return NextResponse.json(
+      { message: getRoleInviteErrorMessage(resolution.reason) },
+      { status: 400 }
+    );
   }
+
+  const invite = resolution.invite;
 
   await client.users.updateUserMetadata(userId, {
     publicMetadata: {

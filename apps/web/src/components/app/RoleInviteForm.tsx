@@ -86,8 +86,8 @@ export function RoleInviteForm() {
       <div>
         <h3>招待コードでアカウント種別を設定</h3>
         <p>
-          運営から渡されたコードを入力します。ログイン前の場合は、コードを保持したまま
-          アカウント作成へ進みます。
+          運営から渡されたコードを入力します。事業者向けコードは、申請時のメールと一致する
+          アカウントでのみ有効です。ログイン前の場合は、コードを保持したままアカウント作成へ進みます。
         </p>
         <form className={styles.inviteForm} onSubmit={handleSubmit}>
           <label htmlFor="invite-code">招待コード</label>
