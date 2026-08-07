@@ -38,6 +38,7 @@ export function JapaneseAuthenticationPanel({
   const [mode, setMode] = useState<AuthMode>(defaultMode);
   const [step, setStep] = useState<AuthStep>("identifier");
   const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -47,7 +48,9 @@ export function JapaneseAuthenticationPanel({
   const busy = signInFetchStatus === "fetching" || signUpFetchStatus === "fetching";
   const fieldError =
     signInErrors.fields.identifier?.message ??
+    signInErrors.fields.password?.message ??
     signUpErrors.fields.emailAddress?.message ??
+    signUpErrors.fields.password?.message ??
     signInErrors.fields.code?.message ??
     signUpErrors.fields.code?.message;
 
@@ -71,6 +74,7 @@ export function JapaneseAuthenticationPanel({
     await signUp.reset();
     setMode(nextMode);
     setStep("identifier");
+    setPassword("");
     setCode("");
     setErrorMessage("");
     setStatusMessage("");
@@ -109,7 +113,7 @@ export function JapaneseAuthenticationPanel({
     }
   }
 
-  async function sendCode(event: FormEvent<HTMLFormElement>) {
+  async function submitWithPassword(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setErrorMessage("");
     setStatusMessage("");
@@ -122,6 +126,16 @@ export function JapaneseAuthenticationPanel({
       return;
     }
 
+    if (!password) {
+      setErrorMessage("パスワードを入力してください。");
+      return;
+    }
+
+    if (password.length < 8) {
+      setErrorMessage("パスワードは8文字以上で入力してください。");
+      return;
+    }
+
     if (isSignUp && !acceptTerms) {
       setErrorMessage("利用規約とプライバシーポリシーへの同意が必要です。");
       return;
@@ -129,13 +143,27 @@ export function JapaneseAuthenticationPanel({
 
     try {
       if (isSignUp) {
-        const { error } = await signUp.create({
+        const { error } = await signUp.password({
           emailAddress: trimmedIdentifier,
+          password,
           legalAccepted: acceptTerms
         });
 
         if (error) {
           setErrorMessage(getClerkAuthErrorMessage(error, mode));
+          return;
+        }
+
+        if (signUp.status === "complete") {
+          await signUp.finalize({
+            navigate: ({ session, decorateUrl }) => {
+              if (session?.currentTask) {
+                return;
+              }
+
+              finalizeNavigation(decorateUrl);
+            }
+          });
           return;
         }
 
@@ -146,26 +174,68 @@ export function JapaneseAuthenticationPanel({
         }
 
         setStep("code");
-        setStatusMessage(`${trimmedIdentifier} に認証コードを送信しました。`);
+        setStatusMessage(`${trimmedIdentifier} に認証コードを送信しました。メール確認後に登録が完了します。`);
         return;
       }
 
-      const { error } = await signIn.create({ identifier: trimmedIdentifier });
+      const { error } = await signIn.password({
+        identifier: trimmedIdentifier,
+        password
+      });
+
       if (error) {
         setErrorMessage(getClerkAuthErrorMessage(error, mode));
         return;
       }
 
+      if (signIn.status === "complete") {
+        await signIn.finalize({
+          navigate: ({ session, decorateUrl }) => {
+            if (session?.currentTask) {
+              return;
+            }
+
+            finalizeNavigation(decorateUrl);
+          }
+        });
+        return;
+      }
+
+      setErrorMessage("ログインを完了できませんでした。メール認証コードでのログインをお試しください。");
+    } catch (error) {
+      setErrorMessage(getClerkAuthErrorMessage(error, mode));
+    }
+  }
+
+  async function sendCode() {
+    setErrorMessage("");
+    setStatusMessage("");
+
+    const trimmedIdentifier = identifier.trim();
+    const validationError = validateAuthIdentifier(trimmedIdentifier, "signIn");
+
+    if (validationError) {
+      setErrorMessage(validationError);
+      return;
+    }
+
+    try {
+      const { error } = await signIn.create({ identifier: trimmedIdentifier });
+      if (error) {
+        setErrorMessage(getClerkAuthErrorMessage(error, "signIn"));
+        return;
+      }
+
       const sendResult = await signIn.emailCode.sendCode();
       if (sendResult.error) {
-        setErrorMessage(getClerkAuthErrorMessage(sendResult.error, mode));
+        setErrorMessage(getClerkAuthErrorMessage(sendResult.error, "signIn"));
         return;
       }
 
       setStep("code");
       setStatusMessage(getAuthCodeDeliveryMessage(trimmedIdentifier));
     } catch (error) {
-      setErrorMessage(getClerkAuthErrorMessage(error, mode));
+      setErrorMessage(getClerkAuthErrorMessage(error, "signIn"));
     }
   }
 
@@ -274,7 +344,7 @@ export function JapaneseAuthenticationPanel({
         <p>
           {step === "code"
             ? getAuthCodeDeliveryMessage(identifier)
-            : "Googleアカウント、メールアドレス、またはユーザーIDで安全に利用を始められます。"}
+            : "Googleアカウント、またはメール／ユーザーIDとパスワードで安全に利用を始められます。"}
         </p>
       </div>
 
@@ -319,7 +389,7 @@ export function JapaneseAuthenticationPanel({
             <span>または</span>
           </div>
 
-          <form className="auth-mobile-form" onSubmit={sendCode}>
+          <form className="auth-mobile-form" onSubmit={submitWithPassword}>
             <label className="auth-field" htmlFor="auth-identifier">
               <span>{isSignUp ? "メールアドレス" : "メールアドレスまたはユーザーID"}</span>
               <div className="auth-input-wrap">
@@ -339,6 +409,25 @@ export function JapaneseAuthenticationPanel({
               </div>
             </label>
 
+            <label className="auth-field" htmlFor="auth-password">
+              <span>パスワード</span>
+              <div className="auth-input-wrap">
+                <Lock aria-hidden="true" size={18} />
+                <input
+                  autoComplete={isSignUp ? "new-password" : "current-password"}
+                  disabled={busy}
+                  id="auth-password"
+                  minLength={8}
+                  name="password"
+                  placeholder="8文字以上"
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                />
+              </div>
+            </label>
+
             {isSignUp ? (
               <label className="auth-checkbox">
                 <input
@@ -353,9 +442,17 @@ export function JapaneseAuthenticationPanel({
 
             <button className="auth-primary-button" disabled={busy} type="submit">
               {busy ? <LoaderCircle aria-hidden="true" className="auth-spin" size={18} /> : null}
-              {isSignUp ? "認証コードを受け取る" : "メールでログイン"}
+              {isSignUp ? "パスワードで登録" : "パスワードでログイン"}
             </button>
           </form>
+
+          {!isSignUp ? (
+            <div className="auth-inline-actions">
+              <button disabled={busy} type="button" onClick={() => void sendCode()}>
+                メール認証コードでログイン
+              </button>
+            </div>
+          ) : null}
 
           <div id="clerk-captcha" />
         </>
@@ -393,7 +490,7 @@ export function JapaneseAuthenticationPanel({
               コードを再送
             </button>
             <button disabled={busy} type="button" onClick={() => void changeEmail()}>
-              メールを変更
+              入力内容を変更
             </button>
           </div>
         </form>
@@ -414,7 +511,7 @@ export function JapaneseAuthenticationPanel({
 
       <p className="auth-security-note">
         <Lock aria-hidden="true" size={17} />
-        認証情報は認証基盤で安全に管理され、アプリ側にパスワードを保存しません。
+        パスワードは認証基盤(Clerk)で安全に管理され、アプリ側には保存しません。
       </p>
 
       <div className="auth-mobile-footer">
