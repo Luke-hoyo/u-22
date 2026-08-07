@@ -45,7 +45,7 @@ class _JoinScreenState extends State<JoinScreen> {
     final account = DemoAccount(
       id: 'invite-$code',
       name: switch (role) {
-        AppUserRole.farmer => 'デモ農家アカウント',
+        AppUserRole.farmer => 'デモ事業者アカウント',
         AppUserRole.municipality => 'デモ自治体アカウント',
         AppUserRole.operator => 'デモ運営アカウント',
         AppUserRole.youngUser => 'デモユーザー',
@@ -88,7 +88,7 @@ class _JoinScreenState extends State<JoinScreen> {
           ),
           const SizedBox(height: 8),
           const Text(
-            '農家・自治体・運営アカウントは招待制です。届いたコードを入力してください。',
+            '事業者・自治体・運営アカウントは招待制です。届いたコードを入力してください。',
             style: TextStyle(color: _textSub, height: 1.55),
           ),
           const SizedBox(height: 24),
@@ -112,7 +112,7 @@ class _JoinScreenState extends State<JoinScreen> {
           ),
           const SizedBox(height: 20),
           const Text(
-            'デモ用コード例: FARM-AGRI-2026（農家）, MUNI-CHUGOKU-2026（自治体）, EVENT-CHUGOKU-2026（運営）',
+            'デモ用コード例: FARM-AGRI-2026（事業者）, MUNI-CHUGOKU-2026（自治体）, EVENT-CHUGOKU-2026（運営）',
             style: TextStyle(color: _textSub, fontSize: 12, height: 1.45),
           ),
         ],

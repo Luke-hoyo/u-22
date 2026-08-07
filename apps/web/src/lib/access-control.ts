@@ -4,7 +4,7 @@ export type UserRole = (typeof userRoles)[number];
 
 export const roleLabels: Record<UserRole, string> = {
   young_user: "若者ユーザー",
-  farmer: "農家・事業者",
+  farmer: "事業者",
   municipality: "自治体",
   operator: "運営"
 };

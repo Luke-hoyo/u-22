@@ -140,7 +140,7 @@ function isActivePath(pathname: string, href: string) {
 
 function getRolePageTitle(role: UserRole, rootPath: string) {
   if (rootPath === "/farmer") {
-    if (isFarmerRole(role)) return "農家ダッシュボード";
+    if (isFarmerRole(role)) return "事業者ダッシュボード";
   }
 
   if (rootPath === "/municipality") {

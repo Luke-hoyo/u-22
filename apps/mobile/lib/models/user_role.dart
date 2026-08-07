@@ -1,6 +1,6 @@
 enum AppUserRole {
   youngUser('young_user', '若者ユーザー'),
-  farmer('farmer', '農家・事業者'),
+  farmer('farmer', '事業者'),
   municipality('municipality', '自治体'),
   operator('operator', '運営');
 
@@ -26,7 +26,7 @@ String adminHomeLabel(AppUserRole role) {
   return switch (role) {
     AppUserRole.operator => '運営ダッシュボード',
     AppUserRole.municipality => '自治体ダッシュボード',
-    AppUserRole.farmer => '農家ホーム',
+    AppUserRole.farmer => '事業者ホーム',
     AppUserRole.youngUser => 'ホーム',
   };
 }

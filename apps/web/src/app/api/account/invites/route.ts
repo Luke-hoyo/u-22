@@ -55,7 +55,7 @@ export async function POST(request: Request) {
 
   if (!applicationId || !farmName || !email) {
     return NextResponse.json(
-      { message: "申請ID、農家名、メールアドレスが必要です。" },
+      { message: "申請ID、事業者名、メールアドレスが必要です。" },
       { status: 400 }
     );
   }

@@ -57,7 +57,7 @@ function DemoSiteFrame({ children }: { children: React.ReactNode }) {
         </Link>
         <nav className="header-actions" aria-label="アカウント">
           <Link className="button button-secondary" href="/farmer/dashboard">
-            農家ダッシュボード
+            事業者ダッシュボード
           </Link>
           <Link className="button button-primary" href="/dashboard">
             はじめる

@@ -24,9 +24,9 @@ export function OperatorInvitesPanel({ state }: { state: DashboardSharedState })
       <section className={`${styles.adminHero} ${styles.dashboardHeroOperator}`}>
         <div>
           <span className={styles.sectionEyebrow}>招待管理</span>
-          <h3>{focusLabel}向けの農家招待</h3>
+          <h3>{focusLabel}向けの事業者招待</h3>
           <p>
-            選択中の分野に応じて、農家向けと若者向けの案内コードを切り替えます。現在のプレビュー:{" "}
+            選択中の分野に応じて、事業者向けと若者向けの案内コードを切り替えます。現在のプレビュー:{" "}
             <code>{invitePreview}</code>
           </p>
         </div>
@@ -40,7 +40,7 @@ export function OperatorInvitesPanel({ state }: { state: DashboardSharedState })
       <section className={styles.panel}>
         <div className={styles.panelHeader}>
           <div>
-            <h3>農家登録の審査と招待</h3>
+            <h3>事業者登録の審査と招待</h3>
             <p className={styles.panelLead}>
               {focusLabel}分野の申請を確認し、承認後に招待コードを発行します。
             </p>
@@ -125,7 +125,7 @@ export function OperatorInvitesPanel({ state }: { state: DashboardSharedState })
             ))
           ) : (
             <div className={styles.emptyStateInline}>
-              選択中の分野に該当する農家申請はありません。
+              選択中の分野に該当する事業者申請はありません。
             </div>
           )}
         </div>

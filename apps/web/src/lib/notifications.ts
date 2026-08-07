@@ -11,7 +11,7 @@ export type AppNotification = {
 export function getNotificationTitleForRole(role: UserRole) {
   switch (role) {
     case "farmer":
-      return "農家向けのお知らせ";
+      return "事業者向けのお知らせ";
     case "municipality":
       return "自治体向けのお知らせ";
     case "operator":
@@ -44,7 +44,7 @@ export function getNotificationsForRole(role: UserRole): AppNotification[] {
       return [
         {
           id: "municipality-farmer-pending",
-          title: "承認待ちの農家申請があります",
+          title: "承認待ちの事業者申請があります",
           body: "西条みのりファームの受け入れ申請を確認してください。",
           href: "/municipality/review",
           tone: "action"
@@ -68,8 +68,8 @@ export function getNotificationsForRole(role: UserRole): AppNotification[] {
       return [
         {
           id: "operator-farmer-pending",
-          title: "承認待ちの農家申請が2件あります",
-          body: "承認後に招待コードを発行し、農家ダッシュボードへ案内してください。",
+          title: "承認待ちの事業者申請が2件あります",
+          body: "承認後に招待コードを発行し、事業者ダッシュボードへ案内してください。",
           href: "/operator/invites",
           tone: "action"
         },
@@ -120,7 +120,7 @@ export function getShellLabelForRole(role: UserRole) {
   switch (role) {
     case "farmer":
       return {
-        brand: "農家ダッシュボード",
+        brand: "事業者ダッシュボード",
         supportTitle: "受け入れ準備",
         supportBody: "自分の募集・応募者・面談予定を確認できます。"
       };
@@ -128,13 +128,13 @@ export function getShellLabelForRole(role: UserRole) {
       return {
         brand: "自治体ダッシュボード",
         supportTitle: "地域審査権限",
-        supportBody: "農家申請の承認と地域ポイントの確認ができます。"
+        supportBody: "事業者申請の承認と地域ポイントの確認ができます。"
       };
     case "operator":
       return {
         brand: "運営ダッシュボード",
         supportTitle: "運営権限",
-        supportBody: "農家への招待、応募状況の確認、ポイント承認ができます。"
+        supportBody: "事業者への招待、応募状況の確認、ポイント承認ができます。"
       };
     default:
       return {
