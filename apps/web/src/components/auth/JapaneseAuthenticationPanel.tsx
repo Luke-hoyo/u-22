@@ -80,14 +80,14 @@ export function JapaneseAuthenticationPanel({
     setStatusMessage("");
   }
 
-  async function continueWithGoogle() {
+  async function continueWithSso(strategy: "oauth_google" | "oauth_line") {
     setErrorMessage("");
     setStatusMessage("");
 
     try {
       if (isSignUp) {
         const { error } = await signUp.sso({
-          strategy: "oauth_google",
+          strategy,
           redirectCallbackUrl: "/sign-in/sso-callback",
           redirectUrl: redirectTo
         });
@@ -100,7 +100,7 @@ export function JapaneseAuthenticationPanel({
       }
 
       const { error } = await signIn.sso({
-        strategy: "oauth_google",
+        strategy,
         redirectCallbackUrl: "/sign-in/sso-callback",
         redirectUrl: redirectTo
       });
@@ -344,7 +344,7 @@ export function JapaneseAuthenticationPanel({
         <p>
           {step === "code"
             ? getAuthCodeDeliveryMessage(identifier)
-            : "Googleアカウント、またはメール／ユーザーIDとパスワードで安全に利用を始められます。"}
+            : "Google / LINE、またはメール・ユーザーIDとパスワードで安全に利用を始められます。"}
         </p>
       </div>
 
@@ -379,10 +379,20 @@ export function JapaneseAuthenticationPanel({
             className="auth-google-button"
             type="button"
             disabled={busy}
-            onClick={() => void continueWithGoogle()}
+            onClick={() => void continueWithSso("oauth_google")}
           >
             {busy ? <LoaderCircle aria-hidden="true" className="auth-spin" size={18} /> : null}
             {isSignUp ? "Googleで新規登録" : "Googleでログイン"}
+          </button>
+
+          <button
+            className="auth-google-button"
+            type="button"
+            disabled={busy}
+            onClick={() => void continueWithSso("oauth_line")}
+          >
+            {busy ? <LoaderCircle aria-hidden="true" className="auth-spin" size={18} /> : null}
+            {isSignUp ? "LINEで新規登録" : "LINEでログイン"}
           </button>
 
           <div className="auth-or-divider" aria-hidden="true">
