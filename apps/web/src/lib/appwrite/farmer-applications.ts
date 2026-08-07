@@ -5,6 +5,7 @@ import {
   type FarmerApplicationStatus,
   type Industry
 } from "@/lib/app-data";
+import { shouldUseMockFallback } from "@/lib/mock-fallback";
 import { getAppwriteConfig } from "./config";
 import { createAppwriteServerClient } from "./server";
 
@@ -55,12 +56,12 @@ export async function listFarmerApplications(): Promise<{
 }> {
   const config = getAppwriteConfig();
   const tableId = config.tables.farmerApplications;
+  const allowMock = shouldUseMockFallback();
 
   if (!config.endpoint || !config.projectId || !config.apiKey || !config.databaseId || !tableId) {
-    return {
-      source: "seed",
-      applications: seedApplications
-    };
+    return allowMock
+      ? { source: "seed", applications: seedApplications }
+      : { source: "appwrite", applications: [] };
   }
 
   try {
@@ -72,10 +73,9 @@ export async function listFarmerApplications(): Promise<{
     });
 
     if (response.rows.length === 0) {
-      return {
-        source: "seed",
-        applications: seedApplications
-      };
+      return allowMock
+        ? { source: "seed", applications: seedApplications }
+        : { source: "appwrite", applications: [] };
     }
 
     return {
@@ -84,10 +84,14 @@ export async function listFarmerApplications(): Promise<{
     };
   } catch (error) {
     console.error("Appwrite farmer applications fetch failed", error);
-    return {
-      source: "seed",
-      applications: seedApplications
-    };
+    // Only fall back to the bundled seed for local/demo use. In production, a
+    // transient Appwrite error must not swap real applications for demo data:
+    // rethrow so the route returns non-200 and the client keeps existing data.
+    if (allowMock) {
+      return { source: "seed", applications: seedApplications };
+    }
+
+    throw error instanceof Error ? error : new Error("farmer applications fetch failed");
   }
 }
 

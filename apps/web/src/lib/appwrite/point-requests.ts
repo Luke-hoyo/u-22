@@ -152,9 +152,14 @@ export async function listAdminPointRequests(): Promise<AdminPointRequestsResult
     };
   } catch (error) {
     console.error("Admin point requests fetch failed", error);
-    return allowMock
-      ? { source: "mock", pointRequests: adminPointRequests }
-      : { source: "appwrite", pointRequests: [] };
+    // Local/demo only: fall back to bundled mock data. In production, rethrow a
+    // transient Appwrite error so the route returns non-200 and the client keeps
+    // the data it already has instead of blanking it out.
+    if (allowMock) {
+      return { source: "mock", pointRequests: adminPointRequests };
+    }
+
+    throw error instanceof Error ? error : new Error("admin point requests fetch failed");
   }
 }
 
