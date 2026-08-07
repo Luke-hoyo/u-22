@@ -89,7 +89,7 @@ export async function GET(request: Request) {
 
   if (!config.endpoint || !config.projectId || !config.apiKey || !config.databaseId) {
     return NextResponse.json(
-      { message: "Appwriteのサーバー設定が不足しています。" },
+      { message: "サーバー設定が不足しています。しばらくしてから再度お試しください。" },
       { status: 503 }
     );
   }
@@ -164,7 +164,7 @@ export async function POST(request: Request) {
 
   if (!config.endpoint || !config.projectId || !config.apiKey || !config.databaseId) {
     return NextResponse.json(
-      { message: "Appwriteのサーバー設定が不足しています。" },
+      { message: "サーバー設定が不足しています。しばらくしてから再度お試しください。" },
       { status: 503 }
     );
   }
@@ -179,7 +179,7 @@ export async function POST(request: Request) {
 
     if (!email) {
       return NextResponse.json(
-        { message: "Clerkで確認済みのメールアドレスが必要です。" },
+        { message: "確認済みのメールアドレスが必要です。" },
         { status: 400 }
       );
     }

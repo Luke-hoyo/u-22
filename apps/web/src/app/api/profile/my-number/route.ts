@@ -23,7 +23,7 @@ export async function GET(request: Request) {
 
     if (result.source === "unset") {
       return NextResponse.json(
-        { message: "Appwriteのサーバー設定が不足しています。" },
+        { message: "サーバー設定が不足しています。しばらくしてから再度お試しください。" },
         { status: 503 }
       );
     }
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
 
     if (!saved.savedToAppwrite) {
       return NextResponse.json(
-        { message: "Appwriteのサーバー設定が不足しています。" },
+        { message: "サーバー設定が不足しています。しばらくしてから再度お試しください。" },
         { status: 503 }
       );
     }

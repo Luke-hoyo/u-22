@@ -116,7 +116,7 @@ class _SignedInProfileGateState extends State<SignedInProfileGate> {
   DemoAccount _accountFromSession(ClerkSession session) {
     final profile = session.profile;
     final profileText = profile == null
-        ? '${session.clerkRole.label} / Clerkログイン'
+        ? '${session.clerkRole.label} / ログイン済み'
         : [
             if (profile.desiredIndustry.isNotEmpty)
               '${profile.desiredIndustry}希望',
@@ -130,7 +130,7 @@ class _SignedInProfileGateState extends State<SignedInProfileGate> {
       id: 'clerk-user',
       name: session.displayName.isNotEmpty
           ? session.displayName
-          : profile?.displayName ?? 'Clerkユーザー',
+          : profile?.displayName ?? 'ユーザー',
       email: session.email.isNotEmpty ? session.email : profile?.email ?? '',
       profile: profileText.isEmpty ? 'プロフィール登録済み' : profileText,
       scholarshipBalance: profile?.scholarshipBalance ?? 0,
@@ -883,7 +883,7 @@ class _SecurityMessage extends StatelessWidget {
         SizedBox(width: 9),
         Expanded(
           child: Text(
-            'パスワードは認証基盤(Clerk)で安全に管理され、アプリ側には保存しません。',
+            'パスワードは安全に管理され、アプリ内には保存しません。',
             style: TextStyle(
               color: Color(0xFF56645F),
               fontSize: 13,

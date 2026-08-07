@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         message:
-          "招待コード発行用の秘密鍵が未設定です。HATARAKUN_INVITE_SIGNING_SECRET を設定してください。"
+          "招待コードを発行できません。しばらくしてから再度お試しください。"
       },
       { status: 503 }
     );

@@ -93,7 +93,7 @@ export function MyNumberRegistrationCard() {
       <div className={styles.preferenceList}>
         <div className={styles.preferenceRow}>
           <span>本人情報</span>
-          <strong>Clerkアカウントで確認済み</strong>
+          <strong>アカウントで確認済み</strong>
         </div>
         <div className={styles.preferenceRow}>
           <span>個人番号カード</span>

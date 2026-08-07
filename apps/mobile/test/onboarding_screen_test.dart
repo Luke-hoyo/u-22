@@ -113,6 +113,6 @@ void main() {
     expect(repository.savedProfile?.role, HatarukunUserRole.farmer);
     expect(find.text('申請を受け付けました'), findsOneWidget);
     expect(find.text('運営確認待ち'), findsOneWidget);
-    expect(find.text('Appwriteへ安全に保存しました'), findsOneWidget);
+    expect(find.text('プロフィールを保存しました'), findsOneWidget);
   });
 }

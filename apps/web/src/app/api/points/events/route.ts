@@ -34,7 +34,7 @@ export async function POST(request: Request) {
 
   if (!config.endpoint || !config.projectId || !config.apiKey || !config.databaseId || !tableId) {
     return NextResponse.json(
-      { message: "ポイント保存用のAppwrite設定が不足しています。" },
+      { message: "ポイント保存の準備が整っていません。しばらくしてから再度お試しください。" },
       { status: 503 }
     );
   }

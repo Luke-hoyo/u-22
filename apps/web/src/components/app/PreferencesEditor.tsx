@@ -48,7 +48,7 @@ export function PreferencesEditor() {
     setEditing(false);
     setMessage(
       "offline" in result && result.offline
-        ? "希望条件を保存しました。Appwrite未設定のため、この端末にのみ保存されます。"
+        ? "希望条件を保存しました。サーバー未接続のため、この端末にのみ保存されます。"
         : "希望条件を保存しました。求人のおすすめに反映されます。"
     );
   }

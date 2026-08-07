@@ -508,7 +508,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _SheetTile(
                 icon: Icons.badge_outlined,
                 title: 'マイナンバー登録デモ',
-                subtitle: '本人確認モックを確認',
+                subtitle: '本人確認の手順を確認',
                 onTap: () {
                   Navigator.of(context).pop();
                   Navigator.of(context).push(MaterialPageRoute(

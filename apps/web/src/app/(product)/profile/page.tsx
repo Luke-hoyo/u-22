@@ -38,7 +38,7 @@ export default async function ProfilePage() {
           <section className={styles.panel}>
             <div className={styles.panelHeader}>
               <h3>{roleLabels[role]}アカウント</h3>
-              <span className={styles.industryChip}>Clerk連携</span>
+              <span className={styles.industryChip}>認証連携</span>
             </div>
             <div className={styles.preferenceList}>
               <div className={styles.preferenceRow}>

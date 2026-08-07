@@ -42,7 +42,7 @@ export function getClerkAuthErrorMessage(error: unknown, mode: "signIn" | "signU
   }
 
   if (firstCode === "strategy_for_user_invalid" || normalized.includes("password is not available")) {
-    return "このアカウントではパスワードログインがまだ有効ではありません。Clerkでパスワードを設定するか、メール認証コードでログインしてください。";
+    return "このアカウントではパスワードログインがまだ有効ではありません。メール認証コードでのログインをお試しください。";
   }
 
   if (firstMessage) {
