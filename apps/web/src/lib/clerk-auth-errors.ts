@@ -24,6 +24,27 @@ export function getClerkAuthErrorMessage(error: unknown, mode: "signIn" | "signU
     return "認証コードが正しくないか、有効期限が切れています。";
   }
 
+  if (
+    firstCode === "form_password_incorrect" ||
+    firstCode === "form_password_validation_failed" ||
+    normalized.includes("password incorrect") ||
+    normalized.includes("incorrect password")
+  ) {
+    return "パスワードが正しくありません。";
+  }
+
+  if (
+    firstCode === "form_password_pwned" ||
+    firstCode === "form_password_not_strong_enough" ||
+    (normalized.includes("password") && normalized.includes("compromised"))
+  ) {
+    return "もっと安全なパスワードを設定してください。";
+  }
+
+  if (firstCode === "strategy_for_user_invalid" || normalized.includes("password is not available")) {
+    return "このアカウントではパスワードログインがまだ有効ではありません。Clerkでパスワードを設定するか、メール認証コードでログインしてください。";
+  }
+
   if (firstMessage) {
     return firstMessage;
   }
